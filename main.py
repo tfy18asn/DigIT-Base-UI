@@ -42,9 +42,11 @@ class App(flask.Flask):
             return self.send_static_file('index.html')
     
 
-    def recompile_static(self):
-        #TODO: only in development and during build, not in release
-        #TODO: clear folder?
+    def recompile_static(self, force=False):
+        is_debug = any([os.path.exists(f) for f in self.template_folders])
+        if not is_debug and not force:
+            #only in development and during build, not in release
+            return
         
         for source in self.static_folders:
             if os.path.abspath(source) != os.path.abspath(self.static_folder):
@@ -69,3 +71,47 @@ def copytree(source, target):
 if __name__ == '__main__':
     App().run(host='kingeider', port=5001)
 
+
+
+# directory layout
+#
+#-RootUI/
+#   -main.py
+#   -build.py
+#   -backend/
+#       -__init__.py
+#       -root_detection.py
+#       -root_tracking.py
+#   -frontend/
+#       -html/                 #jinja templates folder
+#           -index.hmtl
+#       -js/
+#           -root_detection.js
+#           -root_tracking.js
+#       -css/
+#           -??
+#   -UI/                       #flask static folder
+#       -index.hmtl
+#       -...
+#   -tests/
+#       run_tests.sh
+#       -testcases/
+#           -test_basic.py
+#           ...
+#       -assets/
+#           -img0.tiff
+#       -logs/
+#           -codecoverage/
+#       -docker/
+#           Dockerfile
+#   -base/                     #submodule
+#       -main.py
+#       -backend/
+#           ...
+#       -frontend/
+#           -thirdparty/
+#              -jquery.min.js
+#              -fomantic/
+#           ...
+#       -UI/                   #flask static folder
+#
