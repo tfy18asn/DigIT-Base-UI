@@ -11,6 +11,12 @@
     <script src="static/main.js"></script>
     <script src="static/file_input.js"></script>
     {% block scripts %}{% endblock%}
+
+
+    {% block    js_templates %}
+      <!--TODO:  <template> -->
+    {% endblock js_templates %}
+
 </head>
 
 
@@ -19,11 +25,13 @@
 
 <body onload="init()">
 
-{% include 'top_menu.html' %}
+{% include ['top_menu.html', 'base_top_menu.html'] %}
 
 <div class="ui container" style="width:calc(100% - 40px); padding-bottom:50vh;"> <!--TODO: move to own file--> <!--TODO: add css class-->
 
     {% block tabs %}{% endblock %}
+
+    {% block main_table %}
 
     <table class="ui basic celled sortable table accordion" id="filetable">
         <thead>
@@ -34,9 +42,18 @@
         <tbody>
         </tbody>
     </table>
+
+    {% endblock main_table %}
     
 </div> <!--main container end-->
 
 <!--TODO: add footer and make it sticky-->
+
+
+{% block    modals %}
+{% endblock modals %}
+
+
+
 </body>
 </html>
