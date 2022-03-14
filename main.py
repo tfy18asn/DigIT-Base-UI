@@ -2,7 +2,7 @@ from base.app import App
 
 if __name__ == '__main__':
     #App().run(host='kingeider', port=5001)
-    App().run(port=5001)
+    App().run(port=5001, debug=True)
 
 
 

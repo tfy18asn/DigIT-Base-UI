@@ -1,12 +1,42 @@
 <!--{{warning}}-->
 <html>
 <head>
+    <title>{% block htmltitle %}Base UI{% endblock %}</title>
+    <script src="/static/thirdparty/jquery-3.4.1.min.js"></script>
+    <script src="/static/thirdparty/jquery.tmpl.min.js"></script>
+
+    <link rel="stylesheet" href="/static/thirdparty/semantic.min.css">
+    <script src="/static/thirdparty/semantic.min.js"></script>
+
     <script src="static/main.js"></script>
+    <script src="static/file_input.js"></script>
     {% block scripts %}{% endblock%}
 </head>
-<body onload="init()">
-    <h1>Hi</h1>
-    <h2>This is {% block name %}Base?{% endblock %}</h2>
-</body>
 
+
+
+
+
+<body onload="init()">
+
+{% include 'top_menu.html' %}
+
+<div class="ui container" style="width:calc(100% - 40px); padding-bottom:50vh;"> <!--TODO: move to own file--> <!--TODO: add css class-->
+
+    {% block tabs %}{% endblock %}
+
+    <table class="ui basic celled sortable table accordion" id="filetable">
+        <thead>
+          <tr>
+            <th>No Files Loaded</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    
+</div> <!--main container end-->
+
+<!--TODO: add footer and make it sticky-->
+</body>
 </html>

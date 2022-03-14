@@ -1,0 +1,25 @@
+
+<div class="ui container menu" style="width:calc(100% - 40px);">  <!--TODO: add css class-->
+
+    <div class="ui simple dropdown item">
+        <span class="text">Files</span>
+        <i class="dropdown icon"></i>
+        <div class="ui menu">
+          <label for="input_images" class="ui icon item">
+            <i class="images outline icon"></i>
+            Load Input Images
+          </label>
+          <input type="file" id="input_images" style="display:none"
+                 onchange="on_inputfiles_select(event)" accept="image/*" multiple>
+          
+          <label for="input_folder" class="ui icon item">
+            <i class="folder outline icon"></i>
+            Load Input Folder
+          </label>
+          <input type="file" id="input_folder" style="display:none" 
+                 onchange="on_inputfolder_select(this)"  webkitdirectory directory multiple>
+        </div>
+      </div>
+
+</div>
+

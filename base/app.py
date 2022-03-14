@@ -11,7 +11,7 @@ def path_to_main_module():
 
 def get_static_path():
     path = os.environ.get('STATIC_PATH',None)
-    path = path or path_to_main_module()
+    path = path or os.path.join(path_to_main_module(), 'static')
     return path
 
 def get_template_folders():
@@ -71,5 +71,7 @@ def copytree(source, target):
     for f in glob.glob(os.path.join(source, '**'), recursive=True):
         if not os.path.isfile(f):
             continue
-        shutil.copy(f, f.replace(source, target))
+        destination = f.replace(source, target)
+        os.makedirs(os.path.dirname(destination), exist_ok=True)
+        shutil.copy(f, destination)
 
