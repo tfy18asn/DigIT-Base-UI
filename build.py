@@ -10,8 +10,8 @@ if rc:
     print('Build failed')
     sys.exit(rc)
 
-import main
-main.App().recompile_static(force=True)  #make sure the static/ folder is up to date
+from base.app import App
+App().recompile_static(force=True)        #make sure the static/ folder is up to date
 shutil.copytree('static', build_dir+'/static')
 
 if 'linux' in sys.platform:
