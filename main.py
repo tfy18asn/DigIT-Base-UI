@@ -40,9 +40,9 @@ if __name__ == '__main__':
 #           -scripts/
 #               -entrypoint.sh
 #   -base/                     #submodule
-#       -main.py               #minimal, for standalone usage only
+#       -main.py               #minimal, for standalone testing only
 #       -backend/
-#           ...
+#           app.py             #main flask app
 #       -frontend/
 #           -thirdparty/
 #              -jquery.min.js

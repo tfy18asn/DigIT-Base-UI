@@ -20,4 +20,5 @@ function set_input_files(files){
     for(let f of files){
         console.log(f.name);
     }
+    $('#filetable thead th').text(`${files.length} File${(files.length==1)?'':'s'} Loaded`)
 }

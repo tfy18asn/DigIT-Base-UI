@@ -4,10 +4,10 @@
 
 sudo docker run -ti --rm                             \
                 -v `pwd`:/root/workspace:ro          \
-                -v `pwd`/tests/logs:/root/logs       \
+                -v `pwd`/tests/logs:/root/latest_logs       \
                 --network=host                       \
                 myseleniumbase                       \
-                /root/workspace/tests/docker/entrypoint.sh
+                "source /root/workspace/tests/docker/entrypoint.sh"
 
 
 

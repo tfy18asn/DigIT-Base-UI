@@ -23,6 +23,7 @@ def test_request_example(client):
     response = client.get("/")
     assert '200' in response.status
     assert b"<html>" in response.data
+    #assert 0
 
 
 
