@@ -21,7 +21,6 @@ for js in jsonfiles:
     for u in jsondata.keys():
         jsondata_per_url[u] = jsondata_per_url.get(u,[]) + [jsondata[u]]
 urls = list(jsondata_per_url.keys())
-print(urls)
 
 def merge_ranges(*list_of_ranges):
     max_n         = max([ranges[-1][-1] for ranges in list_of_ranges])

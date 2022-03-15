@@ -1,6 +1,9 @@
 import os, sys, shutil, glob
 import flask, jinja2
 
+from . import backend
+
+
 def path_to_this_module():
     return os.path.dirname(os.path.realpath(__file__))
 
@@ -52,9 +55,17 @@ class App(flask.Flask):
             self.recompile_static()
             return self.send_static_file('index.html')
         
+        @self.route('/settings', methods=['GET', 'POST'])
+        def settings():
+            if flask.request.method=='POST':
+                backend.settings.set_settings(flask.request.get_json(force=True))
+                return 'OK'
+            elif flask.request.method=='GET':
+                return flask.jsonify(backend.settings.get_settings())
+        
         @self.after_request
         def add_header(r):
-            """Prevent hashing."""
+            """Prevent caching."""
             r.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
             r.headers["Pragma"]        = "no-cache"
             r.headers["Expires"]       = "0"
