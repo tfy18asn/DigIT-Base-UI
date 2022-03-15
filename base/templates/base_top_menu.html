@@ -26,5 +26,19 @@
     {% endblock top_menu_buttons %}
     
 
+    <div class="ui secondary right menu">
+      <div class="item">
+        <div class="ui buttons">
+          {% block    top_menu_rhs_buttons %}
+          <label class="ui button" onclick="on_settings()"
+                id="settings-button" data-tooltip="Settings" data-position="bottom center">
+            <i class="wrench icon"></i>
+          </label>
+          {% endblock top_menu_rhs_buttons %}
+        </div>
+      </div>
+  </div>
+  
+
 </div>
 
