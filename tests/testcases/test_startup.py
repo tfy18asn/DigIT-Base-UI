@@ -26,5 +26,17 @@ def test_request_example(client):
     #assert 0
 
 
+def test_request_settings(client, app):
+    #TODO: delete/move settings.json file before request
+    #      to make sure the response is still valid
+    #import shutil, os
+
+    response = client.get("/settings")
+    assert '200' in response.status
+
+    import json
+    settings = json.loads(response.data)
+    assert 'models'       in settings
+    assert 'active_model' in settings
 
 
