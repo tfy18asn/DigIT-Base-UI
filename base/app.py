@@ -22,14 +22,20 @@ def get_template_folders():
 
 def get_frontend_folders():
     return [
-        os.path.join(path_to_main_module(), 'frontend'),
         os.path.join(path_to_this_module(), 'frontend'),
+        os.path.join(path_to_main_module(), 'frontend'),
     ]
 
 
 class App(flask.Flask):
-    def __init__(self):
-        super().__init__(__name__, root_path=path_to_main_module(), static_folder=get_static_path())
+    def __init__(self, **kw):
+        super().__init__(
+            __name__, 
+            root_path          = path_to_main_module(), 
+            static_folder      = get_static_path(), 
+            static_url_path    = '/',
+            **kw
+        )
 
         print('Root path:       ', self.root_path)
         print('Static folder:   ', self.static_folder)
@@ -45,6 +51,15 @@ class App(flask.Flask):
         def index():
             self.recompile_static()
             return self.send_static_file('index.html')
+        
+        @self.after_request
+        def add_header(r):
+            """Prevent hashing."""
+            r.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+            r.headers["Pragma"]        = "no-cache"
+            r.headers["Expires"]       = "0"
+            r.headers['Cache-Control'] = 'public, max-age=0'
+            return r
     
 
     def recompile_static(self, force=False):
