@@ -1,4 +1,4 @@
-from base.app import App
+from backend.app import App
 
 if __name__ == '__main__':
     App().run(port=5001, debug=True)
@@ -47,5 +47,6 @@ if __name__ == '__main__':
 #              -jquery.min.js
 #              -fomantic/
 #           ...
+#       -templates/
 #       -UI/                   #flask static folder
 #

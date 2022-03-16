@@ -1,7 +1,7 @@
 import os, sys, shutil, glob
 import flask, jinja2
 
-from . import backend
+from . import settings
 
 
 def path_to_this_module():
@@ -19,14 +19,14 @@ def get_static_path():
 
 def get_template_folders():
     return [
-        os.path.join(path_to_main_module(), 'templates'),
-        os.path.join(path_to_this_module(), 'templates'),
+        os.path.join(path_to_main_module(), 'templates'),            #subproject
+        os.path.join(path_to_this_module(), '..', 'templates'),      #base
     ]
 
 def get_frontend_folders():
     return [
-        os.path.join(path_to_this_module(), 'frontend'),
-        os.path.join(path_to_main_module(), 'frontend'),
+        os.path.join(path_to_this_module(), '..', 'frontend'),       #base
+        os.path.join(path_to_main_module(), 'frontend'),             #subproject
     ]
 
 
@@ -55,13 +55,14 @@ class App(flask.Flask):
             self.recompile_static()
             return self.send_static_file('index.html')
         
+        self.settings = settings.Settings()
         @self.route('/settings', methods=['GET', 'POST'])
-        def settings():
+        def get_set_settings():
             if flask.request.method=='POST':
-                backend.settings.set_settings(flask.request.get_json(force=True))
+                self.settings.set_settings(flask.request.get_json(force=True))
                 return 'OK'
             elif flask.request.method=='GET':
-                return flask.jsonify(backend.settings.get_settings())
+                return flask.jsonify(self.settings.get_settings())
         
         @self.after_request
         def add_header(r):
