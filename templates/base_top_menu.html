@@ -18,7 +18,10 @@
           </label>
           <input type="file" id="input_folder" style="display:none" 
                  onchange="on_inputfolder_select(this)"  webkitdirectory directory multiple>
-        </div>
+
+        {% block    file_menu_items %}
+        {% endblock file_menu_items %}
+      </div>
     </div> <!--End dropdown menu-->
 
 

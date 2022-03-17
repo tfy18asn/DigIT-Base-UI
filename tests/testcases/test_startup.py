@@ -19,7 +19,7 @@ def client(app):
     return app.test_client()
 
 
-def test_request_example(client):
+def test_request_index(client):
     response = client.get("/")
     assert '200' in response.status
     assert b"<html>" in response.data

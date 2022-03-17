@@ -42,12 +42,14 @@ class SettingsTests(BaseCase):
         #saving should not take long
         self.sleep(1)
         #should NOT show some kind of error message
-        elements = self.find_visible_elements(':contains("Saving failed")')
+        elements = self.find_visible_elements(':contains("Saving failed")') \
+                 + self.find_visible_elements('.error')
         assert len(elements) == 0
+        #settings dialog closed
+        #assert not self.is_element_visible("div#settings-dialog")
+        self.wait_for_element_not_visible("div#settings-dialog")
         #remove the loading class
         assert 'loading' not in self.get_attribute("div#settings-ok-button", 'class')
-        #settings dialog closed
-        assert not self.is_element_visible("div#settings-dialog")
 
         if self.demo_mode:
             self.sleep(1)
@@ -73,6 +75,7 @@ class SettingsTests(BaseCase):
 
         #click on the ok button
         self.click("div#settings-ok-button")
+        self.wait_for_element_not_visible("div#settings-dialog")
 
 
         #refresh page and make sure the selected element is still selected

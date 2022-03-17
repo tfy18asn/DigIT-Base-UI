@@ -1,6 +1,12 @@
 import os, sys, shutil, glob
 import flask, jinja2
 
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('--host',    type=str, default='localhost')
+parser.add_argument('--port',    type=int, default=5000)
+parser.add_argument('--debug',   default=sys.argv[0].endswith('.py'))
+
 from . import settings
 
 
@@ -34,7 +40,7 @@ class App(flask.Flask):
     def __init__(self, **kw):
         super().__init__(
             __name__, 
-            root_path          = path_to_main_module(), 
+            root_path          = path_to_main_module(),    #TODO? os.chdir()
             static_folder      = get_static_path(), 
             static_url_path    = '/',
             **kw
@@ -91,6 +97,12 @@ class App(flask.Flask):
         outf  = os.path.join(self.static_folder, 'index.html')
         os.makedirs(os.path.dirname(outf), exist_ok=True)
         open(outf,'w').write(tmpl.render(warning='GENERATED FILE. DO NOT EDIT MANUALLY'))
+    
+    def run(self, parse_args=True, **args):
+        if parse_args:
+            args = parser.parse_args()
+            args = dict(host=args.host, port=args.port, debug=args.debug)
+        super().run(**args)
 
 
 def copytree(source, target):
@@ -99,6 +111,8 @@ def copytree(source, target):
         if not os.path.isfile(f):
             continue
         destination = f.replace(source, target)
+        if os.path.exists(destination) and os.path.samefile(f,destination):
+            continue
         os.makedirs(os.path.dirname(destination), exist_ok=True)
         shutil.copy(f, destination)
 

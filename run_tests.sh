@@ -15,12 +15,13 @@ elif [[ -z "${DIG_IT_TEST_DOCKER}" ]]; then
     else
         entrypoint="source /root/workspace/run_tests.sh"
     fi;
-    
+    docker_image=${DOCKER_IMAGE:-dig_it_test_docker}
+
     sudo docker run -ti --rm                                \
                 -v `pwd`:/root/workspace:ro                 \
                 -v `pwd`/tests/logs:/root/latest_logs       \
                 --network=host                              \
-                dig_it_test_docker                          \
+                $docker_image                               \
                 $entrypoint
 
 elif [[ $DIG_IT_TEST_DOCKER=1 ]]; then
@@ -29,10 +30,13 @@ elif [[ $DIG_IT_TEST_DOCKER=1 ]]; then
     mkdir $STATIC_PATH
     export ROOT_PATH=/root/workspace
     export PYTHONPATH=$ROOT_PATH
-    coverage run --include=/root/workspace/backend/* -m pytest --tb=native --disable-warnings --show-capture=all --html=/root/latest_logs/pytest_report.html --self-contained-html --pdb
-    coverage html --directory=/root/latest_logs/coverage/
-    coverage report | tee /root/latest_logs/coverage_report.txt
-    python3 /root/workspace/tests/generate_js_codecoverage_report.py
+    coverage run --include=/root/workspace/backend/* -m pytest  \
+                        --tb=native                             \
+                        --disable-warnings --show-capture=all   \
+                        --html=/root/latest_logs/pytest_report.html --self-contained-html --pdb \
+    && coverage html --directory=/root/latest_logs/coverage/           \
+    && coverage report | tee /root/latest_logs/coverage_report.txt     \
+    && python3 $(dirname ${BASH_SOURCE:-$0})/tests/generate_js_codecoverage_report.py
 fi;
 
 
