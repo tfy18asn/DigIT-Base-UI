@@ -31,13 +31,27 @@ class BasicTest(BaseCase):
         self.wait_for_element_not_visible('[filename="test_image1.jpg"]:contains("Loading")', timeout=6)
         assert self.is_element_visible('[filename="test_image1.jpg"] img')
         
-        self.save_screenshot_to_logs('screenshot_img1.png', selector='[filename="test_image1.jpg"] img')
-        
         if self.demo_mode:
             self.sleep(1)
         
         #self.save_screenshot(name="screenshot1.png", selector=None)
         #assert 0
 
+
+    def test_load_tiff(self):
+        self.open(f"file://{os.environ['STATIC_PATH']}/index.html")
+        self.driver.find_element('id', 'input_images').send_keys('\n'.join([
+            "/root/workspace/tests/testcases/assets/test_image2.tiff"
+        ]))
+        #open one file
+        self.click('label:contains("test_image2.tiff")')
+        #wait for the image to display
+        self.wait_for_element_not_visible('[filename="test_image2.tiff"]:contains("Loading")', timeout=6)
+        assert self.is_element_visible('[filename="test_image2.tiff"] img')
+        
+        self.save_screenshot_to_logs('screenshot_img1.png', selector='[filename="test_image2.tiff"] img')
+
+        if self.demo_mode:
+            self.sleep(1)
 
 #TODO: load lots (10k) of files
