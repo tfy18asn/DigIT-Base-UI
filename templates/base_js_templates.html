@@ -30,12 +30,18 @@
 
 
 {% set filetable_content %}
-<div class="content">
+<div class="filetable-content" style="display:none">
     {{ content_menu }}
 
-    <div style="display: flex; align-items: flex-start; justify-content: center;" >
-      <div class="input-image"  style="max-width:calc(75vw - 50px);">
-        <img class="input-image unselectable pixelated" style="width:100%;">
+    {# TODO: move styles to css file #}
+    <div style="display: flex; align-items: flex-start; justify-content: center; display:default" >
+      <div class="input-image-container" style="width:100%; background-color: rgb(230,230,230);">
+        <img class="input-image unselectable pixelated" style="width:100%; max-height:calc(100vh - 100px); min-height:25vh; object-fit: contain;">
+      </div>
+
+      <div class="result-image-container" style="width:100%; background-color: rgb(230,230,230); display:none;">
+        {# FIXME: .input-image only temporary for testing #}
+        <img class="result-image input-image unselectable pixelated" style="width:100%; max-height:calc(100vh - 100px); min-height:25vh; object-fit: contain; filter:contrast(0.0);">
       </div>
     </div>
 </div>

@@ -10,6 +10,7 @@ function on_accordion_open(){
     var $img     = $root.find('img.input-image')
     $img.on('load', function(){
         $root.find('.loading-message').remove()
+        $root.find('.filetable-content').show()
     })
     load_image_from_file($img,file);
 }
