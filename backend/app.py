@@ -1,4 +1,4 @@
-import os, sys, shutil, glob
+import os, sys, shutil, glob, tempfile
 import flask, jinja2
 
 import argparse
@@ -38,13 +38,31 @@ def get_frontend_folders():
 
 class App(flask.Flask):
     def __init__(self, **kw):
+        is_debug         = sys.argv[0].endswith('.py')
+        is_second_start  = (os.environ.get("WERKZEUG_RUN_MAIN") == 'true')
+        is_pytest_mode   = (os.environ.get('PYTEST_CURRENT_TEST',None) is not None)
+        is_reloader      = (is_debug and not is_second_start) and not is_pytest_mode
+
         super().__init__(
-            __name__, 
+            'reloader' if is_reloader else __name__,
             root_path          = path_to_main_module(),    #TODO? os.chdir()
             static_folder      = get_static_path(), 
             static_url_path    = '/',
             **kw
         )
+        if is_reloader:
+            return
+
+        #TODO: make this a cache folder inside the main folder
+        TEMPPREFIX = 'DigIT_UI_'
+        TEMPFOLDER = tempfile.TemporaryDirectory(prefix=TEMPPREFIX)
+        print('Temporary folder: %s'%TEMPFOLDER.name)
+        #delete all previous temporary folders if not cleaned up properly
+        for tmpdir in glob.glob( os.path.join(os.path.dirname(TEMPFOLDER.name), TEMPPREFIX+'*') ):
+            if tmpdir != TEMPFOLDER.name:
+                print('Removing ',tmpdir)
+                shutil.rmtree(tmpdir)
+        
 
         print('Root path:       ', self.root_path)
         print('Static folder:   ', self.static_folder)
@@ -60,6 +78,19 @@ class App(flask.Flask):
         def index():
             self.recompile_static()
             return self.send_static_file('index.html')
+        
+        @self.route('/images/<path:path>')
+        def images(path):
+            print(f'Download: {os.path.join(TEMPFOLDER.name, path)}')
+            return flask.send_from_directory(TEMPFOLDER.name, path)
+
+        @self.route('/delete_image/<path:path>')
+        def delete_image(path):
+            fullpath = os.path.join(TEMPFOLDER.name, path)
+            print('DELETE: %s'%fullpath)
+            if os.path.exists(fullpath):
+                os.remove(fullpath)
+            return 'OK'
         
         self.settings = settings.Settings()
         @self.route('/settings', methods=['GET', 'POST'])
@@ -78,6 +109,12 @@ class App(flask.Flask):
             r.headers["Expires"]       = "0"
             r.headers['Cache-Control'] = 'public, max-age=0'
             return r
+
+
+        if not is_debug:
+            with self.app_context():
+                print('Flask started')
+                webbrowser.open('http://localhost:5000', new=2)
     
 
     def recompile_static(self, force=False):
