@@ -84,6 +84,15 @@ class App(flask.Flask):
             print(f'Download: {os.path.join(TEMPFOLDER.name, path)}')
             return flask.send_from_directory(TEMPFOLDER.name, path)
 
+        @self.route('/file_upload', methods=['POST'])
+        def file_upload():
+            files = flask.request.files.getlist("files")
+            for f in files:
+                print('Upload: %s'%f.filename)
+                fullpath = os.path.join(TEMPFOLDER.name, os.path.basename(f.filename) )
+                f.save(fullpath)
+            return 'OK'
+
         @self.route('/delete_image/<path:path>')
         def delete_image(path):
             fullpath = os.path.join(TEMPFOLDER.name, path)
@@ -101,6 +110,8 @@ class App(flask.Flask):
             elif flask.request.method=='GET':
                 return flask.jsonify(self.settings.get_settings())
         
+        self.route('/process_image/<image>')(self.process_image)
+        
         @self.after_request
         def add_header(r):
             """Prevent caching."""
@@ -116,6 +127,11 @@ class App(flask.Flask):
                 print('Flask started')
                 webbrowser.open('http://localhost:5000', new=2)
     
+    def process_image(self, image):
+        print(f'Simulating image processing: {image}')
+        import time
+        time.sleep(3)
+        return 'OK'
 
     def recompile_static(self, force=False):
         is_debug = any([os.path.exists(f) for f in self.template_folders])
@@ -123,7 +139,6 @@ class App(flask.Flask):
             #only in development and during build, not in release
             return
         
-        #for source in self.static_folders:
         for source in self.frontend_folders:
             if os.path.abspath(source) != os.path.abspath(self.static_folder):
                 #shutil.copytree(source, target)
