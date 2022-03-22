@@ -5,7 +5,8 @@ GLOBAL = {
         active_model : undefined,                 //modelname
     },
 
-    files: [],                                    //Array of FILE objects
+    files:        [],                            //Array of FILE objects
+    event_source: undefined,                     //EventSource object
 }
 
 

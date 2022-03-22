@@ -9,8 +9,19 @@ function on_process_image(event){
 function process_image(filename){
     console.log(`Processing image file ${filename}`)
     show_dimmer(filename)
+    
+    //Called on a server-side event from the server notifying about processing progress
+    function on_message(event){
+        var data = JSON.parse(event.originalEvent.data);
+        if(data.image!=filename)
+            return;
 
-    var file    = GLOBAL.files[filename].file;
+        console.log(event)
+        //TODO: update dimmer
+    }
+    $(GLOBAL.event_source).on('message', on_message)
+
+    var file    = GLOBAL.files[filename];
     let promise = upload_file_to_flask(file)
     promise.fail( response => {
         console.log('File upload failed.', response.status)
@@ -31,6 +42,7 @@ function process_image(filename){
     promise.always( _ => {
         hide_dimmer(filename)
         //TODO: delete_image_from_flask(filename)
+        $(GLOBAL.event_source).off('message', on_message)
     })
     return promise;
 }

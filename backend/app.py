@@ -1,4 +1,4 @@
-import os, sys, shutil, glob, tempfile
+import os, sys, shutil, glob, tempfile, json
 import flask, jinja2
 
 import argparse
@@ -8,6 +8,7 @@ parser.add_argument('--port',    type=int, default=5000)
 parser.add_argument('--debug',   default=sys.argv[0].endswith('.py'))
 
 from . import settings
+from . import pubsub
 
 
 def path_to_this_module():
@@ -55,7 +56,7 @@ class App(flask.Flask):
 
         #TODO: make this a cache folder inside the main folder
         TEMPPREFIX = 'DigIT_UI_'
-        TEMPFOLDER = tempfile.TemporaryDirectory(prefix=TEMPPREFIX)
+        self.TEMPFOLDER = TEMPFOLDER = tempfile.TemporaryDirectory(prefix=TEMPPREFIX)
         print('Temporary folder: %s'%TEMPFOLDER.name)
         #delete all previous temporary folders if not cleaned up properly
         for tmpdir in glob.glob( os.path.join(os.path.dirname(TEMPFOLDER.name), TEMPPREFIX+'*') ):
@@ -110,6 +111,16 @@ class App(flask.Flask):
             elif flask.request.method=='GET':
                 return flask.jsonify(self.settings.get_settings())
         
+        @self.route('/stream')
+        def stream():
+            def generator():
+                message_queue = pubsub.PubSub.subscribe()
+                while 1:
+                    event, message = message_queue.get()
+                    #TODO: make sure message does not contain \n
+                    yield f'event:{event}\ndata: {json.dumps(message)}\n\n'
+            return flask.Response(generator(), mimetype="text/event-stream")
+        
         self.route('/process_image/<image>')(self.process_image)
         
         @self.after_request
@@ -128,12 +139,24 @@ class App(flask.Flask):
                 webbrowser.open('http://localhost:5000', new=2)
     
     def process_image(self, image):
-        print(f'Simulating image processing: {image}')
+        '''Mock processing function. Needs to be re-implemented downstream.'''
+        full_path = os.path.join(self.TEMPFOLDER.name, image)
+        if not os.path.exists(full_path):
+            flask.abort(404)
+        
+        print(f'Simulating image processing: {full_path}')
         import time
-        time.sleep(3)
+        for p in range(3):
+            #indicate progress to ui
+            pubsub.PubSub.publish({'progress':p/3, 'image':image, 'description':'Processing...'})
+            time.sleep(1)
+        pubsub.PubSub.publish({'progress':(p+1)/3, 'image':image, 'description':'Processing...'})
+
         return 'OK'
 
     def recompile_static(self, force=False):
+        '''Compiles templates into a single HTML file and copies JavaScript files
+           into the static folder from which flask serves files'''
         is_debug = any([os.path.exists(f) for f in self.template_folders])
         if not is_debug and not force:
             #only in development and during build, not in release

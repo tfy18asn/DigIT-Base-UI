@@ -33,6 +33,23 @@ class ProcessingTest(BaseCase):
         
         #self.save_screenshot(name="screenshot1.png", selector=None)
         #assert 0
+    
+    def test_basic_upload(self):
+        self.open("http://localhost:5001/")
+        #self.open(f"file://{os.environ['STATIC_PATH']}/index.html")
+        
+        self.driver.find_element('id', 'input_images').send_keys('\n'.join([
+            "/root/workspace/tests/testcases/assets/test_image1.jpg",
+        ]))
+        script = '''console.log(arguments);upload_file_to_flask(GLOBAL.files["test_image1.jpg"]).done(arguments[0]())'''
+        self.execute_async_script(script)
+        self.sleep(1)
+        self.assert_link_status_code_is_not_404("http://localhost:5001/images/test_image1.jpg")
+        self.assert_no_404_errors()
+
+        if self.demo_mode:
+            self.sleep(1)
+
 
     def test_upload_failed(self):
         self.open(f"file://{os.environ['STATIC_PATH']}/index.html")      #static file
