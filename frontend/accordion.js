@@ -8,17 +8,23 @@ function on_accordion_open(){
     var filename = $root.attr('filename')
     var file     = GLOBAL.files[filename];
     var $img     = $root.find('img.input-image')
+
+    scroll_to_filename(filename)  //won't work the first time
+
+    if(is_image_loaded($img))
+        return;
     $img.on('load', function(){
         $root.find('.loading-message').remove()
         $root.find('.filetable-content').show()
+        scroll_to_filename(filename)  //works on the first time
     })
     load_image_from_file($img,file);
 }
 
 
-//TODO: maybe
 function load_image_from_file($img, file){
     if(file.type=="image/tiff" || file.name.endsWith('.tif') || file.name.endsWith('.tiff')){
+        //TODO: refactor to own function
         var freader = new FileReader()
         freader.onload = function(event){
             var buffer = event.target.result
@@ -36,4 +42,17 @@ function load_image_from_file($img, file){
     } else {
         $img.attr('src', URL.createObjectURL(file))
     }
+}
+
+function is_image_loaded($img){
+    return ($img.attr('src')!=undefined)
+}
+
+function scroll_to_filename(filename){
+    var $root       = $(`tr.ui.title[filename="${filename}"]`)
+    var top         = $root.attr('top')
+    //window.scrollTo( {top:top, behavior:'smooth'} )
+    setTimeout(() => {
+        window.scrollTo( {top:top, behavior:'smooth'} )
+    }, 10);
 }

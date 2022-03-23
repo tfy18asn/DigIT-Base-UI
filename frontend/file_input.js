@@ -33,6 +33,10 @@ function regenerate_filetable(files){
     $filetable.find('tbody').html('');
 
     for(var f of Object.values(files)){
-        $("template#filetable-row-template").tmpl([{filename:f.name}]).appendTo($filetable.find('tbody'));
+        var $trow = $("template#filetable-row-template").tmpl([{filename:f.name}])
+        $trow.appendTo($filetable.find('tbody'));
+        //get the y-coordinate of the row, as long as all rows are closed
+        //would be unreliable later unreliable
+        $trow.first().attr('top', $trow.offset().top)
     }
 }
