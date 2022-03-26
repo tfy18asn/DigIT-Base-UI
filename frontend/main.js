@@ -3,6 +3,7 @@
 function init(){
     setup_sse()
     $('.ui.accordion').accordion({duration:0, onOpening:on_accordion_open})
+    $('.menu.tabular .item').tab();
 }
 
 

@@ -1,0 +1,73 @@
+{% set training_files_table %}
+<table class="ui basic celled sortable unstackable table accordion" id="training-filetable" style="grid-row: 1 / 3">
+    <thead>
+      <tr>
+        <th>
+          <div class="ui checkbox">
+            <input type="checkbox" name="example">
+          </div>
+        </th>
+        <th>Selected files for training</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <div class="ui checkbox">
+            <input type="checkbox" name="example">
+          </div>
+        </td>
+        <td>file_0.jpg</td>
+      </tr>
+      <tr>
+        <td>
+          <div class="ui checkbox">
+            <input type="checkbox" name="example">
+          </div>
+        </td>
+        <td>file_1.jpg</td>
+      </tr>
+      <tr>
+        <td>
+          <div class="ui checkbox">
+            <input type="checkbox" name="example">
+          </div>
+        </td>
+        <td>file_2.jpg</td>
+      </tr>
+      <tr>
+        <td>
+          <div class="ui checkbox">
+            <input type="checkbox" name="example">
+          </div>
+        </td>
+        <td>file_3.jpg</td>
+      </tr>
+    </tbody>
+</table>
+{% endset %} {# training_files_table #}
+
+{% set training_controls %}
+<div class="ui segment" style="margin-top:0px;">
+    <label class="ui violet fluid button" onclick="on_start_training()" id="start-training-button" style="margin-bottom: 20px;">
+      <i class="shuffle icon"></i>
+      Start Training
+    </label>
+
+    <div class="ui progress">
+      <div class="bar">
+        <div class="progress"></div>
+      </div>
+      <div class="label">Uploading Files</div>
+    </div>
+</div>
+{% endset %} {# training_controls #}
+
+
+<div style="display:grid; height:200px; grid-template-columns: 50% 50%; grid-column-gap: 5px;">
+    
+    {{ training_files_table }}
+
+    {{ training_controls }}
+    
+</div>

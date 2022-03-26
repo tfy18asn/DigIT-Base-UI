@@ -37,10 +37,16 @@
 
 <div class="ui container" style="width:calc(100% - 40px); padding-bottom:50vh;"> <!--TODO: move to own file--> <!--TODO: add css class-->
 
-    {% block tabs %}{% endblock %}
+    {% block    tabs %}
+    <div class="ui top attached tabular menu">
+      <a class="active item" data-tab="first">Detection</a>
+      <a class="item" data-tab="second">Training</a>
+    </div>
+    {% endblock tabs %}
 
+
+    <div class="ui bottom attached active tab" data-tab="first">
     {% block main_table %}
-
     <table class="ui basic celled sortable unstackable table accordion" id="filetable">
         <thead>
           <tr>
@@ -50,8 +56,14 @@
         <tbody>
         </tbody>
     </table>
-
     {% endblock main_table %}
+    </div>
+
+    <div class="ui bottom attached tab" data-tab="second">
+      {% block     training_tab %}
+        {% include 'base_training_tab.html' %}
+      {% endblock  training_tab %}
+    </div>
     
 </div> <!--main container end-->
 
