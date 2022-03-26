@@ -20,8 +20,9 @@ class BaseCase(SeleniumBaseCase):
             os.makedirs(os.path.dirname(outputfile), exist_ok=True)
             open(outputfile,'w').write(json.dumps(coverage))
             import subprocess
-            subprocess.call('killall chrome', shell=True)
+            subprocess.call('killall chrome chromium', shell=True, timeout=5)
         self.driver.quit()
+
 
 
 

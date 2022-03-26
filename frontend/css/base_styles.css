@@ -1,0 +1,30 @@
+.stripes {
+    background-color: rgb(240,240,240);
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(255,255,255,.5) 5px, rgba(255,255,255,.5) 7px);
+}
+
+.checkerboard {
+    background-color: rgb(240,240,240);
+    background-image: linear-gradient(45deg, white 25%, transparent 25%, transparent 75%, white 75%, white),
+    linear-gradient(45deg, white 25%, transparent 25%, transparent 75%, white 75%, white);
+    background-size: 10px 10px;
+    background-position: 0 0, 5px 5px;
+}
+
+.ui.table td.active, .ui.table tr.active { 
+    background: #fff!important;
+}
+
+.unselectable {                        /*TODO: firefox bug*/
+    user-drag: none; 
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+  }
+
+.pixelated {
+    -ms-interpolation-mode: nearest-neighbor;
+    image-rendering: pixelated;
+}

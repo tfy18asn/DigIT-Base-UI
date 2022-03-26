@@ -1,3 +1,4 @@
 Flask==2.0.3
 setuptools<45.0.0
 pyinstaller==3.5
+numpy

@@ -34,15 +34,22 @@
     {{ content_menu }}
 
     {# TODO: move styles to css file #}
-    <div style="display: flex; align-items: flex-start; justify-content: center; display:default" >
-      <div class="input-image-container" style="width:100%; background-color: rgb(230,230,230);">
-        <img class="input-image unselectable pixelated" style="width:100%; max-height:calc(100vh - 100px); min-height:25vh; object-fit: contain;">
+    <div style="display: flex; align-items: flex-start; justify-content: center;">
+      
+      {# TODO: try to remove this div, move styles to the previous one #}
+      <div class="input-image-container stripes" style="width:100%; height:calc(100vh - 120px); display: flex; justify-content: center; align-items: center;">
+        <div class="set-aspect-ratio-manually" style="width:100%; max-width: calc( (100vh - 120px) * var(--imagewidth) / var(--imageheight) );"> {# width/height set in javascript #}
+          <img class="input-image unselectable" style="width:100%;">
+        </div>
       </div>
 
-      <div class="result-image-container" style="width:100%; background-color: rgb(230,230,230); display:none;">
+      <div class="result-image-container stripes" style="width:100%; height:calc(100vh - 120px); display: flex; justify-content: center; align-items: center; display:none;">
         {# FIXME: .input-image only temporary for testing #}
-        <img class="result-image input-image unselectable pixelated" style="width:100%; max-height:calc(100vh - 100px); min-height:25vh; object-fit: contain; filter:contrast(0.0);">
+        <div class="set-aspect-ratio-manually" style="width:100%; max-width: calc( (100vh - 120px) * var(--imagewidth) / var(--imageheight) );">
+          <img class="result-image input-image unselectable pixelated" style="width:100%; filter:contrast(0.0);">
+        </div>
       </div>
+      
     </div>
 </div>
 {% endset %} {# end filetable_content #}

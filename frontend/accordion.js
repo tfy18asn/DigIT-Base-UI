@@ -9,14 +9,20 @@ function on_accordion_open(){
     var file     = GLOBAL.files[filename];
     var $img     = $root.find('img.input-image')
 
-    scroll_to_filename(filename)  //won't work the first time
-
-    if(is_image_loaded($img))
+    if(is_image_loaded($img)){
+        scroll_to_filename(filename)  //won't work the first time
         return;
+    }
     $img.on('load', function(){
+        var $par = $root.find('.set-aspect-ratio-manually')
+        var img  = $img[0]
+        $par.css('--imagewidth',  img.naturalWidth)
+        $par.css('--imageheight', img.naturalHeight)
+
         $root.find('.loading-message').remove()
         $root.find('.filetable-content').show()
         scroll_to_filename(filename)  //works on the first time
+        //TODO: URL.revokeObjectURL()
     })
     load_image_from_file($img,file);
 }
@@ -51,7 +57,6 @@ function is_image_loaded($img){
 function scroll_to_filename(filename){
     var $root       = $(`tr.ui.title[filename="${filename}"]`)
     var top         = $root.attr('top')
-    //window.scrollTo( {top:top, behavior:'smooth'} )
     setTimeout(() => {
         window.scrollTo( {top:top, behavior:'smooth'} )
     }, 10);
