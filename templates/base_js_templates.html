@@ -16,11 +16,11 @@
         <div class="header">
           Show Results As
         </div>
-        <div class="item active overlay-item" onclick="on_show_results_as_overlay(event)">
+        <div class="item active overlay-item" onclick="show_results_as_overlay('${filename}')">
           <i class="layer group icon"></i>
           Overlay
         </div>
-        <div class="item side-by-side-item" onclick="on_show_results_side_by_side(event)">
+        <div class="item side-by-side-item" onclick="show_results_side_by_side('${filename}')">
           <i class="columns icon"></i>
           Side-by-Side
         </div>
@@ -42,8 +42,9 @@
     {# TODO: move styles to css file #}
     <div class="image-container stripes" style="display:flex; align-items: center; justify-content:space-around; width:100%; height:calc(100vh - 120px);">
       
-        <div class="input-image-container set-aspect-ratio-manually" style="width:100%; max-width: calc( (100vh - 120px) * var(--imagewidth) / var(--imageheight) );"> {# width/height set in javascript #}
+        <div class="input-image-container set-aspect-ratio-manually" style="width:100%; max-width: calc( (100vh - 120px) * var(--imagewidth) / var(--imageheight) ); position: relative;"> {# width/height set in javascript #}
           <img class="input-image unselectable" style="width:100%;">
+          <img class="result-image-overlay unselectable pixelated" style="position:absolute; width:100%; height:100%; left:0; top:0; filter:url(#black-to-transparent)">
         </div>
 
         <div class="result-image-container set-aspect-ratio-manually" style="width:100%; max-width: calc( (100vh - 120px) * var(--imagewidth) / var(--imageheight) ); display:none">
@@ -74,4 +75,28 @@
     </tr>
 </template>
 
+
+{# TODO: put somewhere else #}
+<svg height="0">
+  <defs>
+    <filter id="black-to-transparent">
+      <!-- image filter to set alpha=0 where the image is black -->
+      <feColorMatrix in="SourceGraphic"
+          type="matrix"
+          values="1 0 0 0 0
+                  0 1 0 0 0
+                  0 0 1 0 0
+                  1 1 1 0 0" />
+     </filter>
+
+     <filter id="white-to-red">
+      <feColorMatrix in="SourceGraphic"
+          type="matrix"
+          values="1 1 1 0 0
+                  0 0 0 0 0
+                  0 0 0 0 0
+                  0 0 0 1 0" />
+     </filter>
+  </defs>
+</svg>
 

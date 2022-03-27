@@ -51,8 +51,12 @@ function process_results(filename, results){
 
     var $container = $(`[filename="${filename}"] .result-image-container`)
     var $image     = $container.find('img.result-image')
-    $image.attr('src', `/images/${results.segmentation}`).css('filter','')
-    $container.show()
+    $image.attr('src', url_for_image(results.segmentation)).css('filter','')
+    //$container.show()
+
+    var $result_overlay = $(`[filename="${filename}"] .result-image-overlay`)
+    $result_overlay.attr('src', url_for_image(results.segmentation))
+    show_results_as_overlay(filename);
 }
 
 
