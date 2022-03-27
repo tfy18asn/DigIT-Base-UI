@@ -80,6 +80,7 @@ def test_aspect_ratios(imagesize):
             ]))
             #open the file
             self.click('label:contains("test_image.png")')
+            self.sleep(0.5)
 
             screenshot = f'{tmpdir.name}/screenshot.png'
             self.save_screenshot(screenshot, selector='[filename="test_image.png"] img.input-image')
