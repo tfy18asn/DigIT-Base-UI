@@ -5,15 +5,21 @@ function load_settings(){
     console.log('TODO: load settings')
     $.get('/settings').done(function(settings){
         console.log('Loaded settings: ',settings)
-        GLOBAL.settings.active_model   = settings.active_model
-
-        var models_list = []
-        for(var modelname of settings.models)
-            models_list.push({name:modelname, value:modelname, selected:(modelname==settings.active_model)})
-        //TODO: if(settings.active_model=='')
-        //    models_list.push({name:'[UNSAVED MODEL]', value:'', selected:true})
-        $("#settings-active-model").dropdown({values: models_list, showOnFocus:false })
+        GLOBAL.settings   = settings
+        update_settings_modal()
     })
+}
+
+
+function update_settings_modal(){
+    const settings = GLOBAL.settings;
+
+    var models_list = []
+    for(var modelname of settings.models)
+        models_list.push({name:modelname, value:modelname, selected:(modelname==settings.active_model)})
+    //TODO: if(settings.active_model=='')
+    //    models_list.push({name:'[UNSAVED MODEL]', value:'', selected:true})
+    $("#settings-active-model").dropdown({values: models_list, showOnFocus:false })
 }
 
 
