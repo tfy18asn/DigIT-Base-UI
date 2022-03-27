@@ -4,3 +4,4 @@ builds
 tests/logs
 static
 settings.json
+cache

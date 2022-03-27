@@ -24,6 +24,11 @@ def get_static_path():
     path = path or os.path.join(path_to_main_module(), 'static')
     return path
 
+def get_cache_path():
+    static_path = get_static_path()
+    cache_path  = static_path.replace('/static', '/cache')
+    return cache_path
+
 def get_template_folders():
     return [
         os.path.join(path_to_main_module(), 'templates'),            #subproject
@@ -53,26 +58,20 @@ class App(flask.Flask):
         )
         if is_reloader:
             return
-
-        #TODO: make this a cache folder inside the main folder
-        TEMPPREFIX = 'DigIT_UI_'
-        self.TEMPFOLDER = TEMPFOLDER = tempfile.TemporaryDirectory(prefix=TEMPPREFIX)
-        print('Temporary folder: %s'%TEMPFOLDER.name)
-        #delete all previous temporary folders if not cleaned up properly
-        for tmpdir in glob.glob( os.path.join(os.path.dirname(TEMPFOLDER.name), TEMPPREFIX+'*') ):
-            if tmpdir != TEMPFOLDER.name:
-                print('Removing ',tmpdir)
-                shutil.rmtree(tmpdir)
         
-
-        print('Root path:       ', self.root_path)
-        print('Static folder:   ', self.static_folder)
-        print()
 
         self.template_folders = get_template_folders()
         self.frontend_folders = get_frontend_folders()
-        print(self.template_folders)
-        print(self.frontend_folders)
+        self.cache_path       = get_cache_path()
+        print('Root path:       ', self.root_path)
+        print('Static path:     ', self.static_folder)
+        print('Cache path:      ', self.cache_path)
+        if is_debug:
+            print('Template paths:  ', self.template_folders)
+            print('Frontend paths:  ', self.frontend_folders)
+        print()
+
+        self.setup_cache()
         self.recompile_static()
 
         @self.route('/')
@@ -82,21 +81,21 @@ class App(flask.Flask):
         
         @self.route('/images/<path:path>')
         def images(path):
-            print(f'Download: {os.path.join(TEMPFOLDER.name, path)}')
-            return flask.send_from_directory(TEMPFOLDER.name, path)
+            print(f'Download: {os.path.join(self.cache_path, path)}')
+            return flask.send_from_directory(self.cache_path, path)
 
         @self.route('/file_upload', methods=['POST'])
         def file_upload():
             files = flask.request.files.getlist("files")
             for f in files:
                 print('Upload: %s'%f.filename)
-                fullpath = os.path.join(TEMPFOLDER.name, os.path.basename(f.filename) )
+                fullpath = os.path.join(self.cache_path, os.path.basename(f.filename) )
                 f.save(fullpath)
             return 'OK'
 
         @self.route('/delete_image/<path:path>')
         def delete_image(path):
-            fullpath = os.path.join(TEMPFOLDER.name, path)
+            fullpath = os.path.join(self.cache_path, path)
             print('DELETE: %s'%fullpath)
             if os.path.exists(fullpath):
                 os.remove(fullpath)
@@ -121,7 +120,7 @@ class App(flask.Flask):
                     yield f'event:{event}\ndata: {json.dumps(message)}\n\n'
             return flask.Response(generator(), mimetype="text/event-stream")
         
-        self.route('/process_image/<image>')(self.process_image)
+        self.route('/process_image/<imagename>')(self.process_image)
         
         @self.after_request
         def add_header(r):
@@ -138,9 +137,9 @@ class App(flask.Flask):
                 print('Flask started')
                 webbrowser.open('http://localhost:5000', new=2)
     
-    def process_image(self, image):
+    def process_image(self, imagename):
         '''Mock processing function. Needs to be re-implemented downstream.'''
-        full_path = os.path.join(self.TEMPFOLDER.name, image)
+        full_path = os.path.join(self.cache_path, imagename)
         if not os.path.exists(full_path):
             flask.abort(404)
         
@@ -148,11 +147,20 @@ class App(flask.Flask):
         import time
         for p in range(3):
             #indicate progress to ui
-            pubsub.PubSub.publish({'progress':p/3, 'image':image, 'description':'Processing...'})
+            pubsub.PubSub.publish({'progress':p/3, 'image':imagename, 'description':'Processing...'})
             time.sleep(1)
-        pubsub.PubSub.publish({'progress':(p+1)/3, 'image':image, 'description':'Processing...'})
+        pubsub.PubSub.publish({'progress':(p+1)/3, 'image':imagename, 'description':'Processing...'})
 
-        return 'OK'
+        import PIL.Image, numpy as np
+        image  = PIL.Image.open(full_path)
+        result = np.zeros( image.size[::-1], 'uint8' )
+        result[::10] = 255
+        result_path  = os.path.join(self.cache_path, imagename+'.segmentation.png')
+        PIL.Image.fromarray(result).convert('L').save(result_path)
+
+        return {
+            'segmentation'   :   os.path.basename(result_path),
+        }
 
     def recompile_static(self, force=False):
         '''Compiles templates into a single HTML file and copies JavaScript files
@@ -172,6 +180,13 @@ class App(flask.Flask):
         outf  = os.path.join(self.static_folder, 'index.html')
         os.makedirs(os.path.dirname(outf), exist_ok=True)
         open(outf,'w').write(tmpl.render(warning='GENERATED FILE. DO NOT EDIT MANUALLY'))
+    
+    def setup_cache(self):
+        if os.path.exists(self.cache_path):
+            shutil.rmtree(self.cache_path)
+        os.makedirs(self.cache_path)
+        import atexit
+        atexit.register(lambda: shutil.rmtree(self.cache_path))
     
     def run(self, parse_args=True, **args):
         if parse_args:
