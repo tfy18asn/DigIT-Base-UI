@@ -19,7 +19,7 @@ RUN wget https://github.com/clickot/ungoogled-chromium-binaries/releases/downloa
  && rm ./*.AppImage
 
 
-RUN pip install seleniumbase && sbase install chromedriver --path && sbase install geckodriver --path  \
+RUN pip install seleniumbase && sbase install chromedriver 98 --path && sbase install geckodriver --path  \
  && pip install pyppeteer coverage
 ADD requirements.txt ./
 RUN pip install -r requirements.txt && rm requirements.txt

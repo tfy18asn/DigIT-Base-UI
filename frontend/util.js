@@ -15,3 +15,7 @@ function upload_file_to_flask(file, url='file_upload', async=true){
     })
 }
 
+
+function url_for_image(imagename, cachebuster=true){
+    return `/images/${imagename}` + (cachebuster? `?_=${Date.now()}` : '')
+}

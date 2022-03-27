@@ -34,9 +34,7 @@ function process_image(filename){
             $('body').toast({message:'Processing failed.', class:'error'})
         })
     })
-    promise.done(function(){
-        console.log('Processing successful.')
-    })
+    promise.done(results => process_results(filename, results))
 
 
     promise.always( _ => {
@@ -48,9 +46,20 @@ function process_image(filename){
 }
 
 
+function process_results(filename, results){
+    console.log(`Processing ${filename} successful.`, results)
+
+    var $container = $(`[filename="${filename}"] .result-image-container`)
+    var $image     = $container.find('img.result-image')
+    $image.attr('src', `/images/${results.segmentation}`).css('filter','')
+    $container.show()
+}
+
+
+
 
 function show_dimmer(filename, message='Processing...'){
-    $(`[filename="${filename}"] .input-image-container`).dimmer({                               //FIXME: should be div above .input-image-container
+    $(`[filename="${filename}"] .image-container`).dimmer({
         displayLoader:   true,
         loaderVariation: 'slow orange medium elastic',
         loaderText:      message,
@@ -62,7 +71,7 @@ function show_dimmer(filename, message='Processing...'){
 }
 
 function hide_dimmer(filename){
-    $(`[filename="${filename}"] .input-image-container`).dimmer('hide')                        //FIXME: should be div above .input-image-container
+    $(`[filename="${filename}"] .image-container`).dimmer('hide')
     $(`[filename="${filename}"] .icon.menu .item`).removeClass('disabled')
 }
 

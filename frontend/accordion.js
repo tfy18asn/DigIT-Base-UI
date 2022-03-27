@@ -22,9 +22,12 @@ function on_accordion_open(){
         $root.find('.loading-message').remove()
         $root.find('.filetable-content').show()
         scroll_to_filename(filename)  //works on the first time
-        //TODO: URL.revokeObjectURL()
+        URL.revokeObjectURL($img.attr('src'))
     })
     load_image_from_file($img,file);
+
+    //setting the result image as well, only to get the same dimensions
+    load_image_from_file($root.find('img.result-image'),file);
 }
 
 
