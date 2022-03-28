@@ -108,7 +108,7 @@ class App(flask.Flask):
                 self.settings.set_settings(flask.request.get_json(force=True))
                 return 'OK'
             elif flask.request.method=='GET':
-                return flask.jsonify(self.settings.get_settings())
+                return flask.jsonify(self.settings.get_settings_as_dict())
         
         @self.route('/stream')
         def stream():

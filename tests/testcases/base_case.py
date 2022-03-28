@@ -1,4 +1,4 @@
-import os, threading, time
+import os, threading, time,json subprocess
 
 from seleniumbase import config, BaseCase as SeleniumBaseCase
 import pyppeteer as pyp
@@ -16,11 +16,9 @@ class BaseCase(SeleniumBaseCase):
     def tearDown(self):
         if self.is_chromium():
             coverage   = retrieve_codecoverage(self._pyppeteer_page)
-            import json, os
             outputfile = os.path.join(self.log_abspath, 'coverage_js/raw', f'{self.test_id}.codecoverage.json')
             os.makedirs(os.path.dirname(outputfile), exist_ok=True)
             open(outputfile,'w').write(json.dumps(coverage))
-            import subprocess
             subprocess.call('killall chrome chromium', shell=True, timeout=5)
         self.driver.quit()
     
@@ -29,6 +27,7 @@ class BaseCase(SeleniumBaseCase):
             return self.open(f"file://{os.environ['STATIC_PATH']}/index.html")
         else:
             self.port = self.start_flask()
+            time.sleep(0.2)
             return self.open(f"http://localhost:{self.port}/")
     
     def start_flask(self):

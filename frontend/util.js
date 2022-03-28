@@ -1,4 +1,8 @@
 
+function deepcopy(x){
+    return JSON.parse(JSON.stringify(x))
+}
+
 
 function upload_file_to_flask(file, url='file_upload', async=true){
     var formdata = new FormData();

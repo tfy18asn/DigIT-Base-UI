@@ -2,20 +2,22 @@
 
 
 function load_settings(){
-    console.log('TODO: load settings')
-    $.get('/settings').done(function(settings){
-        console.log('Loaded settings: ',settings)
+    $.get('/settings').done(function(data){
+        var settings = data.settings
+        var models   = data.available_models
+        console.log('Loaded settings:  ',settings)
+        console.log('Available models: ',models)
         GLOBAL.settings   = settings
-        update_settings_modal()
+        update_settings_modal(models)
     })
 }
 
 
-function update_settings_modal(){
+function update_settings_modal(models){
     const settings = GLOBAL.settings;
 
     var models_list = []
-    for(var modelname of settings.models)
+    for(var modelname of models)
         models_list.push({name:modelname, value:modelname, selected:(modelname==settings.active_model)})
     //TODO: if(settings.active_model=='')
     //    models_list.push({name:'[UNSAVED MODEL]', value:'', selected:true})
@@ -23,16 +25,14 @@ function update_settings_modal(){
 }
 
 
-function collect_settings_data(){
+function apply_settings_from_modal(){
     GLOBAL.settings.active_model = $("#settings-active-model").dropdown('get value');
-    return {
-        active_model : GLOBAL.settings.active_model, 
-    }
 }
 
 
-function save_settings(_){
-    var settingsdata = collect_settings_data()
+function on_save_settings(_){
+    apply_settings_from_modal()
+    var settingsdata = deepcopy(GLOBAL.settings);
     var postdata     = JSON.stringify(settingsdata);
     $('#settings-ok-button').addClass('loading');
 
@@ -54,7 +54,7 @@ function save_settings(_){
 
 function on_settings(){
     load_settings();
-    $('#settings-dialog').modal({onApprove: save_settings}).modal('show');
+    $('#settings-dialog').modal({onApprove: on_save_settings}).modal('show');
 }
 
 

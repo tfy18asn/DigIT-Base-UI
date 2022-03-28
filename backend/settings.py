@@ -2,25 +2,42 @@ import json, os
 
 
 class Settings:
+    FILENAME = 'settings.json'   #FIXME: hardcoded
+
+    def __init__(self):
+        self.load_settings_from_file()
+
+    @classmethod
+    def get_defaults(cls):
+        available_models = cls.get_available_models()
+        first_or_none    = lambda x: x[0] if len(x) else None 
+        return {
+            'active_model'          : first_or_none(available_models),
+        }
+
+    def load_settings_from_file(self):
+        s = self.get_defaults()
+        if os.path.exists(self.FILENAME):
+            s.update(json.load(open(self.FILENAME)))
+        else:
+            print(f'[WARNING] Settings file {self.FILENAME} not found.')
+        self.set_settings(s)
+        return s
+
     def set_settings(self, s):
         print('New settings:', s)
-        json.dump(dict(
-            dict( [(k, s.get(k,None)) for k in ['active_model']] )
-        ), open('settings.json','w'))  #FIXME: hardcoded settings file
+        self.__dict__.update(s)
+        json.dump( s, open('settings.json','w')) 
 
-    def get_settings(self):
-        #FIXME: hardcoded settings file
-        settings_file = 'settings.json'
-        if os.path.exists(settings_file):
-            settings = json.load(open(settings_file))
-        else:
-            settings = {'active_model':None}
-        #TODO: check if file contains all required keys, check values, make defaults otherwise
-        settings.update({
-            'models'    : self.get_available_models(),
-        })
-        return settings
+    def get_settings_as_dict(self):
+        s = self.load_settings_from_file()
+        return {
+            'settings'         : s,
+            'available_models' : self.get_available_models()
+        }
 
-    def get_available_models(self):
-        return ['Model A', 'Model D', 'Model B', 'Model C']  #TODO: scan directory
+    @staticmethod
+    def get_available_models():
+        '''Mock function. Needs to be re-implemented downstream.'''
+        return ['Model A', 'Model D', 'Model B', 'Model C']
 
