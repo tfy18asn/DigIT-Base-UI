@@ -34,6 +34,7 @@ elif [[ $DIG_IT_TEST_DOCKER=1 ]]; then
     coverage run --include=/root/workspace/backend/* -m pytest  \
                         --tb=native                             \
                         --disable-warnings --show-capture=all   \
+                        --ignore-glob=/root/workspace/build*    \
                         --html=/root/latest_logs/pytest_report.html --self-contained-html $@ \
     && coverage html --directory=/root/latest_logs/coverage/           \
     && coverage report | tee /root/latest_logs/coverage_report.txt     \

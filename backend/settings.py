@@ -25,7 +25,6 @@ class Settings:
         return s
 
     def set_settings(self, s):
-        print('New settings:', s)
         self.__dict__.update(s)
         json.dump( s, open('settings.json','w')) 
 

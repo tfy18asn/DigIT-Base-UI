@@ -1,4 +1,4 @@
-import os, threading, time,json subprocess
+import os, threading, time, json, subprocess, glob
 
 from seleniumbase import config, BaseCase as SeleniumBaseCase
 import pyppeteer as pyp
@@ -37,7 +37,16 @@ class BaseCase(SeleniumBaseCase):
         t.start()
         return port
 
-
+    def send_input_files_from_assets(self, files:list, input_id='input_images'):
+        #look up files in one of these directories:
+        asset_dirs = [
+            os.path.expandvars('$ROOT_PATH/tests/testcases/assets'),
+            os.path.expandvars('$ROOT_PATH/base/tests/testcases/assets'),
+        ]
+        paths = [
+           ( glob.glob(os.path.join(asset_dirs[0], f)) + glob.glob(os.path.join(asset_dirs[1], f)) )[0] for f in files
+        ]
+        self.driver.find_element('id', input_id).send_keys('\n'.join(paths))
 
 
 def start_codecoverage():

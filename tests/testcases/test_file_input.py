@@ -12,15 +12,13 @@ class TestBasic(BaseCase):
         
         self.highlight('th:contains("No Files Loaded")')  #assert exists
 
-        self.driver.find_element('id', 'input_images').send_keys('\n'.join([
-            "/root/workspace/tests/testcases/assets/test_image0.jpg",
-        ]))
+        self.send_input_files_from_assets(['test_image0.jpg'])
         self.highlight('th:contains("1 File Loaded")')  #assert exists
 
-        self.driver.find_element('id', 'input_images').send_keys('\n'.join([
-            "/root/workspace/tests/testcases/assets/test_image0.jpg",
-            "/root/workspace/tests/testcases/assets/test_image1.jpg"
-        ]))
+        self.send_input_files_from_assets([
+            "test_image0.jpg",
+            "test_image1.jpg"
+        ])
         self.highlight('th:contains(" Files Loaded")')  #FIXME: 2 files in chrome, 3 files in firefox (webdriver issue)
 
         #open one file
@@ -38,9 +36,7 @@ class TestBasic(BaseCase):
 
     def test_load_tiff(self):
         self.open_main(static=True)
-        self.driver.find_element('id', 'input_images').send_keys('\n'.join([
-            "/root/workspace/tests/testcases/assets/test_image2.tiff"
-        ]))
+        self.send_input_files_from_assets([ "test_image2.tiff" ])
         #open one file
         self.click('label:contains("test_image2.tiff")')
         #wait for the image to display
@@ -69,9 +65,7 @@ def test_aspect_ratios(imagesize):
             out     = os.path.join(tmpdir.name, 'test_image.png')
             img.save( out )
 
-            self.driver.find_element('id', 'input_images').send_keys('\n'.join([
-                out
-            ]))
+            self.send_input_files_from_assets([ out ])
             #open the file
             self.click('label:contains("test_image.png")')
             self.sleep(0.5)
@@ -86,6 +80,8 @@ def test_aspect_ratios(imagesize):
             aspect_ratio_input  = np.divide(*imagesize)
             aspect_ratio_screen = np.divide(*screenshot.size)
             assert abs( aspect_ratio_input - aspect_ratio_screen ) < 0.2
+
+            #TODO: resize browser window
 
             if self.demo_mode:
                 self.sleep(1)

@@ -7,11 +7,11 @@ class ProcessingTest(BaseCase):
     def test_basic_processing_success(self):
         self.open_main(static=False)
         
-        self.driver.find_element('id', 'input_images').send_keys('\n'.join([
-            "/root/workspace/tests/testcases/assets/test_image0.jpg",
-            "/root/workspace/tests/testcases/assets/test_image1.jpg",
-            "/root/workspace/tests/testcases/assets/test_image2.tiff",
-        ]))
+        self.send_input_files_from_assets([
+            "test_image0.jpg",
+            "test_image1.jpg",
+            "test_image2.tiff",
+        ])
 
         #open one file
         self.click('label:contains("test_image1.jpg")')
@@ -36,9 +36,7 @@ class ProcessingTest(BaseCase):
     def test_basic_upload(self):
         self.open_main(static=False)
         
-        self.driver.find_element('id', 'input_images').send_keys('\n'.join([
-            "/root/workspace/tests/testcases/assets/test_image1.jpg",
-        ]))
+        self.send_input_files_from_assets(["test_image1.jpg"])
         script = '''console.log(arguments);upload_file_to_flask(GLOBAL.files["test_image1.jpg"]).done(arguments[0]())'''
         self.execute_async_script(script)
         self.sleep(1)
@@ -52,11 +50,11 @@ class ProcessingTest(BaseCase):
     def test_upload_failed(self):
         self.open_main(static=True)  #static so that upload fails
         
-        self.driver.find_element('id', 'input_images').send_keys('\n'.join([
-            "/root/workspace/tests/testcases/assets/test_image0.jpg",
-            "/root/workspace/tests/testcases/assets/test_image1.jpg",
-            "/root/workspace/tests/testcases/assets/test_image2.tiff",
-        ]))
+        self.send_input_files_from_assets([
+            "test_image0.jpg",
+            "test_image1.jpg",
+            "test_image2.tiff",
+        ])
 
         #open one file
         self.click('label:contains("test_image1.jpg")')

@@ -10,10 +10,7 @@ class TestViewControls(BaseCase):
     def test_overlay_side_by_side_switch(self):
         self.open_main(static=True)
 
-        self.driver.find_element('id', 'input_images').send_keys('\n'.join([
-            "/root/workspace/tests/testcases/assets/test_image0.jpg",
-            "/root/workspace/tests/testcases/assets/test_image1.jpg"
-        ]))
+        self.send_input_files_from_assets([ "test_image0.jpg", "test_image1.jpg" ])
         self.click('label:contains("test_image1.jpg")')
 
         root_css = '[filename="test_image1.jpg"]'

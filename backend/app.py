@@ -48,6 +48,7 @@ class App(flask.Flask):
         is_second_start  = (os.environ.get("WERKZEUG_RUN_MAIN") == 'true')
         is_pytest_mode   = (os.environ.get('PYTEST_CURRENT_TEST',None) is not None)
         is_reloader      = (is_debug and not is_second_start) and not is_pytest_mode
+        self.is_reloader = is_reloader
 
         super().__init__(
             'reloader' if is_reloader else __name__,
