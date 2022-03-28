@@ -5,8 +5,7 @@ import pytest, os
 class ProcessingTest(BaseCase):
     @pytest.mark.slow
     def test_basic_processing_success(self):
-        self.open("http://localhost:5001/")
-        #self.open(f"file://{os.environ['STATIC_PATH']}/index.html")
+        self.open_main(static=False)
         
         self.driver.find_element('id', 'input_images').send_keys('\n'.join([
             "/root/workspace/tests/testcases/assets/test_image0.jpg",
@@ -35,8 +34,7 @@ class ProcessingTest(BaseCase):
         #assert 0
     
     def test_basic_upload(self):
-        self.open("http://localhost:5001/")
-        #self.open(f"file://{os.environ['STATIC_PATH']}/index.html")
+        self.open_main(static=False)
         
         self.driver.find_element('id', 'input_images').send_keys('\n'.join([
             "/root/workspace/tests/testcases/assets/test_image1.jpg",
@@ -44,7 +42,7 @@ class ProcessingTest(BaseCase):
         script = '''console.log(arguments);upload_file_to_flask(GLOBAL.files["test_image1.jpg"]).done(arguments[0]())'''
         self.execute_async_script(script)
         self.sleep(1)
-        self.assert_link_status_code_is_not_404("http://localhost:5001/images/test_image1.jpg")
+        self.assert_link_status_code_is_not_404(f"http://localhost:{self.port}/images/test_image1.jpg")
         self.assert_no_404_errors()
 
         if self.demo_mode:
@@ -52,7 +50,7 @@ class ProcessingTest(BaseCase):
 
 
     def test_upload_failed(self):
-        self.open(f"file://{os.environ['STATIC_PATH']}/index.html")      #static file
+        self.open_main(static=True)  #static so that upload fails
         
         self.driver.find_element('id', 'input_images').send_keys('\n'.join([
             "/root/workspace/tests/testcases/assets/test_image0.jpg",

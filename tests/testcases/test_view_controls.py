@@ -8,10 +8,7 @@ BaseCase = __import__('base_case').BaseCase
 
 class TestViewControls(BaseCase):
     def test_overlay_side_by_side_switch(self):
-        #TODO: make option to either run the static file version or to connect to backend
-        #self.open("http://localhost:5001/")
-        #self.open("file:///root/workspace/static/index.html")
-        self.open(f"file://{os.environ['STATIC_PATH']}/index.html")
+        self.open_main(static=True)
 
         self.driver.find_element('id', 'input_images').send_keys('\n'.join([
             "/root/workspace/tests/testcases/assets/test_image0.jpg",

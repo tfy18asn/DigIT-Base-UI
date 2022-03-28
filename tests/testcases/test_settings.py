@@ -3,7 +3,7 @@ BaseCase = __import__('base_case').BaseCase
 
 class SettingsTests(BaseCase):
     def test_save_settings_failed(self):
-        self.open("file:///root/workspace/static/index.html")  #static
+        self.open_main(static=True)
         #click on settings to open dialog
         self.click("label#settings-button")
         #click on the ok button
@@ -28,7 +28,7 @@ class SettingsTests(BaseCase):
     
 
     def test_save_settings_basic(self):
-        self.open("http://localhost:5001/")  #dynamic
+        self.open_main(static=False)
 
         #click on settings to open dialog
         self.click("label#settings-button")
@@ -55,7 +55,7 @@ class SettingsTests(BaseCase):
             self.sleep(1)
     
     def test_save_settings_keep_values(self):
-        self.open("http://localhost:5001/")  #dynamic
+        self.open_main(static=False)
 
         #click on settings to open dialog
         self.click("label#settings-button")

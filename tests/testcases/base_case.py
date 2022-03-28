@@ -1,9 +1,10 @@
+import os, threading, time
+
 from seleniumbase import config, BaseCase as SeleniumBaseCase
 import pyppeteer as pyp
 import asyncio
 
-
-
+from backend.app import App
 
 class BaseCase(SeleniumBaseCase):
     def setUp(self):
@@ -22,6 +23,20 @@ class BaseCase(SeleniumBaseCase):
             import subprocess
             subprocess.call('killall chrome chromium', shell=True, timeout=5)
         self.driver.quit()
+    
+    def open_main(self, static=True):
+        if static:
+            return self.open(f"file://{os.environ['STATIC_PATH']}/index.html")
+        else:
+            self.port = self.start_flask()
+            return self.open(f"http://localhost:{self.port}/")
+    
+    def start_flask(self):
+        port = int(time.time()*100)%50000 + 10000
+        print('Starting server on port ',port)
+        t    = threading.Thread(target=lambda: App().run(debug=False, port=port, parse_args=False), daemon=True)
+        t.start()
+        return port
 
 
 

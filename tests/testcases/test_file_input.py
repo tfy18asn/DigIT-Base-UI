@@ -7,14 +7,8 @@ import numpy as np, PIL.Image
             
 
 class TestBasic(BaseCase):
-    def test_open(self):
-        self.open("http://localhost:5001/")
-
     def test_open_and_display(self):
-        #TODO: make option to either run the static file version or to connect to backend
-        #self.open("http://localhost:5001/")
-        #self.open("file:///root/workspace/static/index.html")
-        self.open(f"file://{os.environ['STATIC_PATH']}/index.html")
+        self.open_main(static=True)
         
         self.highlight('th:contains("No Files Loaded")')  #assert exists
 
@@ -43,7 +37,7 @@ class TestBasic(BaseCase):
 
 
     def test_load_tiff(self):
-        self.open(f"file://{os.environ['STATIC_PATH']}/index.html")
+        self.open_main(static=True)
         self.driver.find_element('id', 'input_images').send_keys('\n'.join([
             "/root/workspace/tests/testcases/assets/test_image2.tiff"
         ]))
@@ -67,7 +61,7 @@ def test_aspect_ratios(imagesize):
     class AspectRatios(BaseCase):
         def perform_test(self, imagesize):
             print('parameters:     ', imagesize)
-            self.open(f"file://{os.environ['STATIC_PATH']}/index.html")
+            self.open_main(static=True)
             
             data    = (np.random.random(imagesize[::-1]+(3,))*255).astype('uint8')
             img     = PIL.Image.fromarray(data)

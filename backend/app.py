@@ -1,4 +1,4 @@
-import os, sys, shutil, glob, tempfile, json
+import os, sys, shutil, glob, tempfile, json, webbrowser
 import flask, jinja2
 
 import argparse
@@ -120,6 +120,12 @@ class App(flask.Flask):
                     yield f'event:{event}\ndata: {json.dumps(message)}\n\n'
             return flask.Response(generator(), mimetype="text/event-stream")
         
+        @self.route('/shutdown')
+        def shutdown():
+            import signal
+            os.kill(os.getpid(), signal.SIGINT)
+            return 'OK'
+        
         self.route('/process_image/<imagename>')(self.process_image)
         
         @self.after_request
@@ -186,7 +192,7 @@ class App(flask.Flask):
             shutil.rmtree(self.cache_path)
         os.makedirs(self.cache_path)
         import atexit
-        atexit.register(lambda: shutil.rmtree(self.cache_path))
+        atexit.register(lambda: shutil.rmtree(self.cache_path) if os.path.exists(self.cache_path) else None)
     
     def run(self, parse_args=True, **args):
         if parse_args:
