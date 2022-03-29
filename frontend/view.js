@@ -55,11 +55,11 @@ function on_transformbox_wheel(event){
 }
 
 //reset view
-this.on_viewbox_dblclick = function(e){
-    if(!e.shiftKey)
+function on_viewbox_dblclick(event){
+    if(!event.shiftKey)
         return;
-    console.log('dblclick:', e.target)
-    var $el   = $(e.target).closest('.view-box').find('.transform-box');
+    console.log('dblclick:', event.target)
+    var $el   = $(event.target).closest('.view-box').find('.transform-box');
     $el.css('transform', "matrix(1,0,0,1,0,0)");
 }
 
