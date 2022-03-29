@@ -3,7 +3,7 @@ function show_results_as_overlay(filename){
     var $root    = $(`[filename="${filename}"]`)
 
     $root.find('.result.view-box').hide()
-    $root.find('.result-image-overlay').show()
+    $root.find('.input.overlay').show()
     $root.find('.view-menu .side-by-side-item').removeClass('active')
     $root.find('.view-menu .overlay-item').addClass('active')
 }
@@ -13,7 +13,7 @@ function show_results_side_by_side(filename){
 
     //$root.find('.result.view-box').show()
     $root.find('.result.view-box').css('display', 'inherit')  //FIXME: ugly; .show() makes display:block
-    $root.find('.result-image-overlay').hide()
+    $root.find('.input.overlay').hide()
     $root.find('.view-menu .side-by-side-item').addClass('active')
     $root.find('.view-menu .overlay-item').removeClass('active')
 }

@@ -75,7 +75,7 @@
         onwheel    ="on_transformbox_wheel(event)">
     <img class="{{name}}-image unselectable" style="width:100%;" draggable="false">
     {% if overlay -%}
-    <img class="result-image-overlay unselectable pixelated"  draggable="false" style="position:absolute; width:100%; height:100%; left:0; top:0; filter:url(#black-to-transparent)" >
+    <img class="{{name}} overlay unselectable pixelated"  draggable="false" style="position:absolute; width:100%; height:100%; left:0; top:0; filter:url(#black-to-transparent)" >
     {%- endif %}  
   </div>
 </div>

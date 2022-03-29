@@ -54,7 +54,7 @@ function process_results(filename, results){
     $image.attr('src', url_for_image(results.segmentation)).css('filter','contrast(1)')
     //$container.show()
 
-    var $result_overlay = $(`[filename="${filename}"] .result-image-overlay`)
+    var $result_overlay = $(`[filename="${filename}"] .input.overlay`)
     $result_overlay.attr('src', url_for_image(results.segmentation))
     show_results_as_overlay(filename);
 }
