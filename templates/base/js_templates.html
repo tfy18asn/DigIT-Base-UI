@@ -141,3 +141,24 @@
   </defs>
 </svg>
 
+
+
+{% macro progress_dimmer() %}
+<!--------- MACRO content_image() START---------->
+<div class="ui dimmer">
+  <div class="content processing">
+    <h2 class="ui inverted icon header">
+      <i class="spinner loading icon"></i>
+      <p>Processing...</p>
+    </h2>
+  </div>
+  <div class="content failed" style="display:hidden">
+    <h2 class="ui inverted icon header">
+      <p>Processing failed</p>
+    </h2>
+    <p>Click to continue</p>
+  </div>
+</div>
+<!--------- MACRO content_image() START---------->
+{% endmacro %}
+
