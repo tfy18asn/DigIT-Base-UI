@@ -1,0 +1,48 @@
+
+{% macro base_tabs() %}
+<div class="ui top attached tabular menu">
+    <a class="active item" data-tab="detection">Detection</a>
+    <a class="item"        data-tab="training"> Training </a>
+</div>
+{% endmacro %}
+
+
+{% macro base_main_table() %}
+<table class="ui basic celled sortable unstackable table accordion" id="filetable">
+    <thead>
+      <tr>
+        <th>No Files Loaded</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+{% endmacro %}
+
+
+
+{% macro main_container(
+    tabs       = base_tabs(),
+    main_table = base_main_table(),
+    extra      = ""
+) %}
+<div class="ui container" style="width:calc(100% - 40px); padding-bottom:50vh;"> <!--TODO: add css class-->
+
+    {{ tabs | indent }}
+
+    <div class="ui bottom attached active tab" data-tab="detection">
+        {{ main_table | indent(8) }}
+    </div>
+
+    <div class="ui bottom attached tab" data-tab="training">
+        {% include 'base/training_tab.html' %}
+    </div>
+
+    {{ extra | indent }}
+
+</div>
+{% endmacro %}
+
+
+
+{{ main_container() }}

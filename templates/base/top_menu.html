@@ -10,14 +10,14 @@
             Load Input Images
           </label>
           <input type="file" id="input_images" style="display:none"
-                 onchange="on_inputfiles_select(event)" accept="image/*" multiple>
+                 onchange="FileInput.on_inputfiles_select(event)" accept="image/*" multiple>
           
           <label for="input_folder" class="ui icon item">
             <i class="folder outline icon"></i>
             Load Input Folder
           </label>
           <input type="file" id="input_folder" style="display:none" 
-                 onchange="on_inputfolder_select(event)"  webkitdirectory directory multiple>
+                 onchange="FileInput.on_inputfolder_select(event)"  webkitdirectory directory multiple>
 
         {% block    file_menu_items %}
         {% endblock file_menu_items %}

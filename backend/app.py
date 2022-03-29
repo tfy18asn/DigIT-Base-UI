@@ -177,6 +177,7 @@ class App(flask.Flask):
             #only in development and during build, not in release
             return
         
+        #TODO: clear the folder before copying
         for source in self.frontend_folders:
             if os.path.abspath(source) != os.path.abspath(self.static_folder):
                 #shutil.copytree(source, target)
