@@ -19,14 +19,16 @@ class Settings:
         s = self.get_defaults()
         if os.path.exists(self.FILENAME):
             s.update(json.load(open(self.FILENAME)))
+            self.set_settings(s)
         else:
             print(f'[WARNING] Settings file {self.FILENAME} not found.')
-        self.set_settings(s)
+            self.set_settings(s, save=False)
         return s
 
-    def set_settings(self, s):
+    def set_settings(self, s, save=True):
         self.__dict__.update(s)
-        json.dump( s, open('settings.json','w')) 
+        if save:
+            json.dump( s, open('settings.json','w')) 
 
     def get_settings_as_dict(self):
         s = self.load_settings_from_file()
