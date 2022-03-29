@@ -28,3 +28,38 @@
     -ms-interpolation-mode: nearest-neighbor;
     image-rendering: pixelated;
 }
+
+
+img.result-image {
+    /* gray at the start; changed in JS as soon as a result is available */
+    filter:contrast(0.0);
+}
+
+.result.view-box {
+    /* don't show by default; changed in JS */
+    display:none;
+}
+
+.view-box {
+    /* content moves around, don't show outside of the borders */
+    overflow: hidden;
+    /* act as anchor for position:absolute overlays inside */
+    position: relative;
+
+    width:  100%;
+    height: 100%;
+    display:flex;
+    justify-content: center;
+    align-items:     center;
+    margin-left:     2px;
+    margin-right:    2px;
+}
+
+
+.set-aspect-ratio-manually {
+    /* keep aspect ratio; --imagewidth & --imageheight are set on image load */
+    max-width: calc( (100vh - 120px) * var(--imagewidth) / var(--imageheight) ); 
+    width:100%;
+}
+
+

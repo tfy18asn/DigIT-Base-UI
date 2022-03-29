@@ -49,9 +49,9 @@ function process_image(filename){
 function process_results(filename, results){
     console.log(`Processing ${filename} successful.`, results)
 
-    var $container = $(`[filename="${filename}"] .result-image-container`)
+    var $container = $(`[filename="${filename}"] .result.view-box`)
     var $image     = $container.find('img.result-image')
-    $image.attr('src', url_for_image(results.segmentation)).css('filter','')
+    $image.attr('src', url_for_image(results.segmentation)).css('filter','contrast(1)')
     //$container.show()
 
     var $result_overlay = $(`[filename="${filename}"] .result-image-overlay`)
@@ -63,7 +63,7 @@ function process_results(filename, results){
 
 
 function show_dimmer(filename, message='Processing...'){
-    $(`[filename="${filename}"] .image-container`).dimmer({
+    $(`[filename="${filename}"] .view-box`).dimmer({
         displayLoader:   true,
         loaderVariation: 'slow orange medium elastic',
         loaderText:      message,
@@ -75,7 +75,7 @@ function show_dimmer(filename, message='Processing...'){
 }
 
 function hide_dimmer(filename){
-    $(`[filename="${filename}"] .image-container`).dimmer('hide')
+    $(`[filename="${filename}"] .view-box`).dimmer('hide')
     $(`[filename="${filename}"] .icon.menu .item`).removeClass('disabled')
 }
 

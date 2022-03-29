@@ -66,30 +66,39 @@
 
 
 
+{% macro content_image(name, overlay=True) %}
+<!--------- MACRO content_image() START---------->
+<div class="{{name}} view-box stripes" ondblclick="on_viewbox_dblclick(event)">
+  <div class="transform-box set-aspect-ratio-manually" style="transform: matrix(1,0,0,1,0,0)"
+        onmousedown="on_transformbox_mousedown(event)"
+        onmousemove="on_transformbox_mousemove(event)"
+        onwheel    ="on_transformbox_wheel(event)">
+    <img class="{{name}}-image unselectable" style="width:100%;" draggable="false">
+    {% if overlay -%}
+    <img class="result-image-overlay unselectable pixelated"  draggable="false" style="position:absolute; width:100%; height:100%; left:0; top:0; filter:url(#black-to-transparent)" >
+    {%- endif %}  
+  </div>
+</div>
+<!--------- MACRO content_image() END---------->
+{% endmacro %}
+
+
 
 {% set filetable_content %}
 <div class="filetable-content" style="display:none">
-    {{ content_menu() }}
+    {{ content_menu() | indent }}
 
     {# TODO: move styles to css file #}
-    <div class="image-container stripes" style="display:flex; align-items: center; justify-content:space-around; width:100%; height:calc(100vh - 120px);">
-      
-        <div class="input-image-container set-aspect-ratio-manually" style="width:100%; max-width: calc( (100vh - 120px) * var(--imagewidth) / var(--imageheight) ); position: relative;"> {# width/height set in javascript #}
-          <img class="input-image unselectable" style="width:100%;" draggable="false">
-          <img class="result-image-overlay unselectable pixelated"  draggable="false" style="position:absolute; width:100%; height:100%; left:0; top:0; filter:url(#black-to-transparent)" >
-        </div>
-
-        <div class="result-image-container set-aspect-ratio-manually" style="width:100%; max-width: calc( (100vh - 120px) * var(--imagewidth) / var(--imageheight) ); display:none">
-          <img class="result-image unselectable" style="width:100%; filter:contrast(0.0);"  draggable="false">
-        </div>
-      
+    <div class="image-container" style="display:flex; align-items: center; justify-content:space-around; width:100%; height:calc(100vh - 120px);">
+        {{ content_image(name="input",  overlay=True)  | indent(8) }}
+        {{ content_image(name="result", overlay=False) | indent(8) }}
     </div>
 </div>
 {% endset %} {# end filetable_content #}
 
 
 
-
+{# actual content of this file #}
 <template id="filetable-row-template">
     <tr class="ui title" filename="${filename}">
         <!-- table row -->
@@ -101,8 +110,8 @@
     <tr style="display:none" filename="${filename}">
         <!-- content -->
         <td class="ui content" style="padding:0px;">
-            {{ loading_spinner() }}
-            {{ filetable_content }}
+            {{ loading_spinner() | indent(8) }}
+            {{ filetable_content | indent(8) }}
         </td>
     </tr>
 </template>

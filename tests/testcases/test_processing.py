@@ -25,19 +25,21 @@ class ProcessingTest(BaseCase):
         #after processing is done, the dimmer should be gone (can take a while)
         self.wait_for_element_not_visible('[filename="test_image1.jpg"] .dimmer', timeout=6)
 
+        #result image is grayed out with contrast(0) at the start, this should be removed now
+        script = ''' return $('[filename="test_image1.jpg"] .result img').css('filter') '''
+        assert 'contrast(0)' not in self.execute_script(script)
+
         #TODO: check some indication that a file is finished processing (bold font in the file list)
         
         if self.demo_mode:
             self.sleep(1)
         
-        #self.save_screenshot(name="screenshot1.png", selector=None)
-        #assert 0
     
     def test_basic_upload(self):
         self.open_main(static=False)
         
         self.send_input_files_from_assets(["test_image1.jpg"])
-        script = '''console.log(arguments);upload_file_to_flask(GLOBAL.files["test_image1.jpg"]).done(arguments[0]())'''
+        script = '''upload_file_to_flask(GLOBAL.files["test_image1.jpg"]).done(arguments[0]())'''
         self.execute_async_script(script)
         self.sleep(1)
         self.assert_link_status_code_is_not_404(f"http://localhost:{self.port}/images/test_image1.jpg")
