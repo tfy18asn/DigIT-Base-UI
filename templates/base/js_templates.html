@@ -31,7 +31,8 @@
   button_edit_segmentation = True,
   button_new_box           = True,
   callback_on_process      = "on_process_image",
-  view_menu_results_layout = True
+  view_menu_results_layout = True,
+  view_menu_extras         = ""
 ) %}
 <!--------- MACRO content_menu() START---------->
 <div class="ui bottom attached secondary icon menu" style="border-top-width:0px; margin-bottom:0px;">
@@ -49,6 +50,10 @@
           <div class="ui slider brightness-slider" style="padding:0px; padding-top:5px;"></div>
           <script> $('.ui.slider').last().slider({onMove:on_brightness_slider, max:30}).slider('set value', 10); </script>
         </div>
+        {% if view_menu_extras -%}
+          <div class="divider"></div>
+          {{ view_menu_extras }}
+        {%- endif %}
       </div>
     </div>
 
@@ -66,17 +71,18 @@
 
 
 
-{% macro content_image(name, overlay=True) %}
+{% macro content_image(name, overlay=True, viewcontrols="ViewControls", extras="") %}
 <!--------- MACRO content_image() START---------->
-<div class="{{name}} view-box stripes" ondblclick="on_viewbox_dblclick(event)">
+<div class="{{name}} view-box stripes" ondblclick="{{ viewcontrols }}.on_viewbox_dblclick(event)">
   <div class="transform-box set-aspect-ratio-manually" style="transform: matrix(1,0,0,1,0,0)"
-        onmousedown="on_transformbox_mousedown(event)"
-        onmousemove="on_transformbox_mousemove(event)"
-        onwheel    ="on_transformbox_wheel(event)">
+        onmousedown="{{ viewcontrols }}.on_transformbox_mousedown(event)"
+        onmousemove="{{ viewcontrols }}.on_transformbox_mousemove(event)"
+        onwheel    ="{{ viewcontrols }}.on_transformbox_wheel(event)">
     <img class="{{name}}-image unselectable" style="width:100%;" draggable="false">
     {% if overlay -%}
-    <img class="{{name}} overlay unselectable pixelated"  draggable="false" style="position:absolute; width:100%; height:100%; left:0; top:0; filter:url(#black-to-transparent)" >
-    {%- endif %}  
+    <img class="{{name}} overlay unselectable pixelated"  draggable="false">
+    {%- endif %}
+    {{ extras }}
   </div>
 </div>
 <!--------- MACRO content_image() END---------->

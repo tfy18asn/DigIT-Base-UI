@@ -3,6 +3,16 @@ function deepcopy(x){
     return JSON.parse(JSON.stringify(x))
 }
 
+function argmin(x){
+    return arange(x.length).reduce( (carry,i) => x[i]<x[carry]? i : carry );
+}
+
+function arange(x0,x1=undefined){
+    var start = (x1==undefined)?  0 : x0;
+    var stop  = (x1==undefined)? x0 : x1-start;
+    return [...Array(stop).keys()].map(x=>x+start)
+}
+
 
 function upload_file_to_flask(file, url='file_upload', async=true){
     var formdata = new FormData();

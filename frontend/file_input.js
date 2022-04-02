@@ -35,7 +35,7 @@ class BaseFileInput {
             var $trow = $("template#filetable-row-template").tmpl([{filename:f.name}])
             $trow.appendTo($filetable.find('tbody'));
             //get the y-coordinate of the row, as long as all rows are closed
-            //would be unreliable later unreliable
+            //would be unreliable later on
             $trow.first().attr('top', $trow.offset().top)
         }
         $filetable.find('thead th').text(`${files.length} File${(files.length==1)?'':'s'} Loaded`)

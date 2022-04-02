@@ -28,64 +28,70 @@ function on_brightness_slider(){
 }
 
 
-//callback for panning
-function on_transformbox_mousedown(event){
-    if(event.shiftKey)
-        start_move_image(event)
-}
-
-function on_transformbox_mousemove(event){
-    //empty
-}
-
-//callback for zooming
-function on_transformbox_wheel(event){
-    if(!event.shiftKey)
-        return;
-        
-    event.preventDefault();
-    var $el    = $(event.target).closest('.transform-box');
-    var xform   = parse_css_matrix($el.css('transform'));
-    var x      = xform.x * (1 - 0.1*Math.sign(event.deltaY))
-    var y      = xform.y * (1 - 0.1*Math.sign(event.deltaY))
-    var scale  = Math.max(1.0, xform.scale * (1 - 0.1*Math.sign(event.deltaY)));
-    var matrix = `matrix(${scale}, 0, 0, ${scale}, ${x}, ${y})`
-    $el.css('transform', matrix);
-    //$el.find('svg').find('circle.cursor').attr('r', 5/scale)
-}
-
-//reset view
-function on_viewbox_dblclick(event){
-    if(!event.shiftKey)
-        return;
-    console.log('dblclick:', event.target)
-    var $el   = $(event.target).closest('.view-box').find('.transform-box');
-    $el.css('transform', "matrix(1,0,0,1,0,0)");
-}
-
-
-function start_move_image(mousedown_event){
-    var $el     = $(mousedown_event.target).closest('.transform-box');
-    var click_y = mousedown_event.pageY;
-    var click_x = mousedown_event.pageX;
-
-    $(document).on('mousemove', function(mousemove_event) {
-        if( (mousemove_event.buttons & 0x01)==0 ){
-            $(document).off('mousemove');
-            return;
+class ViewControls{
+    //callback for panning
+    static on_transformbox_mousedown(event){
+        if(event.shiftKey){
+            this.start_move_image(event)
+            return true
         }
+    }
 
-        var delta_y = mousemove_event.pageY - click_y;
-        var delta_x = mousemove_event.pageX - click_x;
-            click_y = mousemove_event.pageY;
-            click_x = mousemove_event.pageX;
-        mousemove_event.stopPropagation();
-        
-        var xform  = parse_css_matrix($el.css('transform'));
-        var x      = xform.x + delta_x;
-        var y      = xform.y + delta_y;
-        var matrix = `matrix(${xform.scale}, 0, 0, ${xform.scale}, ${x}, ${y})`
+    static on_transformbox_mousemove(event){
+        //empty
+    }
+    
+    //callback for zooming
+    static on_transformbox_wheel(event){
+        if(!event.shiftKey)
+            return;
+            
+        event.preventDefault();
+        var $el    = $(event.target).closest('.transform-box');
+        var xform   = parse_css_matrix($el.css('transform'));
+        var x      = xform.x * (1 - 0.1*Math.sign(event.deltaY))
+        var y      = xform.y * (1 - 0.1*Math.sign(event.deltaY))
+        var scale  = Math.max(1.0, xform.scale * (1 - 0.1*Math.sign(event.deltaY)));
+        var matrix = `matrix(${scale}, 0, 0, ${scale}, ${x}, ${y})`
         $el.css('transform', matrix);
-    })
+        //$el.find('svg').find('circle.cursor').attr('r', 5/scale)
+    }
+    
+    //reset view
+    static on_viewbox_dblclick(event){
+        if(!event.shiftKey)
+            return;
+        console.log('dblclick:', event.target)
+        var $el   = $(event.target).closest('.view-box').find('.transform-box');
+        $el.css('transform', "matrix(1,0,0,1,0,0)");
+    }
+    
+    
+    static start_move_image(mousedown_event){
+        var $el     = $(mousedown_event.target).closest('.transform-box');
+        var click_y = mousedown_event.pageY;
+        var click_x = mousedown_event.pageX;
+    
+        $(document).on('mousemove', function(mousemove_event) {
+            if( (mousemove_event.buttons & 0x01)==0 ){
+                //mouse up
+                $(document).off('mousemove');
+                return;
+            }
+    
+            var delta_y = mousemove_event.pageY - click_y;
+            var delta_x = mousemove_event.pageX - click_x;
+                click_y = mousemove_event.pageY;
+                click_x = mousemove_event.pageX;
+            mousemove_event.stopPropagation();
+            
+            var xform  = parse_css_matrix($el.css('transform'));
+            var x      = xform.x + delta_x;
+            var y      = xform.y + delta_y;
+            var matrix = `matrix(${xform.scale}, 0, 0, ${xform.scale}, ${x}, ${y})`
+            $el.css('transform', matrix);
+        })
+    }
 }
+
 
