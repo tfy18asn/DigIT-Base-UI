@@ -29,6 +29,13 @@
     image-rendering: pixelated;
 }
 
+.image-container{
+    display:         flex;
+    align-items:     center;
+    justify-content: space-around;
+    width:100%;
+    height:calc(100vh - 120px);
+}
 
 img.result-image {
     /* gray at the start; changed in JS as soon as a result is available */

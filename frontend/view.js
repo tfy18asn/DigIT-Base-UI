@@ -71,6 +71,8 @@ class ViewControls{
         var $el     = $(mousedown_event.target).closest('.transform-box');
         var click_y = mousedown_event.pageY;
         var click_x = mousedown_event.pageX;
+        //prevent selection of text
+        mousedown_event.preventDefault();
     
         $(document).on('mousemove', function(mousemove_event) {
             if( (mousemove_event.buttons & 0x01)==0 ){

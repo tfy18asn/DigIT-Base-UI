@@ -37,8 +37,7 @@
 <div class="filetable-content" style="display:none">
     {{ content_menu.content_menu() | indent }}
 
-    {# TODO: move styles to css file #}
-    <div class="image-container" style="display:flex; align-items: center; justify-content:space-around; width:100%; height:calc(100vh - 120px);">
+    <div class="image-container">
         {{ content_image(name="input",  overlay=True)  | indent(8) }}
         {{ content_image(name="result", overlay=False) | indent(8) }}
     </div>
