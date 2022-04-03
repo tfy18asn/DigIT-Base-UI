@@ -1,4 +1,5 @@
 
+//TODO: convert this to a Detection class
 
 function on_process_image(event){
     var filename = $(event.target).closest('[filename]').attr('filename')
@@ -7,6 +8,7 @@ function on_process_image(event){
 
 
 function process_image(filename){
+    //TODO: states: unprocessed, processing, processed, annotation loaded
     console.log(`Processing image file ${filename}`)
     show_dimmer(filename)
     
@@ -49,14 +51,19 @@ function process_image(filename){
 function process_results(filename, results){
     console.log(`Processing ${filename} successful.`, results)
 
-    var $container = $(`[filename="${filename}"] .result.view-box`)
+    var $root      = $(`[filename="${filename}"]`)
+    var $container = $root.find(`.result.view-box`)
     var $image     = $container.find('img.result-image')
     $image.attr('src', url_for_image(results.segmentation)).css('filter','contrast(1)')
     //$container.show()
 
-    var $result_overlay = $(`[filename="${filename}"] .input.overlay`)
+    var $result_overlay = $root.find(`.input.overlay`)
     $result_overlay.attr('src', url_for_image(results.segmentation))
-    show_results_as_overlay(filename);
+    show_results_as_overlay(filename);  //TODO: remove?
+
+    GLOBAL.files[filename].results = results;  //TODO: detection_results
+    $root.find('a.download').removeClass('disabled')
+    //TODO: indicate in the file table that this file is processed
 }
 
 

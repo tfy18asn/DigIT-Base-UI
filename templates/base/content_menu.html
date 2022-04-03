@@ -69,7 +69,7 @@
     {% if button_new_box -%}
     <a class="item" onclick="console.error(event)"><i class="vector square icon"></i></a>
     {%- endif %}
-    <a class="item" onclick="{{ callback_download }}(event)" data-tooltip="Download Result" data-position="bottom left">
+    <a class="disabled download item" onclick="{{ callback_download }}(event)" data-tooltip="Download Result" data-position="bottom left">
       <i class="download icon"></i>
     </a>
     <a class="item help-menu-button"><i class="help icon"></i></a>

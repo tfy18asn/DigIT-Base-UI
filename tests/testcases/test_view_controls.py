@@ -137,3 +137,6 @@ class TestViewControls(BaseCase):
 
         if self.demo_mode:
             self.sleep(1)
+
+
+#TODO: in side-by-side view both images should have the same transform
