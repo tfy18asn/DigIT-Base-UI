@@ -1,5 +1,5 @@
 
-class BaseDetection{
+BaseDetection = class {
 
     static on_process_image(event){
         var filename = $(event.target).closest('[filename]').attr('filename')
@@ -59,11 +59,12 @@ class BaseDetection{
 
         var $result_overlay = $root.find(`.input.overlay`)
         $result_overlay.attr('src', url_for_image(results.segmentation))
-        show_results_as_overlay(filename);  //TODO: remove?
 
         GLOBAL.files[filename].results = results;  //TODO: detection_results
         $root.find('a.download').removeClass('disabled')
-        //TODO: indicate in the file table that this file is processed
+        
+        //indicate in the file table that this file is processed
+        $(`.table-row[filename="${filename}"] label`).css('font-weight', 'bold')
     }
 
 

@@ -10,15 +10,15 @@
     {# TODO: indent #}
     {% include 'base/scripts.html'   %}
 
-    {{ js_templates.filetable_row_template(app="BaseApp") }}
+    {{ js_templates.filetable_row_template(app="BaseApp") | indent }}
 </head>
 
 
 <body onload="init()">
 
-    {{ top_menu(app="BaseApp") }}
+    {{ top_menu(app="BaseApp")        | indent }}
 
-    {{ main_container(app="BaseApp") }}
+    {{ main_container(app="BaseApp")  | indent }}
 
     {% include 'base/modals.html'          %}
 

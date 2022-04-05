@@ -15,18 +15,22 @@ class ProcessingTest(BaseCase):
 
         #open one file
         self.click('label:contains("test_image1.jpg")')
+        root_css = '[filename="test_image1.jpg"]'
         #click on the processing button
-        self.click('[filename="test_image1.jpg"] .play.icon')
+        self.click(root_css+' .play.icon')
 
         #a dimmer that indicates that processing is in progress should be visible
-        self.wait_for_element_visible('[filename="test_image1.jpg"] .dimmer', timeout=2)
+        self.wait_for_element_visible(root_css+' .dimmer', timeout=2)
         #there should be no error indication
-        assert not self.find_visible_elements('.error') + self.find_visible_elements(':contains("failed")') 
+        assert not self.find_visible_elements('.error, .failed')
         #after processing is done, the dimmer should be gone (can take a while)
-        self.wait_for_element_not_visible('[filename="test_image1.jpg"] .dimmer', timeout=6)
+        self.wait_for_element_not_visible(root_css+' .dimmer', timeout=6)
+        #make sure the row label is bold to indicate that this file is processed
+        script = f''' return $('{root_css} label').css('font-weight') '''
+        assert int(self.execute_script(script)) > 500
 
         #result image is grayed out with contrast(0) at the start, this should be removed now
-        script = ''' return $('[filename="test_image1.jpg"] .result img').css('filter') '''
+        script = f''' return $('{root_css} .result img').css('filter') '''
         assert 'contrast(0)' not in self.execute_script(script)
 
         #TODO: check some indication that a file is finished processing (bold font in the file list)

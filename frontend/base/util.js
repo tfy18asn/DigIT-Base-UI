@@ -42,3 +42,11 @@ function parse_css_matrix(maxtrix_str){
     var scale  = Number(maxtrix_str.split('(')[1].split(',')[0])
     return {x:x, y:y, scale:scale};
 }
+
+
+//reload/update a javascript file (for development)
+function reload_script(url){
+    //first get index.html so that flask recompiles the static folder
+    return $.get('/').then( _ => $.getScript(url) )
+}
+

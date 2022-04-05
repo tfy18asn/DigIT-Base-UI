@@ -33,6 +33,27 @@
 
 
 
+{% macro progress_dimmer() %}
+<!--------- MACRO progress_dimmer() START---------->
+<div class="ui dimmer">
+  <div class="content processing">
+    <h2 class="ui inverted icon header">
+      <i class="spinner loading icon"></i>
+      <p>Processing...</p>
+    </h2>
+  </div>
+  <div class="content failed" style="display:hidden">
+    <h2 class="ui inverted icon header">
+      <p>Processing failed</p>
+    </h2>
+    <p>Click to continue</p>
+  </div>
+</div>
+<!--------- MACRO progress_dimmer() START---------->
+{% endmacro %}
+
+
+
 {% macro filetable_content(app) %}
 <div class="filetable-content" style="display:none">
     {{ content_menu.content_menu(
@@ -46,6 +67,7 @@
     <div class="image-container">
         {{ content_image(name="input",  overlay=True,  viewcontrols=app+".ViewControls") | indent(8) }}
         {{ content_image(name="result", overlay=False, viewcontrols=app+".ViewControls") | indent(8) }}
+        {{ progress_dimmer() }}
     </div>
 </div>
 {% endmacro %}
@@ -54,7 +76,7 @@
 
 {% macro filetable_row_template(app="BaseApp") %}
 <template id="filetable-row-template">
-    <tr class="ui title" filename="${filename}">
+    <tr class="ui title table-row" filename="${filename}">
         <!-- table row -->
         <td>
             <i class="dropdown icon"></i>
@@ -96,25 +118,6 @@
 </svg>
 {% endmacro  %}  {# end filetable_row_template #}
 
-
-{% macro progress_dimmer() %}
-<!--------- MACRO progress_dimmer() START---------->
-<div class="ui dimmer">
-  <div class="content processing">
-    <h2 class="ui inverted icon header">
-      <i class="spinner loading icon"></i>
-      <p>Processing...</p>
-    </h2>
-  </div>
-  <div class="content failed" style="display:hidden">
-    <h2 class="ui inverted icon header">
-      <p>Processing failed</p>
-    </h2>
-    <p>Click to continue</p>
-  </div>
-</div>
-<!--------- MACRO progress_dimmer() START---------->
-{% endmacro %}
 
 
 <!--------- INCLUDE base/js_templates.html END---------->
