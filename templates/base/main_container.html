@@ -1,3 +1,5 @@
+{% import 'base/training_tab.html'     as training_tab %}
+
 
 {% macro base_tabs() %}
 <div class="ui top attached tabular menu">
@@ -22,7 +24,7 @@
 
 
 {% macro main_container(
-    
+    app,
     tabs       = base_tabs(),
     main_table = base_main_table,
     extra      = ""
@@ -36,7 +38,7 @@
     </div>
 
     <div class="ui bottom attached tab" data-tab="training">
-        {% include 'base/training_tab.html' %}
+        {{ training_tab.training_tab(app) }}
     </div>
 
     {{ extra | indent }}
@@ -45,5 +47,3 @@
 {% endmacro %}
 
 
-
-{{ main_container() }}

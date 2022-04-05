@@ -7,6 +7,7 @@ class BaseApp {
     static ViewControls    = ViewControls;
     static Settings        = BaseSettings;
     static FileInput       = BaseFileInput;
+    static Training        = BaseTraining;
 }
 
 

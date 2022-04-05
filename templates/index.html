@@ -1,7 +1,8 @@
 <!--{{warning}}-->
 
 {% import 'base/js_templates.html' as js_templates %}
-{% import 'base/top_menu.html'     as top_menu %}
+{% from 'base/top_menu.html'       import top_menu %}
+{% from 'base/main_container.html' import main_container %}
 
 <html>
 <head>
@@ -15,9 +16,9 @@
 
 <body onload="init()">
 
-    {{ top_menu.top_menu(app="BaseApp") }}
+    {{ top_menu(app="BaseApp") }}
 
-    {% include 'base/main_container.html' %}
+    {{ main_container(app="BaseApp") }}
 
     {% include 'base/modals.html'          %}
 

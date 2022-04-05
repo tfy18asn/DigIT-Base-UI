@@ -1,4 +1,4 @@
-{% set training_files_table %}
+{% macro training_filetable() %}
 <table class="ui basic celled sortable unstackable table accordion" id="training-filetable" style="grid-row: 1 / 3">
     <thead>
       <tr>
@@ -11,45 +11,14 @@
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td>
-          <div class="ui checkbox">
-            <input type="checkbox" name="example">
-          </div>
-        </td>
-        <td>file_0.jpg</td>
-      </tr>
-      <tr>
-        <td>
-          <div class="ui checkbox">
-            <input type="checkbox" name="example">
-          </div>
-        </td>
-        <td>file_1.jpg</td>
-      </tr>
-      <tr>
-        <td>
-          <div class="ui checkbox">
-            <input type="checkbox" name="example">
-          </div>
-        </td>
-        <td>file_2.jpg</td>
-      </tr>
-      <tr>
-        <td>
-          <div class="ui checkbox">
-            <input type="checkbox" name="example">
-          </div>
-        </td>
-        <td>file_3.jpg</td>
-      </tr>
+      {#  "training-filetable-row" inserted here from javascript  #}
     </tbody>
 </table>
-{% endset %} {# training_files_table #}
+{% endmacro %} {# training_filetable #}
 
-{% set training_controls %}
+{% macro training_controls(callback_start_training="") %}
 <div class="ui segment" style="margin-top:0px;">
-    <label class="ui violet fluid button" onclick="on_start_training()" id="start-training-button" style="margin-bottom: 20px;">
+    <label class="ui violet fluid button" onclick="{{callback_start_training}}()" id="start-training-button" style="margin-bottom: 20px;">
       <i class="shuffle icon"></i>
       Start Training
     </label>
@@ -61,13 +30,26 @@
       <div class="label">Uploading Files</div>
     </div>
 </div>
-{% endset %} {# training_controls #}
+{% endmacro %} {# training_controls #}
 
 
-<div style="display:grid; height:200px; grid-template-columns: 50% 50%; grid-column-gap: 5px;">
+{% macro training_tab(app) %}
+<div style="display:grid; height:200px; grid-template-columns: 50% 50%; grid-column-gap: 5px; align-items: start;">
     
-    {{ training_files_table }}
-
-    {{ training_controls }}
+    {{ training_filetable() }}
+    {{ training_controls(callback_start_training = app+".Training.on_start_training") }}
     
 </div>
+
+
+<template id="training-filetable-row">
+  <tr>
+    <td>
+      <div class="ui checkbox">
+        <input type="checkbox" name="example">
+      </div>
+    </td>
+    <td>${filename}</td>
+  </tr>
+</template>
+{% endmacro %}
