@@ -21,7 +21,7 @@
 <!--------- MACRO view_menu() START---------->
 <div class="menu view-menu">
   {% if view_menu_results_layout -%}
-    {{ results_layout() | indent(12) }}
+    {{ results_layout() | indent }}
   {%- endif %}
   <div class="item brightness">
     <i class="sun icon"></i>
@@ -31,7 +31,7 @@
   </div>
   {% if view_menu_extras -%}
     <div class="divider"></div>
-    {{ view_menu_extras }}
+    {{ view_menu_extras | indent }}
   {%- endif %}
 </div>
 <!--------- MACRO view_menu() END  ---------->
@@ -40,14 +40,13 @@
 
 
 {% macro content_menu(
-  button_edit_segmentation = True,
-  button_new_box           = True,
-  button_apply_corrections = False,
-  callback_on_process      = "on_process_image",
-  callback_apply_corrections = None,
-  callback_download        = "Download.on_single_item_download_click",
-  view_menu_results_layout = True,
-  view_menu_extras         = ""
+  callback_on_process        = "",
+  callback_edit_segmentation = "",
+  callback_apply_corrections = "",
+  callback_new_box           = "",
+  callback_download          = "",
+  view_menu_results_layout   = True,
+  view_menu_extras           = ""
 ) %}
 <!--------- MACRO content_menu() START---------->
 <div class="ui bottom attached secondary icon menu" style="border-top-width:0px; margin-bottom:0px;">
@@ -55,19 +54,19 @@
 
     <div class="ui simple dropdown icon item view-menu-button">
       <i class="eye icon"></i>
-      {{ view_menu(view_menu_results_layout, view_menu_extras) }}
+      {{ view_menu(view_menu_results_layout, view_menu_extras) | indent(8)}}
     </div>
 
-    {% if button_edit_segmentation -%}
-    <a class="item" onclick="console.error(event)"><i class="pen icon"></i></a>
+    {% if callback_edit_segmentation -%}
+    <a class="item" onclick="{{ callback_edit_segmentation }}(event)"><i class="pen icon"></i></a>
     {%- endif %}
     {% if callback_apply_corrections -%}
     <a class="item" onclick="{{ callback_apply_corrections }}(event)" data-tooltip="Apply manual corrections" data-position="bottom left">
       <i class="check icon"></i>
     </a>
     {%- endif %}
-    {% if button_new_box -%}
-    <a class="item" onclick="console.error(event)"><i class="vector square icon"></i></a>
+    {% if callback_new_box -%}
+    <a class="item" onclick="{{ callback_new_box }}(event)"><i class="vector square icon"></i></a>
     {%- endif %}
     <a class="disabled download item" onclick="{{ callback_download }}(event)" data-tooltip="Download Result" data-position="bottom left">
       <i class="download icon"></i>

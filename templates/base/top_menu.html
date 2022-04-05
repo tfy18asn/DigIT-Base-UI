@@ -1,4 +1,6 @@
 
+{% macro top_menu(app) %}
+
 <div class="ui container menu" style="width:calc(100% - 40px);">  <!--TODO: add css class-->
 
     <div class="ui simple dropdown item">
@@ -10,34 +12,27 @@
             Load Input Images
           </label>
           <input type="file" id="input_images" style="display:none"
-                 onchange="FileInput.on_inputfiles_select(event)" accept="image/*" multiple>
+                 onchange="{{ app }}.FileInput.on_inputfiles_select(event)" accept="image/*" multiple>
           
           <label for="input_folder" class="ui icon item">
             <i class="folder outline icon"></i>
             Load Input Folder
           </label>
           <input type="file" id="input_folder" style="display:none" 
-                 onchange="FileInput.on_inputfolder_select(event)"  webkitdirectory directory multiple>
-
-        {% block    file_menu_items %}
-        {% endblock file_menu_items %}
+                 onchange="{{ app }}.FileInput.on_inputfolder_select(event)"  webkitdirectory directory multiple>
       </div>
     </div> <!--End dropdown menu-->
 
-
-    {% block    top_menu_buttons %}
-    {% endblock top_menu_buttons %}
     
-
     <div class="ui secondary right menu">
       <div class="item">
         <div class="ui buttons">
-          {% block    top_menu_rhs_buttons %}
-          <label class="ui button" onclick="on_settings()"
+          
+          <label class="ui button" onclick="{{ app }}.Settings.on_settings()"
                 id="settings-button" data-tooltip="Settings" data-position="bottom center">
             <i class="wrench icon"></i>
           </label>
-          {% endblock top_menu_rhs_buttons %}
+          
         </div>
       </div>
   </div>
@@ -45,3 +40,4 @@
 
 </div>
 
+{% endmacro %}

@@ -19,6 +19,7 @@ class BaseFileInput {
     }
 
     static set_input_files(files){
+        //TODO: send request to flask to clear cache folder
         GLOBAL.files = []
         for(let f of files){
             GLOBAL.files[f.name] = f
@@ -42,7 +43,3 @@ class BaseFileInput {
     }
 };
 
-
-class FileInput extends BaseFileInput{
-
-}

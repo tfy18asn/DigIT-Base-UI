@@ -1,17 +1,21 @@
 <!--{{warning}}-->
+
+{% import 'base/js_templates.html' as js_templates %}
+{% import 'base/top_menu.html'     as top_menu %}
+
 <html>
 <head>
     <title>DigIT Base UI</title>
     {# TODO: indent #}
     {% include 'base/scripts.html'   %}
 
-    {% include 'base/js_templates.html' %}
+    {{ js_templates.filetable_row_template(app="BaseApp") }}
 </head>
 
 
 <body onload="init()">
 
-    {% include 'base/top_menu.html'        %}
+    {{ top_menu.top_menu(app="BaseApp") }}
 
     {% include 'base/main_container.html' %}
 

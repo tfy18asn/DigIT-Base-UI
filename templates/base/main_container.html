@@ -22,8 +22,9 @@
 
 
 {% macro main_container(
+    
     tabs       = base_tabs(),
-    main_table = base_main_table(),
+    main_table = base_main_table,
     extra      = ""
 ) %}
 <div class="ui container" style="width:calc(100% - 40px); padding-bottom:50vh;"> <!--TODO: add css class-->
@@ -31,7 +32,7 @@
     {{ tabs | indent }}
 
     <div class="ui bottom attached active tab" data-tab="detection">
-        {{ main_table | indent(8) }}
+        {{ main_table() | indent(8) }}
     </div>
 
     <div class="ui bottom attached tab" data-tab="training">
