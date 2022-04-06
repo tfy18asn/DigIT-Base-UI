@@ -3,9 +3,9 @@
     <thead>
       <tr>
         <th>
-          <div class="ui checkbox">
+          <!--<div class="ui checkbox">
             <input type="checkbox" name="example">
-          </div>
+          </div>-->
         </th>
         <th>Selected files for training</th>
       </tr>
@@ -14,6 +14,11 @@
       {#  "training-filetable-row" inserted here from javascript  #}
     </tbody>
 </table>
+
+<script>
+  //init checkboxes
+  //new MutationObserver
+</script>
 {% endmacro %} {# training_filetable #}
 
 {% macro training_controls(callback_start_training="") %}
@@ -23,12 +28,12 @@
       Start Training
     </label>
 
-    <div class="ui progress">
+    <!--<div class="ui progress">
       <div class="bar">
         <div class="progress"></div>
       </div>
       <div class="label">Uploading Files</div>
-    </div>
+    </div>-->
 </div>
 {% endmacro %} {# training_controls #}
 
@@ -43,10 +48,11 @@
 
 
 <template id="training-filetable-row">
-  <tr>
+  <tr filename="${filename}">
     <td>
       <div class="ui checkbox">
-        <input type="checkbox" name="example">
+        <input type="checkbox" name="select-file" checked>
+        <label></label>
       </div>
     </td>
     <td>${filename}</td>

@@ -128,6 +128,7 @@ class App(flask.Flask):
             return 'OK'
         
         self.route('/process_image/<imagename>')(self.process_image)
+        self.route('/training', methods=['POST'])(self.training)
         
         @self.after_request
         def add_header(r):
@@ -168,6 +169,22 @@ class App(flask.Flask):
         return {
             'segmentation'   :   os.path.basename(result_path),
         }
+    
+    def training(self):
+        '''Mock training function. Needs to be re-implemented downstream.'''
+        imagefiles = dict(flask.request.form.lists())['filenames[]']
+        imagefiles = [os.path.join(self.cache_path, fname) for fname in imagefiles]
+        if not all([os.path.exists(fname) for fname in imagefiles]):
+            flask.abort(404)
+        
+        print(f'Simulating training')
+        import time
+        for p in range(3):
+            #indicate progress to ui
+            pubsub.PubSub.publish({'progress':p/3,  'description':'Training...'}, event='training')
+            time.sleep(1)
+        pubsub.PubSub.publish({'progress':(p+1)/3,  'description':'Training...'}, event='training')
+        return 'OK'
 
     def recompile_static(self, force=False):
         '''Compiles templates into a single HTML file and copies JavaScript files

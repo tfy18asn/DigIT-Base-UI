@@ -47,6 +47,11 @@ function parse_css_matrix(maxtrix_str){
 //reload/update a javascript file (for development)
 function reload_script(url){
     //first get index.html so that flask recompiles the static folder
-    return $.get('/').then( _ => $.getScript(url) )
+    //then reload all app.js files
+    //FIXME: too complicated
+    var app_scripts    = $('script[src*="app.js"]').get().map( x => x.src )
+    var scripts_to_reload = [url].concat(app_scripts)
+    $.get('/').then(
+        _ => scripts_to_reload.reduce( async (prev, u) => {await prev; return $.getScript(`${u}`)}, 'init' )
+    )
 }
-
