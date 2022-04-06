@@ -23,6 +23,12 @@ class ProcessingTest(BaseCase):
         self.wait_for_element_visible(root_css+' .dimmer', timeout=2)
         #there should be no error indication
         assert not self.find_visible_elements('.error, .failed')
+        #dimmer should not be closable with a click
+        self.execute_script(f'''$('{root_css} .dimmer').click()''') #self.click doesnt work
+        self.sleep(0.5)
+
+        self.assert_element_visible(root_css+' .dimmer', timeout=0.5)
+
         #after processing is done, the dimmer should be gone (can take a while)
         self.wait_for_element_not_visible(root_css+' .dimmer', timeout=6)
         #make sure the row label is bold to indicate that this file is processed
@@ -64,11 +70,20 @@ class ProcessingTest(BaseCase):
 
         #open one file
         self.click('label:contains("test_image1.jpg")')
+        root_css = '[filename="test_image1.jpg"]'
         #click on the processing button
-        self.click('[filename="test_image1.jpg"] .play.icon')
+        self.click(root_css+' .play.icon')
 
         #should fail because static file is opened
-        self.wait_for_element_visible('.error', timeout=3)
+        #self.wait_for_element_visible('.error', timeout=3)
+        self.sleep(1)
+        assert self.execute_script('''return $('.dimmer :contains("failed"):visible').length''') > 0
+        #self.wait_for_element_visible('.dimmer :contains("failed")', timeout=3) #doesnt work
+
+        #dimmer should hide after click
+        self.execute_script(f'''$('.dimmer:visible').click()''') #self.click doesnt work
+        self.wait_for_element_not_visible(root_css+' .dimmer', timeout=6)
+
 
         if self.demo_mode:
             self.sleep(1)

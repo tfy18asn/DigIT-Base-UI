@@ -27,20 +27,21 @@ BaseDetection = class {
         let promise = upload_file_to_flask(file)
         promise.fail( response => {
             console.log('File upload failed.', response.status)
-            $('body').toast({message:'File upload failed.', class:'error'})
+            //$('body').toast({message:'File upload failed.', class:'error'})
+            this.update_dimmer(filename, true)
         })
 
         promise = promise.then( function(){
             return $.get(`process_image/${filename}`).fail( response => {
                 console.log('Processing failed.', response.status)
-                $('body').toast({message:'Processing failed.', class:'error'})
+                //$('body').toast({message:'Processing failed.', class:'error'})
+                this.update_dimmer(filename, true)
             })
         })
         promise.done(results => this.process_results(filename, results))
 
 
         promise.always( _ => {
-            this.hide_dimmer(filename)
             //TODO: delete_image_from_flask(filename)
             $(GLOBAL.event_source).off('message', on_message)
         })
@@ -50,6 +51,7 @@ BaseDetection = class {
 
     static process_results(filename, results){
         console.log(`Processing ${filename} successful.`, results)
+        this.hide_dimmer(filename)
 
         var $root      = $(`[filename="${filename}"]`)
         var $container = $root.find(`.result.view-box`)
@@ -71,11 +73,8 @@ BaseDetection = class {
 
 
     static show_dimmer(filename, message='Processing...'){
-        $(`[filename="${filename}"] .view-box`).dimmer({
-            displayLoader:   true,
-            loaderVariation: 'slow orange medium elastic',
-            loaderText:      message,
-        }).dimmer('show');
+        this.update_dimmer(filename, false)
+        $(`[filename="${filename}"] .dimmer`).dimmer({closable:false}).dimmer('show')
 
         //XXX: function should be called show_dimmer_and_disable_menu()
         $(`[filename="${filename}"] .icon.menu .item`).addClass('disabled')
@@ -83,12 +82,21 @@ BaseDetection = class {
     }
 
     static hide_dimmer(filename){
-        $(`[filename="${filename}"] .view-box`).dimmer('hide')
+        $(`[filename="${filename}"] .dimmer`).dimmer('hide')
         $(`[filename="${filename}"] .icon.menu .item`).removeClass('disabled')
     }
 
-    static update_dimmer(filename, message){
-        console.log('TODO: update_dimmer() not implemented')
+    static update_dimmer(filename, failed){
+        var $dimmer = $(`[filename="${filename}"] .dimmer`)
+        if(failed){
+            $dimmer.find('.content.processing').hide()
+            $dimmer.find('.content.failed').show()
+            $dimmer.dimmer({closable: true})
+        } else {
+            $dimmer.find('.content.processing').show()
+            $dimmer.find('.content.failed').hide()
+            $dimmer.dimmer({closable: false})
+        }
     }
 
 }
