@@ -4,21 +4,23 @@
 {% from 'base/top_menu.html'       import top_menu %}
 {% from 'base/main_container.html' import main_container %}
 
+{% set app = "BaseApp" %}
+
 <html>
 <head>
     <title>DigIT Base UI</title>
     {# TODO: indent #}
     {% include 'base/scripts.html'   %}
 
-    {{ js_templates.filetable_row_template(app="BaseApp") | indent }}
+    {{ js_templates.filetable_row_template(app) | indent }}
 </head>
 
 
-<body onload="init()">
+<body onload="{{app}}.init()">
 
-    {{ top_menu(app="BaseApp")        | indent }}
+    {{ top_menu(app)        | indent }}
 
-    {{ main_container(app="BaseApp")  | indent }}
+    {{ main_container(app)  | indent }}
 
     {% include 'base/modals.html'          %}
 

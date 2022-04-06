@@ -51,8 +51,8 @@ class TestViewControls(BaseCase):
         self.hover_on_element(root_css+' .view-menu-button')
         self.wait_for_element_visible(menu_css)
 
-        self.hover_on_element(root_css+' .brightness-slider .thumb')
-        thumb = self.find_element(root_css+' .brightness-slider .thumb')
+        thumb_css = root_css+' .brightness-slider .thumb'
+        self.hover_on_element(thumb_css)
 
         #input image brightness should be simply one at the start
         script = f''' return $('{root_css} .input img').css('filter') '''
@@ -60,9 +60,8 @@ class TestViewControls(BaseCase):
         assert 'brightness(1)' in image_filters
         brightness0   = float(image_filters.split('brightness(')[1].split(')')[0])
 
-        from selenium import webdriver
         #move slider to the right
-        webdriver.ActionChains(self.driver).click_and_hold(thumb).move_by_offset(20,0).release().perform()
+        self.drag_and_drop_with_offset(thumb_css, 20, 0)
         self.sleep(0.1)
 
         #brightness should have increased
@@ -72,7 +71,7 @@ class TestViewControls(BaseCase):
 
 
         #move slider back to the original position
-        webdriver.ActionChains(self.driver).click_and_hold(thumb).move_by_offset(-20,0).release().perform()
+        self.drag_and_drop_with_offset(thumb_css, -20, 0)
         self.sleep(0.1)
 
         #brightness should have decreased, if possible to 1 again

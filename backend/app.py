@@ -178,6 +178,8 @@ class App(flask.Flask):
             return
         
         #TODO: clear the folder before copying
+        shutil.rmtree(self.static_folder, ignore_errors=True)
+        os.makedirs(self.static_folder)
         for source in self.frontend_folders:
             if os.path.abspath(source) != os.path.abspath(self.static_folder):
                 #shutil.copytree(source, target)
