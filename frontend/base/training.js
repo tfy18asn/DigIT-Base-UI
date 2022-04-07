@@ -71,6 +71,7 @@ BaseTraining = class BaseTraining{
     }
 
     static upload_training_data(filenames){
+        //TODO: show progress
         var promises = filenames.map( f => upload_file_to_flask(GLOBAL.files[f]) )
         return Promise.all(promises).catch( this.fail_modal )
     }

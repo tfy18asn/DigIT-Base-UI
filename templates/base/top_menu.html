@@ -12,7 +12,7 @@
             Load Input Images
           </label>
           <input type="file" id="input_images" style="display:none"
-                 onchange="{{ app }}.FileInput.on_inputfiles_select(event)" accept="image/*" multiple>
+                 onchange="{{ app }}.FileInput.on_inputfiles_select(event)" accept="image/*, application/zip, application/x-zip-compressed" multiple>
           
           <label for="input_folder" class="ui icon item">
             <i class="folder outline icon"></i>

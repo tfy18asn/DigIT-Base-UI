@@ -38,7 +38,7 @@ BaseDetection = class {
                 this.update_dimmer(filename, true)
             })
         })
-        promise.done(results => this.process_results(filename, results))
+        promise.done(results => this.set_results(filename, results))
 
 
         promise.always( _ => {
@@ -49,18 +49,18 @@ BaseDetection = class {
     }
 
 
-    static process_results(filename, results){
-        console.log(`Processing ${filename} successful.`, results)
+    static set_results(filename, results){
+        console.log(`Setting ${filename} result to: `, results)
         this.hide_dimmer(filename)
 
         var $root      = $(`[filename="${filename}"]`)
         var $container = $root.find(`.result.view-box`)
         var $image     = $container.find('img.result-image')
-        $image.attr('src', url_for_image(results.segmentation)).css('filter','contrast(1)')
-        //$container.show()
+        set_image_src($image, results.segmentation)
+        $image.css('filter','contrast(1)')
 
         var $result_overlay = $root.find(`.input.overlay`)
-        $result_overlay.attr('src', url_for_image(results.segmentation))
+        set_image_src($result_overlay, results.segmentation)
 
         GLOBAL.files[filename].results = results;  //TODO: detection_results
         $root.find('a.download').removeClass('disabled')
@@ -68,9 +68,6 @@ BaseDetection = class {
         //indicate in the file table that this file is processed
         $(`.table-row[filename="${filename}"] label`).css('font-weight', 'bold')
     }
-
-
-
 
     static show_dimmer(filename, message='Processing...'){
         this.update_dimmer(filename, false)

@@ -3,13 +3,14 @@
 class BaseFileInput {
     //called when user selects input file(s)
     static on_inputfiles_select(event){
-        this.set_input_files(event.target.files);
+        //this.set_input_files(event.target.files);
+        this.load_list_of_files(event.target.files)
         event.target.value = ""; //reset the input
     }
     
     //called when user selects an input folder
     static on_inputfolder_select(event){
-        console.log(event)
+        //no using load_list_of_files() to avoid ambiguity
         var files = [];
         for(var f of event.target.files)
             if(f.type.startsWith('image'))
@@ -55,43 +56,41 @@ class BaseFileInput {
     static on_drop(event){
         event.preventDefault();
         //TODO: show dimmer/message
-        this.upload_list_of_files(event.dataTransfer.files)
+        this.load_list_of_files(event.dataTransfer.files)
     }
 
-    static upload_list_of_files(files){
+    static load_list_of_files(files){
+        //TODO: first collect all files, then load
         var imagefiles = []
         for(var f of Object.values(files)){
+            //TODO: handle folders
             if(["application/zip", "application/x-zip-compressed"].indexOf(f.type)!=-1)
-                this.upload_from_zipfile(f);
+                this.load_from_zipfile(f);
             else if(f.name.endsWith('.segmentation.png'))
-                this.upload_result(f)
+                this.load_result(f)
             else if(["image/jpeg", "image/png", "image/tiff"].indexOf(f.type)!=-1)
                 imagefiles.push(f)
         }
 
-        //FIXME: race condition if `files` contains zipfiles which contain images
-        //(or maybe not: they contain no mimetype)
-        //but: race condition if dropping images and result zips at the same time
+        //FIXME: race condition if loading images and result zips at the same time
         if(imagefiles.length)
             this.set_input_files(imagefiles)
     }
 
-    static upload_from_zipfile(zipfile){
+    static load_from_zipfile(zipfile){
         return JSZip.loadAsync(zipfile).then( 
-            (zip) => this.upload_list_of_files(zip.files)
+            (zip) => this.load_list_of_files(zip.files)
         )
     }
 
-    static async upload_result(file){
+    static async load_result(file){
         const filename  = file.name.replace(/.segmentation.png/g, '')
         const inputfile = GLOBAL.files[filename]
         if(inputfile != undefined){
             const blob   = await(file.async? file.async('blob') : file)
             file         = new File([blob], file.name, {type:'image/png'})
-            //FIXME: refactor, ideally without upload_file_to_flask
-            await upload_file_to_flask(file)
-            const result = {segmentation: file.name}
-            App.Detection.process_results(filename, result)
+            const result = {segmentation: file}
+            App.Detection.set_results(filename, result)
         }
     }
 };

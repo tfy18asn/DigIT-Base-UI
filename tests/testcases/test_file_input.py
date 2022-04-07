@@ -43,10 +43,43 @@ class TestBasic(BaseCase):
         self.wait_for_element_not_visible('[filename="test_image2.tiff"]:contains("Loading")', timeout=6)
         assert self.is_element_visible('[filename="test_image2.tiff"] img')
         
-        self.save_screenshot_to_logs('screenshot_img1.png', selector='[filename="test_image2.tiff"] img')
+        #self.save_screenshot_to_logs('screenshot_img1.png', selector='[filename="test_image2.tiff"] img')
 
         if self.demo_mode:
             self.sleep(1)
+    
+    def test_load_results(self):
+        self.open_main(static=True)
+        #open image files and a result file
+        self.send_input_files_from_assets([
+            "test_image0.jpg",
+            "test_image1.jpg",
+            "test_image1.jpg.results.zip"
+        ])
+        self.sleep(0.2)
+
+        #row label should be bold to indicate that this file is processed
+        script = f''' return $('[filename="test_image1.jpg"] label').css('font-weight') '''
+        assert int(self.execute_script(script)) > 500
+        #image0 should be not loaded
+        script = f''' return $('[filename="test_image0.jpg"] label').css('font-weight') '''
+        assert int(self.execute_script(script)) <= 500
+
+        #load the result of the other image
+        self.send_input_files_from_assets([
+            "test_image0.jpg.results.zip"
+        ])
+        self.sleep(0.2)
+
+        #both images should be loaded now
+        script = f''' return $('[filename="test_image0.jpg"] label').css('font-weight') '''
+        assert int(self.execute_script(script)) > 500
+        script = f''' return $('[filename="test_image1.jpg"] label').css('font-weight') '''
+        assert int(self.execute_script(script)) > 500
+
+        if self.demo_mode:
+            self.sleep(1)
+
 
 
 #TODO: load lots (10k) of files
