@@ -1,4 +1,7 @@
 import os, sys, shutil, glob, tempfile, json, webbrowser
+import warnings
+warnings.simplefilter('ignore')
+
 import flask, jinja2
 
 import argparse
@@ -129,7 +132,8 @@ class App(flask.Flask):
         
         self.route('/process_image/<imagename>')(self.process_image)
         self.route('/training', methods=['POST'])(self.training)
-        
+        self.route('/save_model')(self.save_model)
+
         @self.after_request
         def add_header(r):
             """Prevent caching."""
@@ -184,6 +188,11 @@ class App(flask.Flask):
             pubsub.PubSub.publish({'progress':p/3,  'description':'Training...'}, event='training')
             time.sleep(1)
         pubsub.PubSub.publish({'progress':(p+1)/3,  'description':'Training...'}, event='training')
+        return 'OK'
+    
+    def save_model(self):
+        '''Mock function. Needs to be re-implemented downstream.'''
+        print('Saving training model as:',request.args['newname'])
         return 'OK'
 
     def recompile_static(self, force=False):

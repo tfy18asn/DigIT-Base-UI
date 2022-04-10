@@ -3,6 +3,7 @@
 {% import 'base/js_templates.html' as js_templates %}
 {% from 'base/top_menu.html'       import top_menu %}
 {% from 'base/main_container.html' import main_container %}
+{% from 'base/modals.html'         import modal_settings, modal_training_progress %}
 
 {% set app = "BaseApp" %}
 
@@ -22,7 +23,8 @@
 
     {{ main_container(app)  | indent }}
 
-    {% include 'base/modals.html'          %}
+    {{ modal_settings() }}
+    {{ modal_training_progress() }}
 
     {# TODO: footer #}
 

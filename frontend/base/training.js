@@ -17,21 +17,23 @@ BaseTraining = class BaseTraining{
         this.show_modal()     
         await this.upload_training_data(filenames)
 
-        $(GLOBAL.event_source).on('training', this.on_training_progress)
+        $(GLOBAL.event_source).on('training', m => this.on_training_progress(m))
+        //FIXME: success/fail should not be determined by this request
         $.post('/training', {'filenames':filenames})
-            .done( this.success_modal )
+            //.done( this.success_modal )
             .fail( this.fail_modal )
             .always( _ => $(GLOBAL.event_source).off('training', this.on_training_progress) );
     }
 
     static on_cancel_training(){
+        //FIXME: request stop
         this.hide_modal()
         //return false;
     }
 
     static #get_selected_files(){
         var $table          = $('#training-filetable')
-        var is_selected     = $table.find('.checkbox').checkbox('is checked')
+        var is_selected     = $table.find('.checkbox').map( (i,c) => $(c).checkbox('is checked')).get()
         var filenames       = $table.find('[filename]').map( (i,x) => x.getAttribute('filename') ).get()
         filenames           = filenames.filter( (f,i) => is_selected[i] )
         return filenames
@@ -67,12 +69,28 @@ BaseTraining = class BaseTraining{
 
     static on_training_progress(message){
         var data = JSON.parse(message.originalEvent.data)
-        $('#training-modal .progress').progress({percent:data.progress*100})
+        $('#training-modal .progress').progress({percent:data.progress*100, autoSuccess:false})
+        if(data.progress >= 1){
+            this.success_modal()
+            $('#training-new-modelname-field').show()
+        }
+    }
+
+    static on_save_model(){
+        var new_modelname = $('#training-new-modelname')[0].value
+        console.log('Saving new model as:', new_modelname)
+        $.get('/save_model', {newname: new_modelname})
+            .done( _ => $('#training-new-modelname-field').hide() )
+            .fail( _ => $('body').toast({message:'Saving failed.', class:'error', displayTime: 0, closeIcon: true}) )
     }
 
     static upload_training_data(filenames){
         //TODO: show progress
-        var promises = filenames.map( f => upload_file_to_flask(GLOBAL.files[f]) )
+        var promises      = filenames.map( f => upload_file_to_flask(GLOBAL.files[f]) )
+        //TODO: refactor
+        var segmentations = filenames.map( f => GLOBAL.files[f].results.segmentation )
+                                     .filter( s => s instanceof Blob )
+        promises          = promises.concat( segmentations.map( f => upload_file_to_flask(f) ) )
         return Promise.all(promises).catch( this.fail_modal )
     }
 }

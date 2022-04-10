@@ -31,7 +31,9 @@ class Settings:
             json.dump( s, open('settings.json','w')) 
 
     def get_settings_as_dict(self):
-        s = self.load_settings_from_file()
+        #s = self.load_settings_from_file()
+        s = self.get_defaults()
+        s = dict([ (k,getattr(self,k,v)) for k,v in s.items() ])
         return {
             'settings'         : s,
             'available_models' : self.get_available_models()
