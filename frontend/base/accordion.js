@@ -39,7 +39,7 @@ function set_image_src($img, file){
         $img.attr('src', url)
         $img.one('load', _ => URL.revokeObjectURL(url) )
         console.log('Setting image src of', $img, 'to blob', file)
-    } else if (file instanceof String || typeof file === "string"){
+    } else if (is_string(file)){
         var url = url_for_image(file)
         $img.attr('src', url)
         console.log('Setting image src of', $img, 'to string', file)

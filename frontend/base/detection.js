@@ -48,21 +48,25 @@ BaseDetection = class {
         return promise;
     }
 
-
-    static set_results(filename, results){
+    static async set_results(filename, results){
         console.log(`Setting ${filename} result to: `, results)
         this.hide_dimmer(filename)
 
+        if(is_string(results.segmentation))
+            results.segmentation = await fetch_as_file(url_for_image(results.segmentation))
+        
         var $root      = $(`[filename="${filename}"]`)
-        var $container = $root.find(`.result.view-box`)
-        var $image     = $container.find('img.result-image')
+        
+        //TODO: result should be loaded only if (1) it's a url or (2) the accordion item is open
+        //      otherwise load when accordion is opened
+        var $image     = $root.find('img.result-image')
         set_image_src($image, results.segmentation)
         $image.css('filter','contrast(1)')
 
-        var $result_overlay = $root.find(`.input.overlay`)
+        var $result_overlay = $root.find(`img.overlay`)  //FIXME: this affects the root tracking tab as well!
         set_image_src($result_overlay, results.segmentation)
 
-        GLOBAL.files[filename].results = results;  //TODO: detection_results
+        GLOBAL.files[filename].results = results;  //TODO: call it detection_results
         $root.find('a.download').removeClass('disabled')
         
         //indicate in the file table that this file is processed

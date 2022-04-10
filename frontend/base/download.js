@@ -1,6 +1,4 @@
 
-
-
 class BaseDownload{
     static async on_single_item_download_click(event){
         var $root     = $(event.target).closest('[filename]')
@@ -31,9 +29,6 @@ class BaseDownload{
     }
 }
 
-Download = BaseDownload;
-
-
 
 //downloads an element from the uri (to the user hard drive)
 function downloadURI(filename, uri) {
@@ -52,9 +47,4 @@ function download_text(filename, text){
   
 function download_blob(filename, blob){
     return downloadURI(filename, URL.createObjectURL(blob));
-}
-
-//fetch request that returns a blob
-function fetch_as_blob(uri){
-    return fetch(uri).then(r => r.ok? r.blob() : undefined);
 }

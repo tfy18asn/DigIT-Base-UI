@@ -29,9 +29,25 @@ function upload_file_to_flask(file, url='file_upload', async=true){
     })
 }
 
-
 function url_for_image(imagename, cachebuster=true){
     return `/images/${imagename}` + (cachebuster? `?_=${Date.now()}` : '')
+}
+
+//fetch request that returns a blob
+async function fetch_as_blob(url){
+    const r = await fetch(url);
+    return await (r.ok ? r.blob() : undefined);
+}
+
+//fetch request that returns a file
+async function fetch_as_file(url){
+    var filename = url.split('/').reverse()[0].split('?')[0]
+    const b      = await fetch_as_blob(url);
+    return new File([b], filename, { type: b.type });
+}
+
+function is_string(x){
+    return (x instanceof String || typeof x === "string")
 }
 
 

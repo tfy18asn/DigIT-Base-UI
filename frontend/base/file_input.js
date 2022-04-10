@@ -66,7 +66,7 @@ class BaseFileInput {
             //TODO: handle folders
             if(["application/zip", "application/x-zip-compressed"].indexOf(f.type)!=-1)
                 this.load_from_zipfile(f);
-            else if(f.name.endsWith('.segmentation.png'))
+            else if(f.name.endsWith('.segmentation.png'))  //TODO: allow also without ".segmentation."
                 this.load_result(f)
             else if(["image/jpeg", "image/png", "image/tiff"].indexOf(f.type)!=-1)
                 imagefiles.push(f)
