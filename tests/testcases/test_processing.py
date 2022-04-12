@@ -84,6 +84,10 @@ class ProcessingTest(BaseCase):
         self.execute_script(f'''$('.dimmer:visible').click()''') #self.click doesnt work
         self.wait_for_element_not_visible(root_css+' .dimmer', timeout=6)
 
+        #download button should be disabled
+        assert 'disabled' in self.get_attribute(root_css + ' a.download', 'class')
+        #processing button should be enabled
+        assert 'disabled' not in self.get_attribute(root_css + ' a.process', 'class')
 
         if self.demo_mode:
             self.sleep(1)

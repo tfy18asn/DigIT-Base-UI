@@ -10,17 +10,10 @@ BaseDownload = class {
             return
         }
         var zipdata  = this.zipdata_for_file(filename);
-
-        var zip = new JSZip();
-        for(var fname in zipdata)
-            zip.file(fname, await zipdata[fname], {binary:true});
-        
-        zip.generateAsync({type:"blob"}).then( blob => {
-            download_blob( `${filename}.results.zip`, blob  );
-        } );
+        download_zip(`${filename}.results.zip`, zipdata)
     }
 
-    static async on_download_all(event){
+    static on_download_all(event){
         var all_zipdata   = {}
         var filenames = Object.keys(GLOBAL.files)
         for(var filename of filenames){
@@ -29,14 +22,7 @@ BaseDownload = class {
             
             Object.assign(all_zipdata, this.zipdata_for_file(filename, filename+'/'))
         }
-
-        var zip = new JSZip();
-        for(var fname in all_zipdata)
-            zip.file(fname, await all_zipdata[fname], {binary:true});
-        
-        zip.generateAsync({type:"blob"}).then( blob => {
-            download_blob( `results.zip`, blob  );
-        } );
+        download_zip('results.zip', zipdata)
     }
 
     static zipdata_for_file(filename){
@@ -66,4 +52,14 @@ function download_text(filename, text){
   
 function download_blob(filename, blob){
     return downloadURI(filename, URL.createObjectURL(blob));
+}
+
+async function download_zip(filename, zipdata){
+    var zip = new JSZip();
+    for(var fname in zipdata)
+        zip.file(fname, await zipdata[fname], {binary:true});
+    
+    zip.generateAsync({type:"blob"}).then( blob => {
+        download_blob(filename, blob  );
+    } );
 }

@@ -36,13 +36,16 @@ function set_image_src($img, file){
         load_tiff_file(file).then( blob => set_image_src($img, blob) )
     } else if( file instanceof Blob) {
         var url = URL.createObjectURL(file)
-        $img.attr('src', url)
+        $img.attr('src', url).css('visibility', '')
         $img.one('load', _ => URL.revokeObjectURL(url) )
         console.log('Setting image src of', $img, 'to blob', file)
     } else if (is_string(file)){
         var url = url_for_image(file)
-        $img.attr('src', url)
+        $img.attr('src', url).css('visibility', '')
         console.log('Setting image src of', $img, 'to string', file)
+    } else if (file==undefined) {
+        $img.css('visibility', 'hidden')
+        $img[0].removeAttribute('src')
     } else {
         throw TypeError(`Cannot set image src to ${file}`)
     }

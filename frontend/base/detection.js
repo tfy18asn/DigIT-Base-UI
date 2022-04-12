@@ -20,9 +20,11 @@ BaseDetection = class {
 
 
     static process_image(filename){
-        //TODO: states: unprocessed, processing, processed, annotation loaded
+        //TODO: states: unprocessed, processing, processed, failed
         console.log(`Processing image file ${filename}`)
-        this.show_dimmer(filename)
+        //this.clear_results(filename)
+        this.set_results(filename, undefined)
+        this.set_processing(filename)
         
         //Called on a server-side event from the server notifying about processing progress
         function on_message(event){
@@ -39,15 +41,13 @@ BaseDetection = class {
         let promise = upload_file_to_flask(file)
         promise.fail( response => {
             console.log('File upload failed.', response.status)
-            //$('body').toast({message:'File upload failed.', class:'error'})
-            this.update_dimmer(filename, true)
+            this.set_failed(filename)
         })
 
         promise = promise.then( function(){
             return $.get(`process_image/${filename}`).fail( response => {
                 console.log('Processing failed.', response.status)
-                //$('body').toast({message:'Processing failed.', class:'error'})
-                this.update_dimmer(filename, true)
+                this.set_failed(filename)
             })
         })
         promise.done(results => this.set_results(filename, results))
@@ -61,45 +61,57 @@ BaseDetection = class {
     }
 
     static async set_results(filename, results){
-        console.log(`Setting ${filename} result to: `, results)
+        var clear = (results == undefined)
         this.hide_dimmer(filename)
 
-        if(is_string(results.segmentation))
+        if(results && is_string(results.segmentation))
             results.segmentation = await fetch_as_file(url_for_image(results.segmentation))
-        
-        var $root      = $(`#filetable [filename="${filename}"]`)
-        
-        //TODO: result should be loaded only if (1) it's a url or (2) the accordion item is open
-        //      otherwise load when accordion is opened
-        var $image     = $root.find('img.result-image')
-        set_image_src($image, results.segmentation)
-        $image.css('filter','contrast(1)')
+        var segmentation = clear? undefined : results.segmentation;
 
-        var $result_overlay = $root.find(`img.overlay`)  //FIXME: this affects the root tracking tab as well!
-        set_image_src($result_overlay, results.segmentation)
+        var $root           = $(`#filetable [filename="${filename}"]`)
+        var $result_image   = $root.find('img.result-image')
+        set_image_src($result_image, segmentation)
+        $result_image.css('filter',clear? 'contrast(0)' : 'contrast(1)')
+
+        var $result_overlay = $root.find(`img.overlay`)
+        set_image_src($result_overlay, segmentation)
 
         GLOBAL.files[filename].results = results;  //TODO: call it detection_results
-        $root.find('a.download').removeClass('disabled')
-        
+        this.enable_buttons(filename, true, !clear)
+
         //indicate in the file table that this file is processed
         $(`.table-row[filename="${filename}"] label`).css('font-weight', 'bold')
+        $root.find('.status.icon').hide().filter(clear? '.unprocessed' : '.processed').show()
     }
 
-    static show_dimmer(filename, message='Processing...'){
-        this.update_dimmer(filename, false)
-        $(`[filename="${filename}"] .dimmer`).dimmer({closable:false}).dimmer('show')
+    static set_processing(filename){
+        //this.update_dimmer(filename, false)
+        this.show_dimmer(filename, false)
+        var $root      = $(`#filetable [filename="${filename}"]`)
 
-        //XXX: function should be called show_dimmer_and_disable_menu()
-        $(`[filename="${filename}"] .icon.menu .item`).addClass('disabled')
-        //TODO: also disable settings, 'Process All' button, etc
+        $(`.table-row[filename="${filename}"] label`).css('font-weight', '')
+        $root.find('.status.icon').hide().filter('.spinner').show()
+        
+        this.enable_buttons(filename, false, false)
+    }
+
+    static set_failed(filename){
+        this.show_dimmer(filename, true)
+        //this.update_dimmer(filename, true)
+
+        var $root      = $(`#filetable [filename="${filename}"]`)
+
+        $(`.table-row[filename="${filename}"] label`).css('font-weight', '')
+        $root.find('.status.icon').hide().filter('.exclamation').show()
+
+        this.enable_buttons(filename, true, false)
     }
 
     static hide_dimmer(filename){
         $(`[filename="${filename}"] .dimmer`).dimmer('hide')
-        $(`[filename="${filename}"] .icon.menu .item`).removeClass('disabled')
     }
 
-    static update_dimmer(filename, failed){
+    static show_dimmer(filename, failed){
         var $dimmer = $(`[filename="${filename}"] .dimmer`)
         if(failed){
             $dimmer.find('.content.processing').hide()
@@ -110,6 +122,14 @@ BaseDetection = class {
             $dimmer.find('.content.failed').hide()
             $dimmer.dimmer({closable: false})
         }
+        $dimmer.dimmer('show')
+    }
+
+    static enable_buttons(filename, yesno=true, download=true){
+        //TODO: also disable settings, 'Process All' button, etc
+        $(`[filename="${filename}"] .icon.menu .item`)
+            .toggleClass('disabled', !yesno)
+            .filter('.download').toggleClass('disabled', !download)
     }
 
 }
