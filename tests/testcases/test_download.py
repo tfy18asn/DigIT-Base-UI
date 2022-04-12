@@ -35,3 +35,26 @@ class TestDownload(BaseCase):
 
         if self.demo_mode:
             self.sleep(1)
+
+
+    def test_download_all(self):
+        if not self.is_chromium() and not self.headed:
+            self.skipTest('xdotool does not work with headless firefox for some reason')
+        self.open_main(static=True)
+
+        self.send_input_files_from_assets([
+            "test_image0.jpg", "test_image0.jpg.results.zip",
+            "test_image1.jpg", "test_image1.jpg.results.zip",
+        ])
+        
+        self.click('[data-tab="detection"] .download-all')
+        #send enter key to x11 to confirm the download dialog window
+        if not self.is_chromium():  #self.is_firefox()
+            self.sleep(1.0)
+            subprocess.call('xdotool key Return', shell=True)
+
+        self.assert_downloaded_file('results.zip')
+        #TODO: assert donwloaded results are the same as what was uploaded
+
+        if self.demo_mode:
+            self.sleep(1)

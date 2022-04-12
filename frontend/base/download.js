@@ -14,13 +14,13 @@ BaseDownload = class {
     }
 
     static on_download_all(event){
-        var all_zipdata   = {}
+        var zipdata   = {}
         var filenames = Object.keys(GLOBAL.files)
         for(var filename of filenames){
             if(!GLOBAL.files[filename].results)
                 continue;
             
-            Object.assign(all_zipdata, this.zipdata_for_file(filename, filename+'/'))
+            Object.assign(zipdata, this.zipdata_for_file(filename, filename+'/'))
         }
         download_zip('results.zip', zipdata)
     }
