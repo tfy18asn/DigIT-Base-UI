@@ -1,5 +1,5 @@
 
-class BaseDownload{
+BaseDownload = class {
     static async on_single_item_download_click(event){
         var $root     = $(event.target).closest('[filename]')
         var filename  = $root.attr('filename')
@@ -20,11 +20,30 @@ class BaseDownload{
         } );
     }
 
+    static async on_download_all(event){
+        var all_zipdata   = {}
+        var filenames = Object.keys(GLOBAL.files)
+        for(var filename of filenames){
+            if(!GLOBAL.files[filename].results)
+                continue;
+            
+            Object.assign(all_zipdata, this.zipdata_for_file(filename, filename+'/'))
+        }
+
+        var zip = new JSZip();
+        for(var fname in all_zipdata)
+            zip.file(fname, await all_zipdata[fname], {binary:true});
+        
+        zip.generateAsync({type:"blob"}).then( blob => {
+            download_blob( `results.zip`, blob  );
+        } );
+    }
+
     static zipdata_for_file(filename){
         var f            = GLOBAL.files[filename];
         var zipdata      = {};
-        var segmentation = fetch_as_blob(url_for_image(f.results.segmentation))
-        zipdata[`${f.results.segmentation}`] = segmentation
+        var segmentation = f.results.segmentation
+        zipdata[`${f.results.segmentation.name}`] = segmentation
         return zipdata;
     }
 }

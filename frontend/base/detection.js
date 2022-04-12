@@ -1,9 +1,21 @@
 
 BaseDetection = class {
 
+    //process single image
     static on_process_image(event){
         var filename = $(event.target).closest('[filename]').attr('filename')
         this.process_image(filename)
+    }
+
+    //process all images
+    static async on_process_all(event){
+        var filenames = Object.keys(GLOBAL.files)
+        console.log(`Processing ${filenames.length} images.`)
+        //TODO: disable stuff: settings, loading files, etc
+        //TODO: show cancel button, show processing progress
+        for(var filename of filenames){
+            await this.process_image(filename)
+        }
     }
 
 
@@ -55,7 +67,7 @@ BaseDetection = class {
         if(is_string(results.segmentation))
             results.segmentation = await fetch_as_file(url_for_image(results.segmentation))
         
-        var $root      = $(`[filename="${filename}"]`)
+        var $root      = $(`#filetable [filename="${filename}"]`)
         
         //TODO: result should be loaded only if (1) it's a url or (2) the accordion item is open
         //      otherwise load when accordion is opened

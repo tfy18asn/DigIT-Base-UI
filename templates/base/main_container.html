@@ -2,7 +2,7 @@
 
 
 {% macro base_tabs() %}
-<div class="ui top attached tabular menu">
+<div class="ui pointing secondary tabs menu">
     <a class="active item" data-tab="detection">Detection</a>
     <a class="item"        data-tab="training"> Training </a>
 </div>
@@ -10,15 +10,33 @@
 
 
 {% macro base_main_table() %}
-<table class="ui basic celled sortable unstackable table accordion" id="filetable">
+<table class="ui celled sortable unstackable table accordion" id="filetable" style="border:0px; margin-top:0px;">
     <thead>
       <tr>
         <th>No Files Loaded</th>
       </tr>
     </thead>
     <tbody>
+        {# #filetable-row-template inserted here from javascript #}
     </tbody>
 </table>
+{% endmacro %}
+
+
+{% macro filetable_menu(
+    callback_on_process_all     = "",
+    callback_on_download_all    = ""
+) %}
+<div class="ui top attached menu" style="border-top-width:0px;">
+    <a class="item" onclick="{{ callback_on_process_all }}(event)">
+        <i class="play icon"></i>
+        Process All
+    </a>
+    <a class="item" onclick="{{ callback_on_download_all }}(event)">
+        <i class="download icon"></i>
+        Download
+    </a>
+</div>
 {% endmacro %}
 
 
@@ -29,12 +47,17 @@
     main_table = base_main_table,
     extra      = ""
 ) %}
+<div class="ui hidden section divider"></div> <!--whitespace-->
 <div class="ui container" style="width:calc(100% - 40px); padding-bottom:50vh;"> <!--TODO: add css class-->
 
     {{ tabs | indent }}
 
-    <div class="ui bottom attached active tab" data-tab="detection">
-        {{ main_table() | indent(8) }}
+    <div class="ui active tab segment" data-tab="detection" style="padding:0">
+        {{ filetable_menu(
+            callback_on_process_all  = app+".Detection.on_process_all",
+            callback_on_download_all = app+".Download.on_download_all"
+        ) | indent(8) }}
+        {{ main_table()     | indent(8) }}
     </div>
 
     <div class="ui bottom attached tab" data-tab="training">

@@ -5,7 +5,7 @@ class SettingsTests(BaseCase):
     def test_save_settings_failed(self):
         self.open_main(static=True)
         #click on settings to open dialog
-        self.click("label#settings-button")
+        self.click("#settings-button")
         #click on the ok button
         self.click("div#settings-ok-button")
         
@@ -31,7 +31,7 @@ class SettingsTests(BaseCase):
         self.open_main(static=False)
 
         #click on settings to open dialog
-        self.click("label#settings-button")
+        self.click("#settings-button")
         #click on the ok button
         self.click("div#settings-ok-button")
 
@@ -58,7 +58,7 @@ class SettingsTests(BaseCase):
         self.open_main(static=False)
 
         #click on settings to open dialog
-        self.click("label#settings-button")
+        self.click("#settings-button")
         
         #click on the active model selection dropdown
         self.click('div#settings-active-model')
@@ -82,6 +82,6 @@ class SettingsTests(BaseCase):
         self.refresh_page()
 
         #click on settings to open dialog
-        self.click("label#settings-button")
+        self.click("#settings-button")
         selected = self.get_attribute('div#settings-active-model input', 'value')
         assert selected == element_text

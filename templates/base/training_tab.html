@@ -1,21 +1,30 @@
 {% macro training_filetable() %}
-<table class="ui basic celled sortable unstackable table accordion" id="training-filetable" style="grid-row: 1 / 3">
+<table class="ui basic celled sortable unstackable table" id="training-filetable" style="grid-row: 1 / 3">
     <thead>
       <tr>
-        <th>
-          <!--<div class="ui checkbox">
-            <input type="checkbox" name="example">
-          </div>-->
-        </th>
         <th>Selected files for training</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody id="training-selected-files">
       {#  "training-filetable-row" inserted here from javascript  #}
     </tbody>
 </table>
 
+<template id="training-filetable-row">
+  <tr filename="${filename}">
+    <td>
+      <div class="ui checkbox">
+        <input type="checkbox" name="select-file" checked>
+        <label>${filename}</label>
+      </div>
+    </td>
+  </tr>
+</template>
+
 {% endmacro %} {# training_filetable #}
+
+
+
 
 {% macro training_controls(trainingmodule="") %}
 <div class="ui segment form" style="margin-top:0px;">
@@ -39,6 +48,9 @@
 {% endmacro %} {# training_controls #}
 
 
+
+
+
 {% macro training_tab(app) %}
 <div style="display:grid; height:200px; grid-template-columns: 50% 50%; grid-column-gap: 5px; align-items: start;">
     
@@ -46,17 +58,4 @@
     {{ training_controls(trainingmodule = app+".Training") }}
     
 </div>
-
-
-<template id="training-filetable-row">
-  <tr filename="${filename}">
-    <td>
-      <div class="ui checkbox">
-        <input type="checkbox" name="select-file" checked>
-        <label></label>
-      </div>
-    </td>
-    <td>${filename}</td>
-  </tr>
-</template>
 {% endmacro %}

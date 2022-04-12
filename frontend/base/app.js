@@ -11,7 +11,7 @@ BaseApp = class {
     static init(){
         setup_sse()
         $('#filetable.accordion').accordion({duration:0, onOpening:on_accordion_open})
-        $('.menu.tabular .item').tab({onLoad:BaseTraining.refresh_table});
+        $('.tabs.menu .item').tab({onLoad: x => BaseTraining.refresh_table() });
         this.FileInput.setup_drag_and_drop()
     }
 }
