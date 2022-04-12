@@ -54,14 +54,15 @@
 
 
 
-{% macro filetable_content(app) %}
+{% macro filetable_content(app, view_menu_extras="") %}
 <div class="filetable-content" style="display:none">
     {{ content_menu.content_menu(
             callback_on_process        = app+".Detection.on_process_image",
             callback_edit_segmentation = None,
             callback_apply_corrections = None,
             callback_new_box           = None,
-            callback_download          = app+".Download.on_single_item_download_click"
+            callback_download          = app+".Download.on_single_item_download_click",
+            view_menu_extras           = view_menu_extras
     ) | indent }}
 
     <div class="image-container">
@@ -74,7 +75,7 @@
 
 
 
-{% macro filetable_row_template(app="BaseApp") %}
+{% macro filetable_row_template(app="BaseApp", content=filetable_content) %}
 <template id="filetable-row-template">
     <tr class="ui title table-row" filename="${filename}">
         <!-- table row -->
@@ -91,7 +92,7 @@
         <!-- content -->
         <td class="ui content" style="padding:0px;">
             {{ loading_spinner()      | indent(8) }}
-            {{ filetable_content(app) | indent(8) }}
+            {{ content(app)           | indent(8) }}
         </td>
     </tr>
 </template>
