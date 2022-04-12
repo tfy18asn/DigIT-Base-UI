@@ -47,6 +47,17 @@ class BaseCase(SeleniumBaseCase):
            ( glob.glob(os.path.join(asset_dirs[0], f)) + glob.glob(os.path.join(asset_dirs[1], f)) )[0] for f in files
         ]
         self.driver.find_element('id', input_id).send_keys('\n'.join(paths))
+    
+    @staticmethod
+    def maybe_skip(test_func):
+        if test_func.__name__ in os.environ.get('TESTS_TO_SKIP', []):
+            import functools
+            @functools.wraps(test_func)
+            def skip(self, *x, **kw):
+                self.skipTest('Manually selected to skip')
+            return skip
+        else:
+            return test_func
 
 
 def start_codecoverage():

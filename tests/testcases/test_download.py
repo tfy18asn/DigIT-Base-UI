@@ -36,7 +36,7 @@ class TestDownload(BaseCase):
         if self.demo_mode:
             self.sleep(1)
 
-
+    @BaseCase.maybe_skip
     def test_download_all(self):
         if not self.is_chromium() and not self.headed:
             self.skipTest('xdotool does not work with headless firefox for some reason')

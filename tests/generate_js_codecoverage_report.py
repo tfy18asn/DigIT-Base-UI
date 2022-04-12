@@ -15,7 +15,7 @@ jsondata_per_test = {}
 jsondata_per_url  = {}
 for js in jsonfiles:
     jsondata = json.load(open(js))
-    jsondata = dict([ (os.path.basename(x['url']), x) for x in jsondata if 'thirdparty' not in x['url']])
+    jsondata = dict([ ( '/'.join(x['url'].split('/')[-2:]), x) for x in jsondata if 'thirdparty' not in x['url']])
     jsondata_per_test[js] = jsondata
     #urls                  = urls.union(jsondata.keys())
     for u in jsondata.keys():
@@ -51,10 +51,10 @@ for url, ranges in merged_ranges.items():
     splits      = [f'<span style="background:pink;">{s}</span>' if i%2==0 else s for i,s in enumerate(splits) if len(s)]
     html        = ('<html><body style="font-family:monospace; white-space:pre-wrap;">'+''.join(splits)+'</body></html>')
     basename    = os.path.basename(url) or '___'
-    open(os.path.expanduser(f'{OUTPUT_DIR}/{basename}.html'),'w').write(html)
+    open(os.path.expanduser(f'{OUTPUT_DIR}/{url.replace("/","_")}.html'),'w').write(html)
 
     prcnt       = sum([end-start for start,end in ranges]) / len(texts_per_url[url]) * 100
-    prcnt_text += f'[{prcnt:5.1f}%] {basename}\n'
+    prcnt_text += f'[{prcnt:5.1f}%] {url}\n'
 
 print()
 print('Javascript Code Coverage:')
