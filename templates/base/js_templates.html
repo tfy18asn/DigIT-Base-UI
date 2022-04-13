@@ -74,6 +74,13 @@
 {% endmacro %}
 
 
+{% macro status_icons() %}
+<i class="image outline   unprocessed status icon"></i>
+<i class="image             processed status icon" style="display:none"></i>
+<i class="yellow exclamation triangle status icon" style="display:none"></i>
+<i class="loading spinner             status icon" style="display:none"></i>
+{% endmacro %}
+
 
 {% macro filetable_row_template(app="BaseApp", content=filetable_content) %}
 <template id="filetable-row-template">
@@ -81,10 +88,7 @@
         <!-- table row -->
         <td>
             <i class="dropdown icon"></i>
-            <i class="image outline   unprocessed status icon"></i>
-            <i class="image             processed status icon" style="display:none"></i>
-            <i class="yellow exclamation triangle status icon" style="display:none"></i>
-            <i class="loading spinner             status icon" style="display:none"></i>
+            {{ status_icons()         | indent(8) }}
             <label>${filename}</label>
         </td>
     </tr>

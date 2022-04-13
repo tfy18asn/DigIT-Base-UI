@@ -12,15 +12,27 @@ BaseDetection = class {
         var filenames = Object.keys(GLOBAL.files)
         console.log(`Processing ${filenames.length} images.`)
         //TODO: disable stuff: settings, loading files, etc
-        //TODO: show cancel button, show processing progress
+        //TODO: show processing progress
+        $(event.target).hide()
+        $(event.target).siblings('.cancel-processing, .processing').show().removeClass('disabled')
+        GLOBAL.cancel_requested = false;
         for(var filename of filenames){
+            if(GLOBAL.cancel_requested)
+                break;
             await this.process_image(filename)
         }
+        $(event.target).show()
+        $(event.target).siblings('.cancel-processing, .processing').hide()
+    }
+
+    static on_cancel_processing(event){
+        GLOBAL.cancel_requested = true;
+        $(event.target).hide()
+        $(event.target).siblings('.processing').addClass('disabled')
     }
 
 
     static process_image(filename){
-        //TODO: states: unprocessed, processing, processed, failed
         console.log(`Processing image file ${filename}`)
         //this.clear_results(filename)
         this.set_results(filename, undefined)

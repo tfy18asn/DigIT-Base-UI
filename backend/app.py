@@ -203,7 +203,7 @@ class App(flask.Flask):
             #only in development and during build, not in release
             return
         
-        #TODO: clear the folder before copying
+        #clear the folder before copying
         shutil.rmtree(self.static_folder, ignore_errors=True)
         os.makedirs(self.static_folder)
         for source in self.frontend_folders:

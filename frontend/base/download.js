@@ -22,7 +22,9 @@ BaseDownload = class {
             
             Object.assign(zipdata, fzipdata)
         }
-        //TODO: check if empty
+        
+        if(Object.keys(zipdata).length==0)
+            return
         download_zip('results.zip', zipdata)
     }
 
