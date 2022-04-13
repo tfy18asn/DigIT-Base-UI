@@ -4,12 +4,11 @@ BaseDownload = class {
         var $root     = $(event.target).closest('[filename]')
         var filename  = $root.attr('filename')
 
-        if(!GLOBAL.files[filename].results){
-            //should not happen because download icon is disabled
+        var zipdata  = this.zipdata_for_file(filename);
+        if(zipdata == undefined){
             $('body').toast({message:'Result download failed.', class:'error'})
             return
         }
-        var zipdata  = this.zipdata_for_file(filename);
         download_zip(`${filename}.results.zip`, zipdata)
     }
 
@@ -17,19 +16,22 @@ BaseDownload = class {
         var zipdata   = {}
         var filenames = Object.keys(GLOBAL.files)
         for(var filename of filenames){
-            if(!GLOBAL.files[filename].results)
+            var fzipdata = this.zipdata_for_file(filename)
+            if(fzipdata == undefined)
                 continue;
             
-            Object.assign(zipdata, this.zipdata_for_file(filename, filename+'/'))
+            Object.assign(zipdata, fzipdata)
         }
+        //TODO: check if empty
         download_zip('results.zip', zipdata)
     }
 
+    //to be overwritten downstream
     static zipdata_for_file(filename){
         var f            = GLOBAL.files[filename];
         var zipdata      = {};
         var segmentation = f.results.segmentation
-        zipdata[`${f.results.segmentation.name}`] = segmentation
+        zipdata[`${f.results.segmentation.name}`] = segmentation  //TODO: folders
         return zipdata;
     }
 }
