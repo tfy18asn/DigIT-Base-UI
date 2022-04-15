@@ -13,16 +13,8 @@ BaseDownload = class {
     }
 
     static on_download_all(event){
-        var zipdata   = {}
         var filenames = Object.keys(GLOBAL.files)
-        for(var filename of filenames){
-            var fzipdata = this.zipdata_for_file(filename)
-            if(fzipdata == undefined)
-                continue;
-            
-            Object.assign(zipdata, fzipdata)
-        }
-        
+        var zipdata   = this.zipdata_for_files(filenames)
         if(Object.keys(zipdata).length==0)
             return
         download_zip('results.zip', zipdata)
@@ -34,6 +26,19 @@ BaseDownload = class {
         var zipdata      = {};
         var segmentation = f.results.segmentation
         zipdata[`${f.results.segmentation.name}`] = segmentation  //TODO: folders
+        return zipdata;
+    }
+
+    static zipdata_for_files(filenames){
+        var zipdata   = {}
+        for(var filename of filenames){
+            var fzipdata = this.zipdata_for_file(filename)
+            if(fzipdata == undefined)
+                continue;
+            
+            for(var k of Object.keys(fzipdata))
+                zipdata[`${filename}/${k}`] = fzipdata[k];
+        }
         return zipdata;
     }
 }
