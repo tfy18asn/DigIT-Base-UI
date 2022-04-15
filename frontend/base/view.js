@@ -1,11 +1,12 @@
 
+//rather: toggle_results..
 function show_results_as_overlay(filename){
     var $root    = $(`[filename="${filename}"]`)
 
     $root.find('.result.view-box').hide()
-    $root.find('.input.overlay').show()
+    $root.find('.input.overlay').toggle()
     $root.find('.view-menu .side-by-side-item').removeClass('active')
-    $root.find('.view-menu .overlay-item').addClass('active')
+    $root.find('.view-menu .overlay-item').toggleClass('active')
 }
 
 function show_results_side_by_side(filename){
@@ -28,7 +29,7 @@ function on_brightness_slider(){
 }
 
 
-class ViewControls{
+ViewControls = class {
     //callback for panning
     static on_transformbox_mousedown(event){
         if(event.shiftKey){
