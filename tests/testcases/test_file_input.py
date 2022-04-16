@@ -48,6 +48,7 @@ class TestBasic(BaseCase):
         if self.demo_mode:
             self.sleep(1)
     
+    @BaseCase.maybe_skip
     def test_load_results(self):
         self.open_main(static=True)
         #open image files and a result file
@@ -56,7 +57,7 @@ class TestBasic(BaseCase):
             "test_image1.jpg",
             "test_image1.jpg.results.zip"
         ])
-        self.sleep(0.2)
+        self.sleep(2.5)
 
         #row label should be bold to indicate that this file is processed
         script = f''' return $('[filename="test_image1.jpg"] label').css('font-weight') '''
@@ -69,7 +70,7 @@ class TestBasic(BaseCase):
         self.send_input_files_from_assets([
             "test_image0.jpg.results.zip"
         ])
-        self.sleep(0.2)
+        self.sleep(0.5)
 
         #both images should be loaded now
         script = f''' return $('[filename="test_image0.jpg"] label').css('font-weight') '''
@@ -95,16 +96,17 @@ def test_aspect_ratios(imagesize):
             data    = (np.random.random(imagesize[::-1]+(3,))*255).astype('uint8')
             img     = PIL.Image.fromarray(data)
             tmpdir  = tempfile.TemporaryDirectory()
-            out     = os.path.join(tmpdir.name, 'test_image.png')
+            out     = os.path.join(tmpdir.name, 'test_image.jpg')
             img.save( out )
 
-            self.send_input_files_from_assets([ out ])
+            #self.send_input_files_from_assets([ out ])
+            self.driver.find_element('id', 'input_images').send_keys(out)
             #open the file
-            self.click('label:contains("test_image.png")')
+            self.click('label:contains("test_image.jpg")')
             self.sleep(0.5)
 
             screenshot = f'{tmpdir.name}/screenshot.png'
-            self.save_screenshot(screenshot, selector='[filename="test_image.png"] img.input-image')
+            self.save_screenshot(screenshot, selector='[filename="test_image.jpg"] img.input-image')
             
             screenshot = PIL.Image.open(screenshot)
             print('screenshot size:', screenshot.size)

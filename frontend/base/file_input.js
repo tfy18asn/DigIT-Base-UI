@@ -1,10 +1,10 @@
 
 
-class BaseFileInput {
+BaseFileInput = class {
     //called when user selects input file(s)
     static on_inputfiles_select(event){
         //this.set_input_files(event.target.files);
-        this.load_list_of_files(event.target.files)
+        this.load_list_of_files(event.target.files)  //FIXME: revert to set_input_files() //FIXME dont revert, only filter non-images in file dialog
         event.target.value = ""; //reset the input
     }
     
@@ -55,36 +55,67 @@ class BaseFileInput {
 
     static on_drop(event){
         event.preventDefault();
+        console.log('on_drop:', event)
         //TODO: show dimmer/message
         this.load_list_of_files(event.dataTransfer.files)
     }
 
-    static load_list_of_files(files){
-        //TODO: first collect all files, then load
-        var imagefiles = []
-        for(var f of Object.values(files)){
-            //TODO: handle folders
-            if(["application/zip", "application/x-zip-compressed"].indexOf(f.type)!=-1)
-                this.load_from_zipfile(f);
-            else if(f.name.endsWith('.segmentation.png'))  //TODO: allow also without ".segmentation."
-                this.load_result(f)
-            else if(["image/jpeg", "image/png", "image/tiff"].indexOf(f.type)!=-1)
-                imagefiles.push(f)
+    static async load_list_of_files(files){
+        files = Array(...files)
+        var inputfiles = files.filter( f => ["image/jpeg", "image/tiff"].indexOf(f.type)!=-1); //no png
+        if(inputfiles.length)
+            this.set_input_files(inputfiles)
+        
+        var result_files = await this.collect_result_files(files)
+        console.log('result_files.length:', result_files.length)
+        if(Object.keys(result_files).length==0)
+            return;
+        
+        //TODO: show progress
+        var $modal = $('#loading-files-modal')
+        $modal.modal({closable: false, inverted:true,}).modal('show');
+        $modal.find('.progress').progress({
+            total: Object.keys(result_files).length,
+            value: 0, showActivity:false,
+        })
+        try{
+            for(var filename of Object.keys(result_files)){
+                await this.load_result(filename, result_files[filename])   //TODO: might fail -> error handling
+                $modal.find('.progress').progress('increment')
+            }
+        } finally {
+            $modal.modal('hide');
         }
-
-        //FIXME: race condition if loading images and result zips at the same time
-        if(imagefiles.length)
-            this.set_input_files(imagefiles)
+        
     }
 
-    static load_from_zipfile(zipfile){
-        return JSZip.loadAsync(zipfile).then( 
-            (zip) => this.load_list_of_files(zip.files)
-        )
+    static async collect_result_files(files){
+        var collected_files = {}
+        for(var f of Object.values(files)){
+            if(["application/zip", "application/x-zip-compressed"].indexOf(f.type)!=-1)
+                Object.assign(collected_files, (await this.collect_results_from_zipfile(f)));
+            else{
+                var basename = file_basename(f.name)
+                for(var filename of Object.keys(GLOBAL.files)){
+                    var no_ex_filename = remove_file_extension(filename)
+                    var candidate_names = [
+                        filename+'.png',       filename+'.segmentation.png', 
+                        no_ex_filename+'.png', no_ex_filename+'.segmentation.png'
+                    ]
+                    if( candidate_names.indexOf(basename) != -1 )
+                        collected_files[filename] = f
+                }
+            }
+        }
+        return collected_files;
     }
 
-    static async load_result(file){
-        const filename  = file.name.replace(/.segmentation.png/g, '')
+    static async collect_results_from_zipfile(zipfile){
+        var zipped_files = (await JSZip.loadAsync(zipfile)).files
+        return await this.collect_result_files(zipped_files)
+    }
+
+    static async load_result(filename, file){
         const inputfile = GLOBAL.files[filename]
         if(inputfile != undefined){
             const blob   = await(file.async? file.async('blob') : file)

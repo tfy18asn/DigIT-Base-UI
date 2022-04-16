@@ -20,9 +20,14 @@ class TestViewControls(BaseCase):
         self.wait_for_element_visible(menu_css)
         
         self.highlight(menu_css+' .overlay-item')
-        self.click(menu_css+' .overlay-item')
+        #self.click(menu_css+' .overlay-item')  #should be on by default
         self.wait_for_element_not_visible(root_css+' img.result-image') 
         self.wait_for_element_visible(root_css+' img.input.overlay') 
+
+        #click again on "overlay" to remove it
+        self.click(menu_css+' .overlay-item')
+        self.wait_for_element_not_visible(root_css+' img.result-image') 
+        self.wait_for_element_not_visible(root_css+' img.input.overlay') 
 
         self.hover_on_element(root_css+' .view-menu-button')
         self.wait_for_element_visible(menu_css)

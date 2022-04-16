@@ -8,10 +8,13 @@ BaseTraining = class BaseTraining{
         var processed_files = Object.keys(GLOBAL.files).filter( k => (GLOBAL.files[k].results!=undefined) )
         for(var f of processed_files)
             $('#training-filetable-row').tmpl({filename:f}).appendTo($table.find('tbody#training-selected-files'))
+        //$table.find('tbody th').text(`Selected ${processed_files.length} files for training`)
+        $table.find('.checkbox').checkbox({onChange: _ => this.update_table_header()})
+        this.update_table_header()
     }
 
     static async on_start_training(){
-        var filenames = this.#get_selected_files()
+        var filenames = this.get_selected_files()
         console.log('Training on ', filenames)
         
         this.show_modal()     
@@ -31,12 +34,16 @@ BaseTraining = class BaseTraining{
         //return false;
     }
 
-    static #get_selected_files(){
+    static get_selected_files(){
         var $table          = $('#training-filetable')
         var is_selected     = $table.find('.checkbox').map( (i,c) => $(c).checkbox('is checked')).get()
         var filenames       = $table.find('[filename]').map( (i,x) => x.getAttribute('filename') ).get()
         filenames           = filenames.filter( (f,i) => is_selected[i] )
         return filenames
+    }
+
+    static update_table_header(){
+        $('#training-filetable').find('thead th').text(`Selected ${this.get_selected_files().length} files for training`)
     }
 
     static show_modal(){

@@ -13,6 +13,13 @@ function arange(x0,x1=undefined){
     return [...Array(stop).keys()].map(x=>x+start)
 }
 
+function remove_file_extension(filename){
+    return filename.slice(0, filename.lastIndexOf('.'))
+}
+
+function file_basename(filename){
+    return filename.slice(filename.lastIndexOf('/')+1)
+}
 
 function upload_file_to_flask(file, url='file_upload', async=true){
     var formdata = new FormData();
@@ -66,7 +73,8 @@ function reload_script(url){
     //then reload all app.js files
     //FIXME: too complicated
     var app_scripts    = $('script[src*="app.js"]').get().map( x => x.src )
-    var scripts_to_reload = [url].concat(app_scripts)
+    var url_scripts    = $(`script[src*="${url}"]`).get().map( x => x.src )
+    var scripts_to_reload = [].concat(url_scripts).concat(app_scripts)
     $.get('/').then(
         _ => scripts_to_reload.reduce( async (prev, u) => {await prev; return $.getScript(`${u}`)}, 'init' )
     )

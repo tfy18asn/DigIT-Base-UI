@@ -73,6 +73,7 @@ BaseDetection = class {
     }
 
     static async set_results(filename, results){
+        //TODO: lazy loading
         var clear = (results == undefined)
         this.hide_dimmer(filename)
 
