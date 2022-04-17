@@ -1,5 +1,5 @@
-import json, os
-
+import json, os, glob
+from . import app
 
 class Settings:
     FILENAME = 'settings.json'   #FIXME: hardcoded
@@ -26,6 +26,9 @@ class Settings:
         return s
 
     def set_settings(self, s, save=True):
+        if getattr(self, 'active_model', None) != s['active_model']:
+            self.model = load_model(s['active_model'])
+        
         self.__dict__.update(s)
         if save:
             json.dump( s, open('settings.json','w')) 
@@ -41,6 +44,17 @@ class Settings:
 
     @staticmethod
     def get_available_models():
-        '''Mock function. Needs to be re-implemented downstream.'''
-        return ['Model A', 'Model D', 'Model B', 'Model C']
+        modelsdir  = app.get_models_folder()
+        modelfiles = glob.glob(os.path.join(modelsdir, '*.pkl'))
+        modelnames = [os.path.splitext(os.path.basename(m))[0] for m in modelfiles]
+        return modelnames
+
+
+
+def load_model(modelname):
+    import pickle
+    print(f'Loading model {modelname}')
+    path  = os.path.join(app.get_models_folder(), f'{modelname}.pkl')
+    model = pickle.load(open(path, 'rb'))
+    return model
 

@@ -67,7 +67,7 @@ BaseFileInput = class {
             this.set_input_files(inputfiles)
         
         var result_files = await this.collect_result_files(files)
-        console.log('result_files.length:', result_files.length)
+        console.log('result_files.length:', Object.keys(result_files).length)
         if(Object.keys(result_files).length==0)
             return;
         

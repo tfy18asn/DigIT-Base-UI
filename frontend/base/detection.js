@@ -19,7 +19,7 @@ BaseDetection = class {
         for(var filename of filenames){
             if(GLOBAL.cancel_requested)
                 break;
-            await this.process_image(filename)
+            await this.process_image(filename)  //TODO: error handling
         }
         $(event.target).show()
         $(event.target).siblings('.cancel-processing, .processing').hide()
@@ -31,7 +31,7 @@ BaseDetection = class {
         $(event.target).siblings('.processing').addClass('disabled')
     }
 
-
+    //TODO: convert to async function?
     static process_image(filename){
         console.log(`Processing image file ${filename}`)
         //this.clear_results(filename)
@@ -56,12 +56,13 @@ BaseDetection = class {
             this.set_failed(filename)
         })
 
+        const _this = this;
         promise = promise.then( function(){
             return $.get(`process_image/${filename}`).fail( response => {
                 console.log('Processing failed.', response.status)
-                this.set_failed(filename)
+                _this.set_failed(filename)
             })
-        })
+        } )
         promise.done(results => this.set_results(filename, results))
 
 

@@ -44,6 +44,8 @@ def get_frontend_folders():
         os.path.join(path_to_main_module(), 'frontend'),             #subproject
     ]
 
+def get_models_folder():
+    return os.path.join(path_to_main_module(), 'models')
 
 class App(flask.Flask):
     def __init__(self, **kw):
@@ -150,24 +152,15 @@ class App(flask.Flask):
                 webbrowser.open('http://localhost:5000', new=2)
     
     def process_image(self, imagename):
-        '''Mock processing function. Needs to be re-implemented downstream.'''
         full_path = os.path.join(self.cache_path, imagename)
         if not os.path.exists(full_path):
             flask.abort(404)
         
-        print(f'Simulating image processing: {full_path}')
-        import time
-        for p in range(3):
-            #indicate progress to ui
-            pubsub.PubSub.publish({'progress':p/3, 'image':imagename, 'description':'Processing...'})
-            time.sleep(1)
-        pubsub.PubSub.publish({'progress':(p+1)/3, 'image':imagename, 'description':'Processing...'})
-
-        import PIL.Image, numpy as np
-        image  = PIL.Image.open(full_path)
-        result = np.zeros( image.size[::-1], 'uint8' )
-        result[::10] = 255
+        print(f'Processing image with model {self.settings.active_model}')
+        model        = self.settings.model
+        result       = model.process_image(full_path)
         result_path  = os.path.join(self.cache_path, imagename+'.segmentation.png')
+        import PIL.Image
         PIL.Image.fromarray(result).convert('L').save(result_path)
 
         return {
@@ -175,24 +168,24 @@ class App(flask.Flask):
         }
     
     def training(self):
-        '''Mock training function. Needs to be re-implemented downstream.'''
         imagefiles = dict(flask.request.form.lists())['filenames[]']
         imagefiles = [os.path.join(self.cache_path, fname) for fname in imagefiles]
         if not all([os.path.exists(fname) for fname in imagefiles]):
             flask.abort(404)
         
-        print(f'Simulating training')
-        import time
-        for p in range(3):
-            #indicate progress to ui
-            pubsub.PubSub.publish({'progress':p/3,  'description':'Training...'}, event='training')
-            time.sleep(1)
-        pubsub.PubSub.publish({'progress':(p+1)/3,  'description':'Training...'}, event='training')
+        model                      = self.settings.model
+        self.settings.active_model = '' #indicate that the model is not the same as before
+        def on_progress(p):
+            pubsub.PubSub.publish({'progress':p,  'description':'Training...'}, event='training')
+        model.start_training(imagefiles=[], targetfiles=[], callback=on_progress)
         return 'OK'
     
     def save_model(self):
-        '''Mock function. Needs to be re-implemented downstream.'''
-        print('Saving training model as:',request.args['newname'])
+        newname = flask.request.args['newname']
+        print('Saving training model as:', newname)
+        path = f'{get_models_folder()}/{newname}'
+        self.settings.model.save(path)
+        self.settings.active_model = newname
         return 'OK'
 
     def recompile_static(self, force=False):

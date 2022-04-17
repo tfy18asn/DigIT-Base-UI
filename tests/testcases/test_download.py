@@ -17,7 +17,9 @@ class TestDownload(BaseCase):
 
         #download button should be disabled before processing
         assert 'disabled' in self.get_attribute(down_css, 'class')
-        self.click(down_css)
+        #self.click(down_css)  #clicks although disabled, dont use
+        from selenium import webdriver
+        webdriver.ActionChains(self.driver).click(self.find_element(down_css)).perform()
         self.assert_no_js_errors()
         
         #click on the processing button
