@@ -27,7 +27,7 @@ class Settings:
 
     def set_settings(self, s, save=True):
         if getattr(self, 'active_model', None) != s['active_model']:
-            self.model = load_model(s['active_model'])
+            self.model = self.load_model(s['active_model'])
         
         self.__dict__.update(s)
         if save:

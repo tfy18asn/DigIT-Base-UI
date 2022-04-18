@@ -10,7 +10,8 @@ parser.add_argument('--host',    type=str, default='localhost')
 parser.add_argument('--port',    type=int, default=5000)
 parser.add_argument('--debug',   default=sys.argv[0].endswith('.py'))
 
-from . import settings
+#from . import settings
+import backend.settings
 from . import pubsub
 
 
@@ -107,7 +108,7 @@ class App(flask.Flask):
                 os.remove(fullpath)
             return 'OK'
         
-        self.settings = settings.Settings()
+        self.settings = backend.settings.Settings()
         @self.route('/settings', methods=['GET', 'POST'])
         def get_set_settings():
             if flask.request.method=='POST':
@@ -135,6 +136,7 @@ class App(flask.Flask):
         self.route('/process_image/<imagename>')(self.process_image)
         self.route('/training', methods=['POST'])(self.training)
         self.route('/save_model')(self.save_model)
+        self.route('/stop_training')(self.stop_training)
 
         @self.after_request
         def add_header(r):
@@ -177,8 +179,8 @@ class App(flask.Flask):
         self.settings.active_model = '' #indicate that the model is not the same as before
         def on_progress(p):
             pubsub.PubSub.publish({'progress':p,  'description':'Training...'}, event='training')
-        model.start_training(imagefiles=[], targetfiles=[], callback=on_progress)
-        return 'OK'
+        ok = model.start_training(imagefiles=[], targetfiles=[], callback=on_progress)
+        return 'OK' if ok else 'INTERRUPTED'
     
     def save_model(self):
         newname = flask.request.args['newname']
@@ -187,6 +189,11 @@ class App(flask.Flask):
         self.settings.model.save(path)
         self.settings.active_model = newname
         return 'OK'
+
+    def stop_training(self):
+        self.settings.model.stop_training()
+        return 'OK'
+    
 
     def recompile_static(self, force=False):
         '''Compiles templates into a single HTML file and copies JavaScript files

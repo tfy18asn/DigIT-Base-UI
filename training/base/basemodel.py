@@ -38,11 +38,12 @@ class Model:
         for i in range(3):
             if self.stop_requested:
                 print('Stopping training')
-                break
+                return False
             self.weights = np.sort(np.random.random(4))
             callback( i/3 )
             time.sleep(1)
         callback( 1.0 )
+        return True
 
     def stop_training(self):
         self.stop_requested = True

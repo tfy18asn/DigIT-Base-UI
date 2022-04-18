@@ -23,15 +23,16 @@ BaseTraining = class BaseTraining{
         $(GLOBAL.event_source).on('training', m => this.on_training_progress(m))
         //FIXME: success/fail should not be determined by this request
         $.post('/training', {'filenames':filenames})
-            //.done( this.success_modal )
+            .done( ok => {console.log("DONE: ",ok); if(ok=='INTERRUPTED') this.interrupted_modal()} )
             .fail( this.fail_modal )
             .always( _ => $(GLOBAL.event_source).off('training', this.on_training_progress) );
     }
 
     static on_cancel_training(){
-        //FIXME: request stop
-        this.hide_modal()
-        //return false;
+        $.get('/stop_training')
+            .fail(   _ => $('body').toast({message:'Stopping failed.', class:'error'}) )
+            //.always( _ => this.hide_modal() )
+        return false; //prevent automatic closing of the modal
     }
 
     static get_selected_files(){
@@ -66,6 +67,12 @@ BaseTraining = class BaseTraining{
 
     static fail_modal(){
         $('#training-modal .progress').progress('set error', 'Training failed');
+        $('#training-modal').modal({closable:true})
+    }
+
+    static interrupted_modal(){
+        $('#training-modal .progress').progress('set error', 'Training interrupted');
+        $('#training-modal').modal({closable:true})
     }
 
     static success_modal(){
