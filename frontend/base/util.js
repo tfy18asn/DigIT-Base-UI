@@ -21,6 +21,10 @@ function file_basename(filename){
     return filename.slice(filename.lastIndexOf('/')+1)
 }
 
+function rename_file(file, newname){
+    return new File([file], newname, {type: file.type});
+}
+
 function upload_file_to_flask(file, url='file_upload', async=true){
     var formdata = new FormData();
     formdata.append('files', file);

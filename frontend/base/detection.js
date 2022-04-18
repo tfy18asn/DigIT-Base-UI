@@ -94,7 +94,7 @@ BaseDetection = class {
         this.enable_buttons(filename, true, !clear)
 
         //indicate in the file table that this file is processed
-        $(`.table-row[filename="${filename}"] label`).css('font-weight', 'bold')
+        $(`.table-row[filename="${filename}"] label`).css('font-weight', clear? '' : 'bold')
         $root.find('.status.icon').hide().filter(clear? '.unprocessed' : '.processed').show()
     }
 

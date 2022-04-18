@@ -1,5 +1,5 @@
 
-{% macro top_menu(app) %}
+{% macro top_menu(app, filemenu_extras="") %}
 
 <div class="ui container menu" style="width:calc(100% - 40px);">  <!--TODO: add css class-->
     <div class="header item" style="padding-top:0; padding-bottom:0">
@@ -33,6 +33,8 @@
           </label>
           <input type="file" id="annotations-input" style="display:none"
                  onchange="{{ app }}.FileInput.on_annotations_select(event)" accept="image/*, application/zip, application/x-zip-compressed" multiple>
+          
+          {{ filemenu_extras | indent(8) }}
         </div>
       </a> <!--end files menu-->
 
