@@ -38,6 +38,18 @@
 {% endmacro %}
 
 
+{% macro base_help() %}
+<div class="ui segment flowing popup">
+  <ul class="ui list">
+    <li><b>SHIFT + Drag</b> to move the image</li>
+    <li><b>SHIFT + Mouse wheel</b> to zoom</li>
+    <li><b>SHIFT + Double-click</b> to reset</li>
+  </ul>
+</div>
+<script>$('.help-menu-button').last().popup({hoverable:false});</script>
+{% endmacro %}
+
+
 
 {% macro content_menu(
   callback_on_process        = "",
@@ -46,11 +58,14 @@
   callback_new_box           = "",
   callback_download          = "",
   view_menu_results_layout   = True,
-  view_menu_extras           = ""
+  view_menu_extras           = "",
+  help_popup                 = base_help()
 ) %}
 <!--------- MACRO content_menu() START---------->
 <div class="ui bottom attached secondary icon menu" style="border-top-width:0px; margin-bottom:0px;">
-    <a class="process item" onclick="{{ callback_on_process }}(event)"><i class="play icon"></i></a>
+    <a class="process item" onclick="{{ callback_on_process }}(event)" data-tooltip="Process Image" data-position="bottom left">
+      <i class="play icon"></i>
+    </a>
 
     <div class="ui simple dropdown icon item view-menu-button">
       <i class="eye icon"></i>
@@ -72,6 +87,7 @@
       <i class="download icon"></i>
     </a>
     <a class="item help-menu-button"><i class="help icon"></i></a>
+    {{ help_popup }}
 </div>
 <!--------- MACRO content_menu() END  ---------->
 {% endmacro %} {# end content_menu #}
