@@ -4,7 +4,7 @@ BaseFileInput = class {
     //called when user selects input file(s)
     static on_inputfiles_select(event){
         //this.set_input_files(event.target.files);
-        this.load_list_of_files(event.target.files)  //FIXME: revert to set_input_files() //FIXME dont revert, only filter non-images in file dialog
+        this.load_list_of_files(event.target.files)  //not using set_input_files for tests
         event.target.value = ""; //reset the input
     }
     
@@ -19,12 +19,16 @@ BaseFileInput = class {
         event.target.value = ""; //reset the input
     }
 
+    static on_annotations_select(event){
+        this.load_result_files(event.target.files)
+        event.target.value = ""; //reset the input
+    }
+
     static set_input_files(files){
         //TODO: send request to flask to clear cache folder
         GLOBAL.files = []
-        for(let f of files){
+        for(let f of files)
             GLOBAL.files[f.name] = f
-        }
         this.refresh_filetable(files);
     }
 
@@ -56,22 +60,25 @@ BaseFileInput = class {
     static on_drop(event){
         event.preventDefault();
         console.log('on_drop:', event)
-        //TODO: show dimmer/message
         this.load_list_of_files(event.dataTransfer.files)
     }
 
     static async load_list_of_files(files){
-        files = Array(...files)
+        var files = Array(...files)
         var inputfiles = files.filter( f => ["image/jpeg", "image/tiff"].indexOf(f.type)!=-1); //no png
         if(inputfiles.length)
             this.set_input_files(inputfiles)
         
+        await this.load_result_files()
+    }
+
+    static async load_result_files(files){
         var result_files = await this.collect_result_files(files)
         console.log('result_files.length:', Object.keys(result_files).length)
         if(Object.keys(result_files).length==0)
             return;
         
-        //TODO: show progress
+        //show progress
         var $modal = $('#loading-files-modal')
         $modal.modal({closable: false, inverted:true,}).modal('show');
         $modal.find('.progress').progress({
@@ -80,13 +87,15 @@ BaseFileInput = class {
         })
         try{
             for(var filename of Object.keys(result_files)){
-                await this.load_result(filename, result_files[filename])   //TODO: might fail -> error handling
+                await this.load_result(filename, result_files[filename])
                 $modal.find('.progress').progress('increment')
             }
+        } catch(error) {
+            console.log(error);
+            $('body').toast({message:'Failed loading results.', class:'error', displayTime: 0, closeIcon: true})
         } finally {
             $modal.modal('hide');
         }
-        
     }
 
     static async collect_result_files(files){

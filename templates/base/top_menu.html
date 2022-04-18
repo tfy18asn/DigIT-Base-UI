@@ -16,7 +16,7 @@
             Load Input Images
           </label>
           <input type="file" id="input_images" style="display:none"
-                 onchange="{{ app }}.FileInput.on_inputfiles_select(event)" accept="image/*, application/zip, application/x-zip-compressed" multiple>
+                 onchange="{{ app }}.FileInput.on_inputfiles_select(event)" accept="image/*" multiple>
           
           <label for="input_folder" class="ui icon item">
             <i class="folder outline icon"></i>
@@ -24,6 +24,15 @@
           </label>
           <input type="file" id="input_folder" style="display:none" 
                  onchange="{{ app }}.FileInput.on_inputfolder_select(event)"  webkitdirectory directory multiple>
+          
+          <div class="ui divider"></div>
+
+          <label for="annotations-input" class="ui icon item">
+            <i class="images icon"></i>
+            Load Annotations
+          </label>
+          <input type="file" id="annotations-input" style="display:none"
+                 onchange="{{ app }}.FileInput.on_annotations_select(event)" accept="image/*, application/zip, application/x-zip-compressed" multiple>
         </div>
       </a> <!--end files menu-->
 
@@ -31,23 +40,7 @@
     <a class="ui simple item" id="settings-button" onclick="{{ app }}.Settings.on_settings()">
       <i class="wrench icon"></i>
       <span class="text">Settings</span>
-    </a>
-
-    {#
-    <div class="ui secondary right menu">
-      <div class="item">
-        <div class="ui buttons">
-          
-          <label class="ui button" onclick="{{ app }}.Settings.on_settings()"
-                id="settings-button" data-tooltip="Settings" data-position="bottom center">
-            <i class="wrench icon"></i>
-          </label>
-          
-        </div>
-      </div>
-    </div>
-    #}
-  
+    </a>  
 
 </div>
 
