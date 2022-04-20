@@ -69,7 +69,8 @@ BaseFileInput = class {
         if(inputfiles.length)
             this.set_input_files(inputfiles)
         
-        await this.load_result_files()
+        var remaining_files = files.filter( f => inputfiles.indexOf(f)==-1 )
+        await this.load_result_files(remaining_files)
     }
 
     static async load_result_files(files){
@@ -80,7 +81,7 @@ BaseFileInput = class {
         
         //show progress
         var $modal = $('#loading-files-modal')
-        $modal.modal({closable: false, inverted:true,}).modal('show');
+        $modal.modal({closable: false, inverted:true, duration : 0,}).modal('show');
         $modal.find('.progress').progress({
             total: Object.keys(result_files).length,
             value: 0, showActivity:false,
@@ -94,7 +95,9 @@ BaseFileInput = class {
             console.log(error);
             $('body').toast({message:'Failed loading results.', class:'error', displayTime: 0, closeIcon: true})
         } finally {
-            $modal.modal('hide');
+            $modal.modal({closable: true}).modal('hide');
+            await sleep(500)
+            $modal.find('.progress').progress('reset')
         }
     }
 

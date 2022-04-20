@@ -37,7 +37,7 @@ def test_request_settings(client, app):
     import json
     data     = json.loads(response.data)
     assert 'settings'          in data
-    assert 'active_model'      in data['settings']
+    assert 'active_models'     in data['settings']
     assert 'available_models'  in data
 
 

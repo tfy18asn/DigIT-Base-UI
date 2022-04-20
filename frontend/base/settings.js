@@ -1,6 +1,6 @@
 
 
-class BaseSettings{
+BaseSettings = class{
     static load_settings(){
         var _this = this;
         $.get('/settings').done(function(data){
@@ -17,15 +17,15 @@ class BaseSettings{
         const settings = GLOBAL.settings;
 
         var models_list = []
-        for(var modelname of models)
-            models_list.push({name:modelname, value:modelname, selected:(modelname==settings.active_model)})
-        if(settings.active_model=='')
+        for(var modelname of models.detection)
+            models_list.push({name:modelname, value:modelname, selected:(modelname==settings.active_models.detection)})
+        if(settings.active_models.detection=='')
             models_list.push({name:'[UNSAVED MODEL]', value:'', selected:true})
         $("#settings-active-model").dropdown({values: models_list, showOnFocus:false })
     }
 
     static apply_settings_from_modal(){
-        GLOBAL.settings.active_model = $("#settings-active-model").dropdown('get value');
+        GLOBAL.settings.active_models.detection = $("#settings-active-model").dropdown('get value');
     }
 
     static on_save_settings(_){

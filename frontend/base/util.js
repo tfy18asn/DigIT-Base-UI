@@ -3,6 +3,10 @@ function deepcopy(x){
     return JSON.parse(JSON.stringify(x))
 }
 
+function sleep(ms){  //XXX: await sleep(x)
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 function argmin(x){
     return arange(x.length).reduce( (carry,i) => x[i]<x[carry]? i : carry );
 }

@@ -158,8 +158,8 @@ class App(flask.Flask):
         if not os.path.exists(full_path):
             flask.abort(404)
         
-        print(f'Processing image with model {self.settings.active_model}')
-        model        = self.settings.model
+        print(f'Processing image with model {self.settings.active_models["detection"]}')
+        model        = self.settings.models['detection']
         result       = model.process_image(full_path)
         result_path  = os.path.join(self.cache_path, imagename+'.segmentation.png')
         import PIL.Image
@@ -175,8 +175,9 @@ class App(flask.Flask):
         if not all([os.path.exists(fname) for fname in imagefiles]):
             flask.abort(404)
         
-        model                      = self.settings.model
-        self.settings.active_model = '' #indicate that the model is not the same as before
+        model = self.settings.models['detection']
+        #indicate that the model is not the same as before
+        self.settings.active_models['detection'] = ''
         def on_progress(p):
             pubsub.PubSub.publish({'progress':p,  'description':'Training...'}, event='training')
         ok = model.start_training(imagefiles=[], targetfiles=[], callback=on_progress)
@@ -185,13 +186,13 @@ class App(flask.Flask):
     def save_model(self):
         newname = flask.request.args['newname']
         print('Saving training model as:', newname)
-        path = f'{get_models_folder()}/{newname}'
-        self.settings.model.save(path)
-        self.settings.active_model = newname
+        path = f'{get_models_folder()}/detection/{newname}.pkl'
+        self.settings.models['detection'].save(path)
+        self.settings.active_models['detection'] = newname
         return 'OK'
 
     def stop_training(self):
-        self.settings.model.stop_training()
+        self.settings.models['detection'].stop_training()
         return 'OK'
     
 

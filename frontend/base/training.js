@@ -8,7 +8,6 @@ BaseTraining = class BaseTraining{
         var processed_files = Object.keys(GLOBAL.files).filter( k => (GLOBAL.files[k].results!=undefined) )
         for(var f of processed_files)
             $('#training-filetable-row').tmpl({filename:f}).appendTo($table.find('tbody#training-selected-files'))
-        //$table.find('tbody th').text(`Selected ${processed_files.length} files for training`)
         $table.find('.checkbox').checkbox({onChange: _ => this.update_table_header()})
         this.update_table_header()
     }
@@ -23,7 +22,10 @@ BaseTraining = class BaseTraining{
         $(GLOBAL.event_source).on('training', m => this.on_training_progress(m))
         //FIXME: success/fail should not be determined by this request
         $.post('/training', {'filenames':filenames})
-            .done( ok => {console.log("DONE: ",ok); if(ok=='INTERRUPTED') this.interrupted_modal()} )
+            .done( ok => {
+                if(!$('#training-modal .ui.progress').progress('is complete'))
+                    this.interrupted_modal()
+            } )
             .fail( this.fail_modal )
             .always( _ => $(GLOBAL.event_source).off('training', this.on_training_progress) );
     }
@@ -86,7 +88,7 @@ BaseTraining = class BaseTraining{
         $('#training-modal .progress').progress({percent:data.progress*100, autoSuccess:false})
         if(data.progress >= 1){
             this.success_modal()
-            $('#training-new-modelname-field').show()
+            $('#training-new-modelname-field').show()   //TODO: should be shown also when interrupted
         }
     }
 

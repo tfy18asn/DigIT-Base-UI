@@ -2,7 +2,10 @@
 
 GLOBAL = {
     settings: {
-        active_model : undefined,                 //modelname
+        active_models: {
+            detection : undefined,               //modelname
+            //other types downstream
+        }
     },
 
     files:        [],                            //Array of FILE objects
