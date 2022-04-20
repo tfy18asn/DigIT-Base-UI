@@ -30,7 +30,7 @@ def get_static_path():
 
 def get_cache_path():
     static_path = get_static_path()
-    cache_path  = static_path.replace('/static', '/cache')
+    cache_path  = os.path.join( os.path.dirname(static_path), 'cache' )
     return cache_path
 
 def get_template_folders():
@@ -52,8 +52,8 @@ class App(flask.Flask):
     def __init__(self, **kw):
         is_debug         = sys.argv[0].endswith('.py')
         is_second_start  = (os.environ.get("WERKZEUG_RUN_MAIN") == 'true')
-        is_pytest_mode   = (os.environ.get('PYTEST_CURRENT_TEST',None) is not None)
-        is_reloader      = (is_debug and not is_second_start) and not is_pytest_mode
+        do_not_reload    = (os.environ.get('DO_NOT_RELOAD',None) is not None)
+        is_reloader      = (is_debug and not is_second_start) and not do_not_reload
         self.is_reloader = is_reloader
 
         super().__init__(

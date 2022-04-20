@@ -29,12 +29,16 @@ BaseFileInput = class {
         GLOBAL.files = []
         for(let f of files)
             GLOBAL.files[f.name] = f
+        //FIXME: currently the detection tab needs to be visible
+        $('.tabs .item[data-tab="detection"]').click()
         this.refresh_filetable(files);
     }
 
     //update the ui accordion table
     static refresh_filetable(files){
         var $filetable = $('#filetable');
+        if(!$filetable.is(':visible'))
+            console.error('Detection file table is not visible')
         $filetable.find('tbody').html('');
 
         for(var f of Object.values(files)){
@@ -42,6 +46,7 @@ BaseFileInput = class {
             $trow.appendTo($filetable.find('tbody'));
             //get the y-coordinate of the row, as long as all rows are closed
             //would be unreliable later on
+            //FIXME: works only if visible
             $trow.first().attr('top', $trow.offset().top)
         }
         $filetable.find('thead th').text(`${files.length} File${(files.length==1)?'':'s'} Loaded`)
