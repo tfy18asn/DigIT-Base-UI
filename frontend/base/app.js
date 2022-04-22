@@ -9,6 +9,7 @@ BaseApp = class {
 
 
     static init(){
+        this.Settings.load_settings();
         setup_sse()
         $('#filetable.accordion').accordion({duration:0, onOpening:on_accordion_open})
         $('.tabs.menu .item').tab({onLoad: x => BaseTraining.refresh_table() });

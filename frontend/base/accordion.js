@@ -26,7 +26,7 @@ function on_accordion_open(){
     //if not already loaded from results
     var $result_img = $root.find('img.result-image')
     if(!is_image_loaded($result_img))
-        set_image_src($result_img, file);
+        set_image_src($result_img, file);  //TODO: generate new dummy image with same aspect ratio
 }
 
 

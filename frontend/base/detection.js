@@ -99,7 +99,6 @@ BaseDetection = class {
     }
 
     static set_processing(filename){
-        //this.update_dimmer(filename, false)
         this.show_dimmer(filename, false)
         var $root      = $(`#filetable [filename="${filename}"]`)
 
@@ -111,8 +110,6 @@ BaseDetection = class {
 
     static set_failed(filename){
         this.show_dimmer(filename, true)
-        //this.update_dimmer(filename, true)
-
         var $root      = $(`#filetable [filename="${filename}"]`)
 
         $(`.table-row[filename="${filename}"] label`).css('font-weight', '')
@@ -125,7 +122,7 @@ BaseDetection = class {
         $(`[filename="${filename}"] .dimmer`).dimmer('hide')
     }
 
-    static show_dimmer(filename, failed){
+    static show_dimmer(filename, failed, message='Processing...'){
         var $dimmer = $(`[filename="${filename}"] .dimmer`)
         if(failed){
             $dimmer.find('.content.processing').hide()
@@ -135,6 +132,7 @@ BaseDetection = class {
             $dimmer.find('.content.processing').show()
             $dimmer.find('.content.failed').hide()
             $dimmer.dimmer({closable: false})
+            $dimmer.find('.processing p').text(message)
         }
         $dimmer.dimmer('show')
     }

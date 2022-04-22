@@ -68,7 +68,7 @@ class Settings:
         print(f'Loading model {modeltype}/{modelname}')
         path  = os.path.join(app.get_models_folder(), modeltype, f'{modelname}.pkl')
         if not os.path.exists(path):
-            print(f'[ERROR] cannot load model "{modeltype}/{modelname}".')
+            print(f'[ERROR] model file "{path}" does not exist.')
             return
         model = pickle.load(open(path, 'rb'))
         return model
