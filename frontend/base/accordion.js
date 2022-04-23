@@ -11,7 +11,7 @@ function on_accordion_open(){
         return;
     }
     $img.on('load', function(){
-        rescale_image_if_too_large($img[0])
+        rescale_image_if_too_large($img[0])                   //TODO: also rescale result images
         var $par = $root.find('.set-aspect-ratio-manually')
         var img  = $img[0]
         $par.css('--imagewidth',  img.naturalWidth)
