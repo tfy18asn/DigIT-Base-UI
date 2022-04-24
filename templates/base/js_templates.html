@@ -54,7 +54,7 @@
 
 
 
-{% macro filetable_content(app, view_menu_extras="") %}
+{% macro filetable_content(app, view_menu_extras="", content_image_extras="") %}
 <div class="filetable-content" style="display:none">
     {{ content_menu.content_menu(
             callback_on_process        = app+".Detection.on_process_image",
@@ -66,9 +66,18 @@
     ) | indent }}
 
     <div class="image-container">
-        {{ content_image(name="input",  overlay=True,  viewcontrols=app+".ViewControls") | indent(8) }}
-        {{ content_image(name="result", overlay=False, viewcontrols=app+".ViewControls") | indent(8) }}
-        {{ progress_dimmer() }}
+      {{ content_image(
+          name           = "input",  
+          overlay        = True,  
+          viewcontrols   = app+".ViewControls",
+          extras         = content_image_extras
+        ) | indent(8) }}
+      {{ content_image(
+          name           = "result", 
+          overlay        = False, 
+          viewcontrols   = app+".ViewControls"
+      ) | indent(8) }}
+      {{ progress_dimmer() }}
     </div>
 </div>
 {% endmacro %}

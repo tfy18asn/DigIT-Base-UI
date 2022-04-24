@@ -10,8 +10,8 @@ function on_accordion_open(){
         scroll_to_filename(filename)  //won't work the first time
         return;
     }
-    $img.on('load', function(){
-        rescale_image_if_too_large($img[0])                   //TODO: also rescale result images
+    $img.on('load', _ => rescale_image_if_too_large($img[0])) //TODO: also rescale result images
+    $img.one('load', function(){
         var $par = $root.find('.set-aspect-ratio-manually')
         var img  = $img[0]
         $par.css('--imagewidth',  img.naturalWidth)
