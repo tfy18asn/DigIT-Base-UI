@@ -21,7 +21,7 @@ elif [[ -z "${DIG_IT_TEST_DOCKER}" ]]; then
                 -v `pwd`:/root/workspace:ro                 \
                 -v `pwd`/tests/logs:/root/latest_logs       \
                 --network=host                              \
-                -e STATIC_PATH=/root/static                 \
+                -e INSTANCE_PATH=/root                      \
                 -e ROOT_PATH=/root/workspace                \
                 -e PYTHONPATH=/root/workspace               \
                 $docker_image                               \
@@ -29,7 +29,7 @@ elif [[ -z "${DIG_IT_TEST_DOCKER}" ]]; then
 
 elif [[ $DIG_IT_TEST_DOCKER=1 ]]; then
     echo "Running tests"
-    mkdir $STATIC_PATH
+    mkdir $INSTANCE_PATH
     killall chrome chromium chromedriver
     coverage run --include=$ROOT_PATH/backend/* -m pytest  \
                         --tb=native                             \

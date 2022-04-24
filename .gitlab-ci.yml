@@ -9,7 +9,7 @@ test-job:
     - ubuntu
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
-    STATIC_PATH: $CI_PROJECT_DIR/static
+    INSTANCE_PATH: $CI_PROJECT_DIR
     ROOT_PATH:   $CI_PROJECT_DIR
     PYTHONPATH:  $CI_PROJECT_DIR
   script:

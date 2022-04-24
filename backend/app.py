@@ -23,15 +23,21 @@ def path_to_main_module():
     path = path or os.path.dirname(os.path.realpath(sys.modules['__main__'].__file__))
     return path
 
+def get_instance_path():
+    path = os.environ.get('INSTANCE_PATH',None)
+    return path or path_to_main_module()
+
 def get_static_path():
-    path = os.environ.get('STATIC_PATH',None)
-    path = path or os.path.join(path_to_main_module(), 'static')
-    return path
+    #stores compiled html/javascript/etc files
+    return os.path.join(get_instance_path(), 'static')
 
 def get_cache_path():
-    static_path = get_static_path()
-    cache_path  = os.path.join( os.path.dirname(static_path), 'cache' )
-    return cache_path
+    #stores images and other data used for processing
+    return os.path.join( get_instance_path(), 'cache' )
+
+def get_models_path():
+    #stores pretrained models
+    return os.path.join( get_instance_path(), 'models' )
 
 def get_template_folders():
     return [
@@ -45,8 +51,6 @@ def get_frontend_folders():
         os.path.join(path_to_main_module(), 'frontend'),             #subproject
     ]
 
-def get_models_folder():
-    return os.path.join(path_to_main_module(), 'models')
 
 class App(flask.Flask):
     def __init__(self, **kw):
@@ -58,8 +62,10 @@ class App(flask.Flask):
 
         super().__init__(
             'reloader' if is_reloader else __name__,
-            root_path          = path_to_main_module(),    #TODO? os.chdir()
+            root_path          = path_to_main_module(),
             static_folder      = get_static_path(), 
+            instance_path      = get_instance_path(),
+            #template_folder   = <multiple>                # handled manually
             static_url_path    = '/',
             **kw
         )
@@ -71,6 +77,7 @@ class App(flask.Flask):
         self.frontend_folders = get_frontend_folders()
         self.cache_path       = get_cache_path()
         print('Root path:       ', self.root_path)
+        print('Models path:     ', get_models_path())
         print('Static path:     ', self.static_folder)
         print('Cache path:      ', self.cache_path)
         if is_debug:
@@ -186,7 +193,7 @@ class App(flask.Flask):
     def save_model(self):
         newname = flask.request.args['newname']
         print('Saving training model as:', newname)
-        path = f'{get_models_folder()}/detection/{newname}.pkl'
+        path = f'{get_models_path()}/detection/{newname}.pkl'
         self.settings.models['detection'].save(path)
         self.settings.active_models['detection'] = newname
         return 'OK'

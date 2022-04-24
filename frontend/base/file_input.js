@@ -100,7 +100,7 @@ BaseFileInput = class {
                 $modal.find('.progress').progress('increment')
             }
         } catch(error) {
-            console.log(error);
+            console.error(error);
             $('body').toast({message:'Failed loading results.', class:'error', displayTime: 0, closeIcon: true})
         } finally {
             $modal.modal({closable: true}).modal('hide');
@@ -157,7 +157,7 @@ async function maybe_unzip(file, default_type='image/png'){
     if(file.async != undefined){
         const blob = await(file.async? file.async('blob') : file)
         const type = file.type? file.type : default_type;
-        const file = new File([blob], file.name, {type:type})
+              file = new File([blob], file.name, {type:type})
     }
     return file;
 }
