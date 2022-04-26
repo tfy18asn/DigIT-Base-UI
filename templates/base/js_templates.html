@@ -17,7 +17,7 @@
 {% macro content_image(name, overlay=True, viewcontrols="ViewControls", extras="") %}
 <!--------- MACRO content_image() START---------->
 <div class="{{name}} view-box stripes" ondblclick="{{ viewcontrols }}.on_viewbox_dblclick(event)">
-  <div class="transform-box set-aspect-ratio-manually" style="transform: matrix(1,0,0,1,0,0)"
+  <div class="transform-box set-aspect-ratio-manually unselectable" style="transform: matrix(1,0,0,1,0,0)"
         onmousedown="{{ viewcontrols }}.on_transformbox_mousedown(event)"
         onmousemove="{{ viewcontrols }}.on_transformbox_mousemove(event)"
         onwheel    ="{{ viewcontrols }}.on_transformbox_wheel(event)">
