@@ -53,10 +53,10 @@
 
 {% macro content_menu(
   callback_on_process        = "",
-  callback_edit_segmentation = "",
   callback_apply_corrections = "",
   callback_new_box           = "",
   callback_download          = "",
+  edit_segmentation_item     = None,
   view_menu_results_layout   = True,
   view_menu_extras           = "",
   help_popup                 = base_help()
@@ -72,9 +72,10 @@
       {{ view_menu(view_menu_results_layout, view_menu_extras) | indent(8)}}
     </div>
 
-    {% if callback_edit_segmentation -%}
-    <a class="item" onclick="{{ callback_edit_segmentation }}(event)"><i class="pen icon"></i></a>
+    {% if edit_segmentation_item -%}
+      {{ edit_segmentation_item }}
     {%- endif %}
+
     {% if callback_apply_corrections -%}
     <a class="item" onclick="{{ callback_apply_corrections }}(event)" data-tooltip="Apply manual corrections" data-position="bottom left">
       <i class="check icon"></i>
