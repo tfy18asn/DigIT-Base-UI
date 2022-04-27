@@ -91,11 +91,8 @@ BaseDetection = class {
         set_image_src($result_overlay, segmentation)
 
         GLOBAL.files[filename].results = results;  //TODO: call it detection_results
-        this.enable_buttons(filename, true, !clear)
 
-        //indicate in the file table that this file is processed
-        $(`.table-row[filename="${filename}"] label`).css('font-weight', clear? '' : 'bold')
-        $root.find('.status.icon').hide().filter(clear? '.unprocessed' : '.processed').show()
+        this.set_processed(filename, clear)
     }
 
     static set_processing(filename){
@@ -116,6 +113,14 @@ BaseDetection = class {
         $root.find('.status.icon').hide().filter('.exclamation').show()
 
         this.enable_buttons(filename, true, false)
+    }
+
+    static set_processed(filename, clear=false){
+        this.hide_dimmer(filename)
+        this.enable_buttons(filename, true, !clear)
+        //indicate in the file table that this file is processed
+        $(`.table-row[filename="${filename}"] label`).css('font-weight', clear? '' : 'bold')
+        $(`#filetable [filename="${filename}"] .status.icon`).hide().filter(clear? '.unprocessed' : '.processed').show()
     }
 
     static hide_dimmer(filename){

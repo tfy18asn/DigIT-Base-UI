@@ -21,11 +21,16 @@ function show_results_side_by_side(filename){
 
 
 function on_brightness_slider(){
-    var $root      = $(this).closest('[filename]')
-    var brightness = $root.find('.brightness-slider').slider('get value')/10
+    const $root      = $(this).closest('[filename]')
+    const brightness = $root.find('.brightness-slider').slider('get value')/10
     $root.find('.input-image').css('filter', `brightness(${brightness})`)
     //var contrast   = $root.find('.contrast-slider').slider('get value')  /10
     //$root.find('.input-image').css('filter', `brightness(${brightness}) contrast(${contrast})`)
+}
+
+function set_brightness(filename, brightness){
+    const $root = $(`[filename="${filename}"]`)
+    $root.find('.brightness-slider').slider('set value', brightness*10 )
 }
 
 
