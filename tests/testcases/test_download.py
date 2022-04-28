@@ -4,6 +4,7 @@ BaseCase = __import__('base_case').BaseCase
 
 
 class TestDownload(BaseCase):
+    @BaseCase.maybe_skip
     def test_download_basic(self):
         if not self.is_chromium() and not self.headed:
             self.skipTest('xdotool does not work with headless firefox for some reason')

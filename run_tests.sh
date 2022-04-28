@@ -33,7 +33,7 @@ elif [[ $DIG_IT_TEST_DOCKER=1 ]]; then
     killall chrome chromium chromedriver
     coverage run --include=$ROOT_PATH/backend/* -m pytest  \
                         --tb=native                             \
-                        --disable-warnings --show-capture=stdout   \
+                        --disable-warnings --show-capture=all   \
                         --ignore-glob=$ROOT_PATH/build*    \
                         --html=/root/latest_logs/pytest_report.html --self-contained-html $@ \
     && coverage html --directory=/root/latest_logs/coverage/           \

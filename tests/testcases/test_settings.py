@@ -57,31 +57,34 @@ class SettingsTests(BaseCase):
     def test_save_settings_keep_values(self):
         self.open_main(static=False)
 
-        #click on settings to open dialog
-        self.click("#settings-button")
-        
-        #click on the active model selection dropdown
-        self.click('div#settings-active-model')
-        #assert there are some items in the dropdown list and they are now visible
-        self.wait_for_element_visible('div#settings-active-model .item', timeout=0.5)
-        elements = self.find_visible_elements('div#settings-active-model .item')
-        assert len(elements) > 0
+        for idx in [0, -1]:
+            #click on settings to open dialog
+            self.click("#settings-button")
+            
+            #click on the active model selection dropdown
+            #css_active_model = 'settings-active-model'
+            css_active_model = '[id^="settings-active-"][id$="-model"]'  #XXX: hacky
+            self.click(css_active_model)
+            #assert there are some items in the dropdown list and they are now visible
+            self.wait_for_element_visible(f'{css_active_model} .item', timeout=0.5)
+            elements = self.find_visible_elements(f'{css_active_model} .item')
+            assert len(elements) > 0
 
-        #TODO: assert elements are sorted
+            #TODO: assert elements are sorted
 
-        element      = elements[0]
-        element_text = element.text
-        element.click()
+            element      = elements[idx]
+            element_text = element.text
+            element.click()
 
-        #click on the ok button
-        self.click("div#settings-ok-button")
-        self.wait_for_element_not_visible("div#settings-dialog")
+            #click on the ok button
+            self.click("div#settings-ok-button")
+            self.wait_for_element_not_visible("div#settings-dialog")
 
 
-        #refresh page and make sure the selected element is still selected
-        self.refresh_page()
+            #refresh page and make sure the selected element is still selected
+            self.refresh_page()
 
-        #click on settings to open dialog
-        self.click("#settings-button")
-        selected = self.get_attribute('div#settings-active-model input', 'value')
-        assert selected == element_text
+            #click on settings to open dialog
+            self.click("#settings-button")
+            selected = self.get_attribute(f'{css_active_model} input', 'value')
+            assert selected == element_text
