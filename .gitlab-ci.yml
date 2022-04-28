@@ -10,11 +10,10 @@ test-job:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
     INSTANCE_PATH: $CI_PROJECT_DIR
-    ROOT_PATH:   $CI_PROJECT_DIR
-    PYTHONPATH:  $CI_PROJECT_DIR
+    ROOT_PATH:     $CI_PROJECT_DIR
+    PYTHONPATH:    $CI_PROJECT_DIR
   script:
     - ls -a
-    - ls $ROOT_PATH/templates
     - pwd
     - env | grep `pwd`
     - ./run_tests.sh -x
