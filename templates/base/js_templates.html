@@ -54,14 +54,14 @@
 
 
 
-{% macro filetable_content(app, view_menu_extras="", content_image_extras="") %}
+{% macro filetable_content(app, view_menu_kwargs={'show_results_layout':True}, content_image_extras="") %}
 <div class="filetable-content" style="display:none">
     {{ content_menu.content_menu(
             callback_on_process        = app+".Detection.on_process_image",
             callback_apply_corrections = None,
             callback_new_box           = None,
             callback_download          = app+".Download.on_single_item_download_click",
-            view_menu_extras           = view_menu_extras
+            view_menu_kwargs           = view_menu_kwargs
     ) | indent }}
 
     <div class="image-container">
