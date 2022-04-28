@@ -91,15 +91,11 @@ BaseDetection = class {
         set_image_src($result_overlay, segmentation)
 
         GLOBAL.files[filename].results = results;  //TODO: call it detection_results
-        this.enable_buttons(filename, true, !clear)
 
-        //indicate in the file table that this file is processed
-        $(`.table-row[filename="${filename}"] label`).css('font-weight', clear? '' : 'bold')
-        $root.find('.status.icon').hide().filter(clear? '.unprocessed' : '.processed').show()
+        this.set_processed(filename, clear)
     }
 
     static set_processing(filename){
-        //this.update_dimmer(filename, false)
         this.show_dimmer(filename, false)
         var $root      = $(`#filetable [filename="${filename}"]`)
 
@@ -111,8 +107,6 @@ BaseDetection = class {
 
     static set_failed(filename){
         this.show_dimmer(filename, true)
-        //this.update_dimmer(filename, true)
-
         var $root      = $(`#filetable [filename="${filename}"]`)
 
         $(`.table-row[filename="${filename}"] label`).css('font-weight', '')
@@ -121,11 +115,19 @@ BaseDetection = class {
         this.enable_buttons(filename, true, false)
     }
 
+    static set_processed(filename, clear=false){
+        this.hide_dimmer(filename)
+        this.enable_buttons(filename, true, !clear)
+        //indicate in the file table that this file is processed
+        $(`.table-row[filename="${filename}"] label`).css('font-weight', clear? '' : 'bold')
+        $(`#filetable [filename="${filename}"] .status.icon`).hide().filter(clear? '.unprocessed' : '.processed').show()
+    }
+
     static hide_dimmer(filename){
         $(`[filename="${filename}"] .dimmer`).dimmer('hide')
     }
 
-    static show_dimmer(filename, failed){
+    static show_dimmer(filename, failed, message='Processing...'){
         var $dimmer = $(`[filename="${filename}"] .dimmer`)
         if(failed){
             $dimmer.find('.content.processing').hide()
@@ -135,6 +137,7 @@ BaseDetection = class {
             $dimmer.find('.content.processing').show()
             $dimmer.find('.content.failed').hide()
             $dimmer.dimmer({closable: false})
+            $dimmer.find('.processing p').text(message)
         }
         $dimmer.dimmer('show')
     }

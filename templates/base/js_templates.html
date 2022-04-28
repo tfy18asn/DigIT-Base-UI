@@ -17,7 +17,7 @@
 {% macro content_image(name, overlay=True, viewcontrols="ViewControls", extras="") %}
 <!--------- MACRO content_image() START---------->
 <div class="{{name}} view-box stripes" ondblclick="{{ viewcontrols }}.on_viewbox_dblclick(event)">
-  <div class="transform-box set-aspect-ratio-manually" style="transform: matrix(1,0,0,1,0,0)"
+  <div class="transform-box set-aspect-ratio-manually unselectable" style="transform: matrix(1,0,0,1,0,0)"
         onmousedown="{{ viewcontrols }}.on_transformbox_mousedown(event)"
         onmousemove="{{ viewcontrols }}.on_transformbox_mousemove(event)"
         onwheel    ="{{ viewcontrols }}.on_transformbox_wheel(event)">
@@ -49,26 +49,34 @@
     <p>Click to continue</p>
   </div>
 </div>
-<!--------- MACRO progress_dimmer() START---------->
+<!--------- MACRO progress_dimmer() END---------->
 {% endmacro %}
 
 
 
-{% macro filetable_content(app, view_menu_extras="") %}
+{% macro filetable_content(app, view_menu_kwargs={'show_results_layout':True}, content_image_extras="") %}
 <div class="filetable-content" style="display:none">
     {{ content_menu.content_menu(
             callback_on_process        = app+".Detection.on_process_image",
-            callback_edit_segmentation = None,
             callback_apply_corrections = None,
             callback_new_box           = None,
             callback_download          = app+".Download.on_single_item_download_click",
-            view_menu_extras           = view_menu_extras
+            view_menu_kwargs           = view_menu_kwargs
     ) | indent }}
 
     <div class="image-container">
-        {{ content_image(name="input",  overlay=True,  viewcontrols=app+".ViewControls") | indent(8) }}
-        {{ content_image(name="result", overlay=False, viewcontrols=app+".ViewControls") | indent(8) }}
-        {{ progress_dimmer() }}
+      {{ content_image(
+          name           = "input",  
+          overlay        = True,  
+          viewcontrols   = app+".ViewControls",
+          extras         = content_image_extras
+        ) | indent(8) }}
+      {{ content_image(
+          name           = "result", 
+          overlay        = False, 
+          viewcontrols   = app+".ViewControls"
+      ) | indent(8) }}
+      {{ progress_dimmer() }}
     </div>
 </div>
 {% endmacro %}
@@ -112,7 +120,7 @@
           values="1 0 0 0 0
                   0 1 0 0 0
                   0 0 1 0 0
-                  1 1 1 0 0" />
+                  255 255 255 0 0" />
      </filter>
 
      <filter id="white-to-red">

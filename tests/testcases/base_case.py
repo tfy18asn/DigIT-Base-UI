@@ -24,7 +24,7 @@ class BaseCase(SeleniumBaseCase):
     
     def open_main(self, static=True):
         if static:
-            return self.open(f"file://{os.environ['STATIC_PATH']}/index.html")
+            return self.open(f"file://{os.environ['INSTANCE_PATH']}/static/index.html")
         else:
             self.port = self.start_flask()
             time.sleep(0.2)

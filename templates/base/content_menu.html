@@ -17,21 +17,24 @@
 {% endmacro %}
 
 
-{% macro view_menu(view_menu_results_layout, view_menu_extras) %}
+{% macro view_menu(show_results_layout=False, extras='', brightness_max=30) %}
 <!--------- MACRO view_menu() START---------->
 <div class="menu view-menu">
-  {% if view_menu_results_layout -%}
+  {% if show_results_layout -%}
     {{ results_layout() | indent }}
   {%- endif %}
   <div class="item brightness">
     <i class="sun icon"></i>
     Brightness
     <div class="ui slider brightness-slider" style="padding:0px; padding-top:5px;"></div>
-    <script> $('.ui.slider').slider({onMove:on_brightness_slider, max:30}).slider('set value', 10); </script>
+    <script> $('.brightness-slider').slider({
+      onMove:on_brightness_slider, 
+      max:{{ brightness_max }} 
+    }).slider('set value', 10); </script>
   </div>
-  {% if view_menu_extras -%}
+  {% if extras -%}
     <div class="divider"></div>
-    {{ view_menu_extras | indent }}
+    {{ extras | indent }}
   {%- endif %}
 </div>
 <!--------- MACRO view_menu() END  ---------->
@@ -53,12 +56,11 @@
 
 {% macro content_menu(
   callback_on_process        = "",
-  callback_edit_segmentation = "",
   callback_apply_corrections = "",
   callback_new_box           = "",
   callback_download          = "",
-  view_menu_results_layout   = True,
-  view_menu_extras           = "",
+  edit_segmentation_item     = None,
+  view_menu_kwargs           = {},
   help_popup                 = base_help()
 ) %}
 <!--------- MACRO content_menu() START---------->
@@ -69,12 +71,13 @@
 
     <div class="ui simple dropdown icon item view-menu-button">
       <i class="eye icon"></i>
-      {{ view_menu(view_menu_results_layout, view_menu_extras) | indent(8)}}
+      {{ view_menu(**view_menu_kwargs) | indent(8)}}
     </div>
 
-    {% if callback_edit_segmentation -%}
-    <a class="item" onclick="{{ callback_edit_segmentation }}(event)"><i class="pen icon"></i></a>
+    {% if edit_segmentation_item -%}
+      {{ edit_segmentation_item }}
     {%- endif %}
+
     {% if callback_apply_corrections -%}
     <a class="item" onclick="{{ callback_apply_corrections }}(event)" data-tooltip="Apply manual corrections" data-position="bottom left">
       <i class="check icon"></i>

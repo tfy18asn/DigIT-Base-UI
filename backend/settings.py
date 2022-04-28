@@ -52,7 +52,7 @@ class Settings:
 
     @staticmethod
     def get_available_models():
-        modelsdir  = app.get_models_folder()
+        modelsdir  = app.get_models_path()
         contents   = glob.glob(os.path.join(modelsdir, '*'))
         modeltypes = [os.path.basename(x) for x in contents if os.path.isdir(x)]
         models     = dict()
@@ -66,9 +66,9 @@ class Settings:
     def load_model(modeltype, modelname):
         import pickle
         print(f'Loading model {modeltype}/{modelname}')
-        path  = os.path.join(app.get_models_folder(), modeltype, f'{modelname}.pkl')
+        path  = os.path.join(app.get_models_path(), modeltype, f'{modelname}.pkl')
         if not os.path.exists(path):
-            print(f'[ERROR] cannot load model "{modeltype}/{modelname}".')
+            print(f'[ERROR] model file "{path}" does not exist.')
             return
         model = pickle.load(open(path, 'rb'))
         return model

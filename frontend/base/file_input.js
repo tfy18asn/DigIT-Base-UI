@@ -68,16 +68,18 @@ BaseFileInput = class {
         this.load_list_of_files(event.dataTransfer.files)
     }
 
-    static async load_list_of_files(files){
+    //load files, some might be input files, others results
+    static load_list_of_files(files){
         var files = Array(...files)
         var inputfiles = files.filter( f => ["image/jpeg", "image/tiff"].indexOf(f.type)!=-1); //no png
         if(inputfiles.length)
             this.set_input_files(inputfiles)
         
         var remaining_files = files.filter( f => inputfiles.indexOf(f)==-1 )
-        await this.load_result_files(remaining_files)
+        this.load_result_files(remaining_files)
     }
 
+    //load files as results if the match already loaded input files
     static async load_result_files(files){
         var result_files = await this.collect_result_files(files)
         console.log('result_files.length:', Object.keys(result_files).length)
@@ -92,12 +94,13 @@ BaseFileInput = class {
             value: 0, showActivity:false,
         })
         try{
-            for(var filename of Object.keys(result_files)){
-                await this.load_result(filename, result_files[filename])
+            for(const [filename, results] of Object.entries(result_files)){
+                const unzipped_results = await Promise.all(results.map(maybe_unzip))
+                await this.load_result(filename, unzipped_results )
                 $modal.find('.progress').progress('increment')
             }
         } catch(error) {
-            console.log(error);
+            console.error(error);
             $('body').toast({message:'Failed loading results.', class:'error', displayTime: 0, closeIcon: true})
         } finally {
             $modal.modal({closable: true}).modal('hide');
@@ -106,25 +109,20 @@ BaseFileInput = class {
         }
     }
 
+    //filter a list of files, leaving result files for already loaded input files
     static async collect_result_files(files){
-        var collected_files = {}
+        var collected = {}
         for(var f of Object.values(files)){
             if(["application/zip", "application/x-zip-compressed"].indexOf(f.type)!=-1)
-                Object.assign(collected_files, (await this.collect_results_from_zipfile(f)));
-            else{
-                var basename = file_basename(f.name)
-                for(var filename of Object.keys(GLOBAL.files)){
-                    var no_ex_filename = remove_file_extension(filename)
-                    var candidate_names = [
-                        filename+'.png',       filename+'.segmentation.png', 
-                        no_ex_filename+'.png', no_ex_filename+'.segmentation.png'
-                    ]
-                    if( candidate_names.indexOf(basename) != -1 )
-                        collected_files[filename] = f
-                }
-            }
+                Object.assign(collected, (await this.collect_results_from_zipfile(f)));
+            else
+                for(var filename of Object.keys(GLOBAL.files))
+                    if( this.match_resultfile_to_inputfile(filename, f.name) ){
+                        const prev = collected.hasOwnProperty(filename) ? collected[filename] : []
+                        collected[filename] = prev.concat([f])
+                    }
         }
-        return collected_files;
+        return collected;
     }
 
     static async collect_results_from_zipfile(zipfile){
@@ -132,14 +130,34 @@ BaseFileInput = class {
         return await this.collect_result_files(zipped_files)
     }
 
-    static async load_result(filename, file){
-        const inputfile = GLOBAL.files[filename]
-        if(inputfile != undefined){
-            const blob   = await(file.async? file.async('blob') : file)
-            file         = new File([blob], file.name, {type:'image/png'})
-            const result = {segmentation: file}
-            App.Detection.set_results(filename, result)
-        }
+    //return true if the result file matches the input file
+    static match_resultfile_to_inputfile(inputfilename, resultfilename){
+        var basename          = file_basename(resultfilename)
+        const no_ext_filename = remove_file_extension(inputfilename)
+        const candidate_names = [
+            inputfilename+'.png',   inputfilename+'.segmentation.png', 
+            no_ext_filename+'.png', no_ext_filename+'.segmentation.png'
+        ]
+        return (candidate_names.indexOf(basename) != -1)
+    }
+
+    //load a single result file for an input image
+    //overwritten downstream
+    static async load_result(filename, resultfiles){
+        const resultfile = resultfiles[0]
+        const blob   = await(resultfile.async? resultfile.async('blob') : resultfile)
+        const file   = new File([blob], resultfile.name, {type:'image/png'})
+        const result = {segmentation: file}
+        App.Detection.set_results(filename, result)
     }
 };
 
+
+async function maybe_unzip(file, default_type='image/png'){
+    if(file.async != undefined){
+        const blob = await(file.async? file.async('blob') : file)
+        const type = file.type? file.type : default_type;
+              file = new File([blob], file.name, {type:type})
+    }
+    return file;
+}

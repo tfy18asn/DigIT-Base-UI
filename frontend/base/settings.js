@@ -16,12 +16,19 @@ BaseSettings = class{
     static update_settings_modal(models){
         const settings = GLOBAL.settings;
 
-        var models_list = []
-        for(var modelname of models.detection)
-            models_list.push({name:modelname, value:modelname, selected:(modelname==settings.active_models.detection)})
-        if(settings.active_models.detection=='')
-            models_list.push({name:'[UNSAVED MODEL]', value:'', selected:true})
-        $("#settings-active-model").dropdown({values: models_list, showOnFocus:false })
+        this.update_model_selection_dropdown(
+            models.detection, settings.active_models.detection, $("#settings-active-model")
+        )
+    }
+
+    
+    static update_model_selection_dropdown(models, active_model, $dropdown){
+        var dropdown_items = models.map(x => {
+            return {name:x, value:x, selected:(x == active_model)};
+        })
+        if(active_model == '')
+            dropwdown_items.push({name:'[UNSAVED MODEL]', value:'', selected:true})
+        $dropdown.dropdown({values: dropdown_items, showOnFocus:false })
     }
 
     static apply_settings_from_modal(){
