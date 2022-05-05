@@ -1,5 +1,5 @@
 {% from 'base/detection_tab.html'    import detection_tab %}
-{% from 'base/training_tab.html'     import training_tab %}
+{% from 'base/training_tab.html'     import training_tab as base_training_tab %}
 
 
 {% macro base_tabs() %}
@@ -12,11 +12,12 @@
 
 {% macro main_container(
     app,
-    tabs       = base_tabs(),
-    extra      = ""
+    tabs         = base_tabs(),
+    training_tab = base_training_tab,
+    extra        = ""
 ) %}
 <div class="ui hidden section divider"></div> <!--whitespace-->
-<div class="ui container" style="width:calc(100% - 40px); padding-bottom:50vh;"> <!--TODO: add css class-->
+<div class="ui container page-wide" id="main-container">
 
     {{ tabs | indent }}
 

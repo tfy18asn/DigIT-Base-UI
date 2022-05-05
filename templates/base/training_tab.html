@@ -24,6 +24,20 @@
 {% endmacro %} {# training_filetable #}
 
 
+{% macro save_model_field(trainingmodule) %}
+<div class="field" id="training-new-modelname-field" style="display:none">
+  <div class="ui divider"></div>
+  <label>Save trained model</label>
+  <div class="ui action input">
+    <input type="text" placeholder="New model name" id="training-new-modelname">
+    <button class="ui violet right labeled icon button" onclick="{{trainingmodule}}.on_save_model()">
+      <i class="save icon"></i>
+      Save Model
+    </button>
+  </div>
+</div>
+{% endmacro %} {# save_model_field #}
+
 
 
 {% macro training_controls(trainingmodule="") %}
@@ -33,17 +47,7 @@
       Start Training
     </label>
 
-    <div class="field" id="training-new-modelname-field" style="display:none">
-      <div class="ui divider"></div>
-      <label>Save trained model</label>
-      <div class="ui action input">
-        <input type="text" placeholder="New model name" id="training-new-modelname">
-        <button class="ui violet right labeled icon button" onclick="{{trainingmodule}}.on_save_model()">
-          <i class="save icon"></i>
-          Save Model
-        </button>
-      </div>
-    </div>
+    {{ save_model_field(trainingmodule) | indent }}
 </div>
 {% endmacro %} {# training_controls #}
 
@@ -52,7 +56,7 @@
 
 
 {% macro training_tab(app) %}
-<div style="display:grid; height:200px; grid-template-columns: 50% 50%; grid-column-gap: 5px; align-items: start;">
+<div id="training-tab">
     
     {{ training_filetable() }}
     {{ training_controls(trainingmodule = app+".Training") }}

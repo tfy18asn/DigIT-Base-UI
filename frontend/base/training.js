@@ -16,7 +16,23 @@ BaseTraining = class BaseTraining{
         var filenames = this.get_selected_files()
         console.log('Training on ', filenames)
         
-        this.show_modal()     
+        const progress_cb = (m => this.on_training_progress(m))
+        try {
+            this.show_modal()
+            await this.upload_training_data(filenames)
+
+            $(GLOBAL.event_source).on('training', progress_cb)
+            //FIXME: success/fail should not be determined by this request
+            await $.post('/training', {'filenames':filenames})
+            if(!$('#training-modal .ui.progress').progress('is complete'))
+                this.interrupted_modal()
+        } catch (e) {
+            this.fail_modal()
+        } finally {
+            $(GLOBAL.event_source).off('training', progress_cb)
+        }
+
+        /*this.show_modal()
         await this.upload_training_data(filenames)
 
         $(GLOBAL.event_source).on('training', m => this.on_training_progress(m))
@@ -28,6 +44,7 @@ BaseTraining = class BaseTraining{
             } )
             .fail( this.fail_modal )
             .always( _ => $(GLOBAL.event_source).off('training', this.on_training_progress) );
+        */
     }
 
     static on_cancel_training(){
@@ -107,7 +124,7 @@ BaseTraining = class BaseTraining{
         var segmentations = filenames.map( f => GLOBAL.files[f].results.segmentation )
                                      .filter( s => s instanceof Blob )
         promises          = promises.concat( segmentations.map( f => upload_file_to_flask(f) ) )
-        return Promise.all(promises).catch( this.fail_modal )
+        return Promise.all(promises).catch( this.fail_modal )  //FIXME: dont catch, handle in calling function
     }
 }
 
