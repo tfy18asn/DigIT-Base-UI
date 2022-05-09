@@ -23,7 +23,7 @@ BaseTraining = class BaseTraining{
 
             $(GLOBAL.event_source).on('training', progress_cb)
             //FIXME: success/fail should not be determined by this request
-            await $.post('/training', {'filenames':filenames})
+            await $.post('/training', {filenames:filenames, options:this.get_training_options()})
             if(!$('#training-modal .ui.progress').progress('is complete'))
                 this.interrupted_modal()
         } catch (e) {
@@ -31,20 +31,10 @@ BaseTraining = class BaseTraining{
         } finally {
             $(GLOBAL.event_source).off('training', progress_cb)
         }
+    }
 
-        /*this.show_modal()
-        await this.upload_training_data(filenames)
-
-        $(GLOBAL.event_source).on('training', m => this.on_training_progress(m))
-        //FIXME: success/fail should not be determined by this request
-        $.post('/training', {'filenames':filenames})
-            .done( ok => {
-                if(!$('#training-modal .ui.progress').progress('is complete'))
-                    this.interrupted_modal()
-            } )
-            .fail( this.fail_modal )
-            .always( _ => $(GLOBAL.event_source).off('training', this.on_training_progress) );
-        */
+    static get_training_options(){
+        return undefined;
     }
 
     static on_cancel_training(){
@@ -112,7 +102,7 @@ BaseTraining = class BaseTraining{
     static on_save_model(){
         var new_modelname = $('#training-new-modelname')[0].value
         console.log('Saving new model as:', new_modelname)
-        $.get('/save_model', {newname: new_modelname})
+        $.get('/save_model', {newname: new_modelname, options:this.get_training_options()})
             .done( _ => $('#training-new-modelname-field').hide() )
             .fail( _ => $('body').toast({message:'Saving failed.', class:'error', displayTime: 0, closeIcon: true}) )
     }
