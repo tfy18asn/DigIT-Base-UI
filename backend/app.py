@@ -139,6 +139,11 @@ class App(flask.Flask):
             import signal
             os.kill(os.getpid(), signal.SIGINT)
             return 'OK'
+
+        @self.route('/clear_cache')
+        def clear_cache():
+            shutil.rmtree(self.cache_path, ignore_errors=True)
+            os.makedirs(self.cache_path)
         
         self.route('/process_image/<imagename>')(self.process_image)
         self.route('/training', methods=['POST'])(self.training)
