@@ -144,6 +144,7 @@ class App(flask.Flask):
         def clear_cache():
             shutil.rmtree(self.cache_path, ignore_errors=True)
             os.makedirs(self.cache_path)
+            return 'OK'
         
         self.route('/process_image/<imagename>')(self.process_image)
         self.route('/training', methods=['POST'])(self.training)

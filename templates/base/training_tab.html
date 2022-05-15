@@ -25,15 +25,17 @@
 
 
 {% macro save_model_field(trainingmodule) %}
-<div class="field" id="training-new-modelname-field" style="display:none">
-  <div class="ui divider"></div>
-  <label>Save trained model</label>
-  <div class="ui action input">
-    <input type="text" placeholder="New model name" id="training-new-modelname">
-    <button class="ui violet right labeled icon button" onclick="{{trainingmodule}}.on_save_model()">
-      <i class="save icon"></i>
-      Save Model
-    </button>
+<div class="ui segment form" id="training-new-modelname-field" style="display:none">
+  <div class="ui field">
+    <!--<div class="ui divider"></div>-->
+    <label>Save trained model</label>
+    <div class="ui action input">
+      <input type="text" placeholder="New model name" id="training-new-modelname">
+      <button class="ui violet right labeled icon button" onclick="{{trainingmodule}}.on_save_model()">
+        <i class="save icon"></i>
+        Save Model
+      </button>
+    </div>
   </div>
 </div>
 {% endmacro %} {# save_model_field #}
@@ -42,13 +44,18 @@
 
 {% macro training_controls(trainingmodule="") %}
 <div class="ui segment form" style="margin-top:0px;">
+    <div class="ui hidden message" id="training-model-info-message">
+      <p>Starting point for retraining: <b id="training-model-info-label">xxx</b></p>
+    </div>
+
     <label class="ui violet basic fluid button" onclick="{{trainingmodule}}.on_start_training()" id="start-training-button" style="margin-bottom: 20px;">
       <i class="shuffle icon"></i>
       Start Training
     </label>
 
-    {{ save_model_field(trainingmodule) | indent }}
 </div>
+
+{{ save_model_field(trainingmodule) | indent }}
 {% endmacro %} {# training_controls #}
 
 
