@@ -45,6 +45,7 @@ BaseTraining = class BaseTraining{
         $.get('/stop_training')
             .fail(   _ => $('body').toast({message:'Stopping failed.', class:'error'}) )
             //.always( _ => this.hide_modal() )
+        $('#training-modal #cancel-training-button').addClass('disabled')
         return false; //prevent automatic closing of the modal
     }
 
@@ -77,7 +78,7 @@ BaseTraining = class BaseTraining{
             .progress('set label', 'Training in progress...')
             .progress('reset');
         $('#training-modal #ok-training-button').hide()
-        $('#training-modal #cancel-training-button').show()
+        $('#training-modal #cancel-training-button').removeClass('disabled').show()
         
         $('#training-modal').modal({
             closable: false, inverted:true, onDeny: x => this.on_cancel_training(),
@@ -90,11 +91,13 @@ BaseTraining = class BaseTraining{
 
     static fail_modal(){
         $('#training-modal .progress').progress('set error', 'Training failed');
+        $('#training-modal #cancel-training-button').removeClass('disabled')
         $('#training-modal').modal({closable:true})
     }
 
     static interrupted_modal(){
         $('#training-modal .progress').progress('set error', 'Training interrupted');
+        $('#training-modal #cancel-training-button').removeClass('disabled')
         $('#training-modal').modal({closable:true})
     }
 
