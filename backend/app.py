@@ -229,7 +229,7 @@ class App(flask.Flask):
         tmpl  = env.get_template('index.html')
         outf  = os.path.join(self.static_folder, 'index.html')
         os.makedirs(os.path.dirname(outf), exist_ok=True)
-        open(outf,'w').write(tmpl.render(warning='GENERATED FILE. DO NOT EDIT MANUALLY'))
+        open(outf,'w', encoding="utf-8").write(tmpl.render(warning='GENERATED FILE. DO NOT EDIT MANUALLY'))
     
     def setup_cache(self):
         if os.path.exists(self.cache_path):
