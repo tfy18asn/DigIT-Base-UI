@@ -129,11 +129,12 @@ BaseTraining = class BaseTraining{
         //TODO: show progress
         var promises      = filenames.map( f => upload_file_to_flask(GLOBAL.files[f]) )
         //TODO: refactor
-        var segmentations = filenames.map( f => GLOBAL.files[f].results.segmentation )
+        //TODO: standardize file name
+        var segmentations = filenames.map(    f => GLOBAL.files[f].results.segmentation )
                                      .filter( s => s instanceof Blob )
         promises          = promises.concat( segmentations.map( f => upload_file_to_flask(f) ) )
         return Promise.all(promises).catch( this.fail_modal )  //FIXME: dont catch, handle in calling function
     }
 }
 
-window.addEventListener(BaseSettings.SETTINGS_CHANGED, () => WoodTraining.refresh_table() )
+window.addEventListener(BaseSettings.SETTINGS_CHANGED, () => App.Training.refresh_table() )
