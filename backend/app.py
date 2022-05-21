@@ -139,6 +139,12 @@ class App(flask.Flask):
             import signal
             os.kill(os.getpid(), signal.SIGINT)
             return 'OK'
+
+        @self.route('/clear_cache')
+        def clear_cache():
+            shutil.rmtree(self.cache_path, ignore_errors=True)
+            os.makedirs(self.cache_path)
+            return 'OK'
         
         self.route('/process_image/<imagename>')(self.process_image)
         self.route('/training', methods=['POST'])(self.training)
@@ -223,7 +229,7 @@ class App(flask.Flask):
         tmpl  = env.get_template('index.html')
         outf  = os.path.join(self.static_folder, 'index.html')
         os.makedirs(os.path.dirname(outf), exist_ok=True)
-        open(outf,'w').write(tmpl.render(warning='GENERATED FILE. DO NOT EDIT MANUALLY'))
+        open(outf,'w', encoding="utf-8").write(tmpl.render(warning='GENERATED FILE. DO NOT EDIT MANUALLY'))
     
     def setup_cache(self):
         if os.path.exists(self.cache_path):

@@ -1,6 +1,8 @@
 import json, os, glob, copy
 from . import app
 
+import torch
+
 class Settings:
     FILENAME = 'settings.json'   #FIXME: hardcoded
 
@@ -57,8 +59,10 @@ class Settings:
         modeltypes = [os.path.basename(x) for x in contents if os.path.isdir(x)]
         models     = dict()
         for modeltype in modeltypes:
-            modelfiles = glob.glob(os.path.join(modelsdir, modeltype, '*.pkl'))
-            modelnames = [os.path.splitext(os.path.basename(m))[0] for m in modelfiles]
+            modelfiles = glob.glob(os.path.join(modelsdir, modeltype, '*.pt.zip'))
+            modelnames = [os.path.basename(m)[:-len('.pt.zip')] for m in modelfiles]
+            modelfiles = glob.glob(os.path.join(modelsdir, modeltype, '*.pkl'))       #TODO: remove pkl files
+            modelnames += [os.path.basename(m)[:-len('.pkl')] for m in modelfiles]
             models[modeltype] = modelnames
         return models
 
@@ -66,10 +70,15 @@ class Settings:
     def load_model(modeltype, modelname):
         import pickle
         print(f'Loading model {modeltype}/{modelname}')
-        path  = os.path.join(app.get_models_path(), modeltype, f'{modelname}.pkl')
-        if not os.path.exists(path):
-            print(f'[ERROR] model file "{path}" does not exist.')
-            return
-        model = pickle.load(open(path, 'rb'))
-        return model
+        path  = os.path.join(app.get_models_path(), modeltype, f'{modelname}.pt.zip')
+        if os.path.exists(path):
+            model = torch.package.PackageImporter(path).load_pickle('model', 'model.pkl')
+            return model
+        else:
+            path  = os.path.join(app.get_models_path(), modeltype, f'{modelname}.pkl')
+            if not os.path.exists(path):
+                print(f'[ERROR] model file "{path}" does not exist.')
+                return
+            model = pickle.load(open(path, 'rb'))
+            return model
 

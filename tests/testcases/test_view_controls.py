@@ -7,6 +7,7 @@ BaseCase = __import__('base_case').BaseCase
 
 
 class TestViewControls(BaseCase):
+    @BaseCase.maybe_skip
     def test_overlay_side_by_side_switch(self):
         self.open_main(static=True)
 
@@ -65,24 +66,24 @@ class TestViewControls(BaseCase):
         assert 'brightness(1)' in image_filters
         brightness0   = float(image_filters.split('brightness(')[1].split(')')[0])
 
-        #move slider to the right
-        self.drag_and_drop_with_offset(thumb_css, 20, 0)
+        #move slider to the left
+        self.drag_and_drop_with_offset(thumb_css, -20, 0)
         self.sleep(0.1)
 
-        #brightness should have increased
+        #brightness should have decreased
         image_filters = self.execute_script(script)
         brightness1   = float(image_filters.split('brightness(')[1].split(')')[0])
-        assert brightness1 > brightness0
+        assert brightness1 < brightness0
 
 
         #move slider back to the original position
-        self.drag_and_drop_with_offset(thumb_css, -20, 0)
+        self.drag_and_drop_with_offset(thumb_css, 20, 0)
         self.sleep(0.1)
 
         #brightness should have decreased, if possible to 1 again
         image_filters = self.execute_script(script)
         brightness2   = float(image_filters.split('brightness(')[1].split(')')[0])
-        assert brightness2 < brightness1
+        assert brightness2 > brightness1
         assert abs(brightness2 - brightness0) < 0.12  #for some reason inaccurate
 
         if self.demo_mode:

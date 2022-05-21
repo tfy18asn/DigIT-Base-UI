@@ -1,6 +1,8 @@
 
 
 BaseSettings = class{
+    static SETTINGS_CHANGED = 'settings-changed'
+
     static load_settings(){
         var _this = this;
         $.get('/settings').done(function(data){
@@ -9,6 +11,7 @@ BaseSettings = class{
             console.log('Loaded settings:  ',settings)
             console.log('Available models: ',models)
             GLOBAL.settings   = settings
+            BaseSettings.dispatch_event()
             _this.update_settings_modal(models)
         })
     }
@@ -23,11 +26,11 @@ BaseSettings = class{
 
     
     static update_model_selection_dropdown(models, active_model, $dropdown){
-        var dropdown_items = models.map(x => {
+        let dropdown_items = models.map(x => {
             return {name:x, value:x, selected:(x == active_model)};
         })
         if(active_model == '')
-            dropwdown_items.push({name:'[UNSAVED MODEL]', value:'', selected:true})
+            dropdown_items.push({name:'[UNSAVED MODEL]', value:'', selected:true})
         $dropdown.dropdown({values: dropdown_items, showOnFocus:false })
     }
 
@@ -37,6 +40,8 @@ BaseSettings = class{
 
     static on_save_settings(_){
         this.apply_settings_from_modal()
+        this.dispatch_event()
+
         var settingsdata = deepcopy(GLOBAL.settings);
         var postdata     = JSON.stringify(settingsdata);
         $('#settings-ok-button').addClass('loading');
@@ -58,6 +63,11 @@ BaseSettings = class{
     static on_settings(){
         this.load_settings();
         $('#settings-dialog').modal({onApprove: _ => this.on_save_settings()}).modal('show');
+    }
+
+    static dispatch_event(){
+        const event = new CustomEvent('settings-changed', GLOBAL.settings);
+        window.dispatchEvent(event)
     }
 
 }

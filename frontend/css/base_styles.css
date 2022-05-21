@@ -86,3 +86,19 @@ img.overlay {
     filter:url(#black-to-transparent)
 }
 
+
+.page-wide {
+    width: calc(100% - 40px)!important;
+}
+
+#main-container {
+    padding-bottom: 50vh;
+}
+
+#training-tab {
+    display:grid; 
+    height:200px; 
+    grid-template-columns: 50% 50%; 
+    grid-column-gap: 5px; 
+    align-items: start;
+}
