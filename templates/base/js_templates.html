@@ -13,18 +13,27 @@
 {% endmacro %}
 
 
+{% macro image_overlay(name) %}
+<img class="{{name}} overlay unselectable pixelated"  draggable="false">
+{% endmacro %}
 
-{% macro content_image(name, overlay=True, viewcontrols="ViewControls", extras="") %}
+
+{% macro content_image(name, overlay="", viewcontrols="ViewControls", extras="") %}
 <!--------- MACRO content_image() START---------->
 <div class="{{name}} view-box stripes" ondblclick="{{ viewcontrols }}.on_viewbox_dblclick(event)">
-  <div class="transform-box set-aspect-ratio-manually unselectable" style="transform: matrix(1,0,0,1,0,0)"
-        onmousedown="{{ viewcontrols }}.on_transformbox_mousedown(event)"
-        onmousemove="{{ viewcontrols }}.on_transformbox_mousemove(event)"
-        onwheel    ="{{ viewcontrols }}.on_transformbox_wheel(event)">
-    <img class="{{name}}-image unselectable" style="width:100%;" draggable="false">
-    {% if overlay -%}
-    <img class="{{name}} overlay unselectable pixelated"  draggable="false">
-    {%- endif %}
+  <div class="set-aspect-ratio-manually" style="display:flex; justify-content: end;">
+    <div class="transform-box unselectable" style="transform: matrix(1,0,0,1,0,0);"
+      {% if viewcontrols -%}
+          onmousedown="{{ viewcontrols }}.on_transformbox_mousedown(event)"
+          onmousemove="{{ viewcontrols }}.on_transformbox_mousemove(event)"
+          onwheel    ="{{ viewcontrols }}.on_transformbox_wheel(event)"
+      {%- endif %}
+    >
+      <img class="{{name}}-image unselectable" style="width:100%;" draggable="false">
+      {% if overlay -%}
+        {{ overlay | indent(8) }}
+      {%- endif %}
+    </div>
     {{ extras }}
   </div>
 </div>
@@ -54,7 +63,7 @@
 
 
 
-{% macro filetable_content(app, view_menu_kwargs={'show_results_layout':True}, content_image_extras="") %}
+{% macro filetable_content(app, view_menu_kwargs={'show_results_layout':True}) %}
 <div class="filetable-content" style="display:none">
     {{ content_menu.content_menu(
             callback_on_process        = app+".Detection.on_process_image",
@@ -67,13 +76,12 @@
     <div class="image-container">
       {{ content_image(
           name           = "input",  
-          overlay        = True,  
-          viewcontrols   = app+".ViewControls",
-          extras         = content_image_extras
+          overlay        = image_overlay("image"),
+          viewcontrols   = app+".ViewControls"
         ) | indent(8) }}
       {{ content_image(
           name           = "result", 
-          overlay        = False, 
+          overlay        = None, 
           viewcontrols   = app+".ViewControls"
       ) | indent(8) }}
       {{ progress_dimmer() }}
