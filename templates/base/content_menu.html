@@ -23,6 +23,8 @@
   {% if show_results_layout -%}
     {{ results_layout() | indent }}
   {%- endif %}
+
+  {% if brightness_max -%}
   <div class="item brightness">
     <i class="sun icon"></i>
     Brightness
@@ -32,6 +34,8 @@
       max:{{ brightness_max }} 
     }).slider('set value', 10); </script>
   </div>
+  {%- endif %}
+
   {% if extras -%}
     <div class="divider"></div>
     {{ extras | indent }}
