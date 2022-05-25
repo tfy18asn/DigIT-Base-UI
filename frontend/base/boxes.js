@@ -32,14 +32,13 @@ BaseBoxes = class {
                     
                     $(document).off('mousemove mouseup');
                     _this.set_box_drawing_mode(filename, false);
-                    //deactivate_custom_box_drawing_mode($container.closest('[filename]').attr('filename'));
 
                     const parent_box  = $container[0].getBoundingClientRect();
                     const topleft     = $selection.position()
                     const bottomright = [topleft.top + $selection.height(), topleft.left + $selection.width()];
                     const bbox        = [topleft.top/parent_box.height,     topleft.left/parent_box.width,
                                          bottomright[0]/parent_box.height,  bottomright[1]/parent_box.width];
-                    _this.add_new_box_overlay(filename, bbox)
+                    _this.add_box_overlay(filename, bbox, '???')
                     $selection.remove();
                     return;
                 }
@@ -67,9 +66,9 @@ BaseBoxes = class {
         this.set_box_drawing_mode(filename, !active);
     }
 
-    static add_new_box_overlay(filename, yxyx){
+    static add_box_overlay(filename, yxyx, label){
         console.log('New box:', yxyx)
-        const $overlay   = $('#box-overlay-template').tmpl({box:yxyx})
+        const $overlay   = $('#box-overlay-template').tmpl({box:yxyx, label:label})
         const $container = $(`[filename="${filename}"] .boxes.overlay`)
         $overlay.appendTo($container)
 
@@ -137,52 +136,86 @@ BaseBoxes = class {
         })
     }
 
-    static remove_box_overlay(filename, box_id){
+    static refresh_boxes(filename){
+        const img = $(`[filename="${filename}"] img.input-image`)[0];
+        if(img.naturalWidth==0){
+            //image not yet loaded, display on load
+            $(img).one( 'load', _ => this.refresh_boxes(filename) )
+            return;
+        }
+        const [H,W]   = [img.naturalHeight, img.naturalWidth]  //FIXME: use --imgwidth or better own function
+        this.clear_box_overlays(filename)
 
-    }
-}
-
-
-function convert_boxlabel_into_input(e) {
-    var $label = $(e.target)
-    //activate dropdown
-    $label.closest('.box-overlay').find('select.search').dropdown({
-        allowAdditions: true, 
-        hideAdditions:  false, 
-        forceSelection: false, 
-        selectOnKeydown: false,
-        fullTextSearch:true,
-        action: (t,v,el) => {  save(t); },
-        onHide: ()=>{ save(); },
-    });
-    var $input = $label.closest('.box-overlay').find('.search.dropdown');
-    $input.dropdown('setup menu', {
-        //values: ['Nonpollen'].concat(get_set_of_all_labels().sort()).map( v => {return {name:v};} ),
-        values: ['Nonpollen'].concat( ['Banana', 'Potato', 'Tomato'].sort()).map( v => {return {name:v};} ),        //TODO
-    });
-    $label.hide();
-    $input.show();
-
-    var save = function(txt=''){
-        console.log(`save(${txt})`)
-        if(txt.length > 0)
-            $label.text(txt)
-        $label.show();
-        $input.hide();
-    }
-    /*var save = function(txt=''){
-        if(txt.length>0){
-            //$label.text( txt );  //done in update_boxlabel via set_custom_label
-            var filename = $label.closest('[filename]').attr('filename');
-            var index    = $label.closest('[index]').attr('index');
-            if(txt.toLowerCase()=='nonpollen')
-                txt = '';
-            set_custom_label(filename, index, txt);
+        const results = GLOBAL.files[filename]?.results;
+        const boxes   = results?.boxes;
+        const labels  = results?.labels;
+        if(!boxes || !labels)
+            return;
+        
+        for(const [i,box] of Object.entries(boxes)){
+            const yxyx = [box[1]/H, box[0]/W, box[3]/H, box[2]/W]
+            this.add_box_overlay(filename, yxyx, labels[i] )
         }
         
-        $label.show();
-        $input.hide();
-    };*/
+    }
+
+    static on_remove_box_button(event){
+        console.error('Not implemented')
+    }
+
+    static clear_box_overlays(filename){
+        const $container = $(`[filename="${filename}"] .boxes.overlay`)
+        $container.find('.box-overlay').remove()
+    }
+
+
+    static convert_boxlabel_into_input(event) {
+        const $label = $(event.target)
+        //activate dropdown
+        $label.closest('.box-overlay').find('select.search').dropdown({
+            allowAdditions: true, 
+            hideAdditions:  false, 
+            forceSelection: false, 
+            selectOnKeydown: false,
+            fullTextSearch:true,
+            action: (t,v,el) => {  save(t); },
+            onHide: ()=>{ save(); },
+        });
+        const $input = $label.closest('.box-overlay').find('.search.dropdown');
+        $input.dropdown('setup menu', {
+            values: this.get_set_of_all_labels().sort().map( v => {return {name:v};} ),
+        });
+        $label.hide();
+        $input.show();
     
-    $input.find('input').focus().select();
+        const save = function(txt=''){
+            console.log(`save(${txt})`)
+            if(txt.length > 0)
+                $label.text(txt)
+            $label.show();
+            $input.hide();
+        }
+        /*var save = function(txt=''){
+            if(txt.length>0){
+                //$label.text( txt );  //done in update_boxlabel via set_custom_label
+                var filename = $label.closest('[filename]').attr('filename');
+                var index    = $label.closest('[index]').attr('index');
+                if(txt.toLowerCase()=='nonpollen')
+                    txt = '';
+                set_custom_label(filename, index, txt);
+            }
+            
+            $label.show();
+            $input.hide();
+        };*/
+        
+        $input.find('input').focus().select();
+    }
+
+    static get_set_of_all_labels(){
+        return []
+    }
 }
+
+
+
