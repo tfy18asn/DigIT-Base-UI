@@ -1,4 +1,4 @@
-{% from 'base/detection_tab.html'    import detection_tab %}
+{% from 'base/detection_tab.html'    import detection_tab as base_detection_tab %}
 {% from 'base/training_tab.html'     import training_tab as base_training_tab %}
 
 
@@ -12,9 +12,10 @@
 
 {% macro main_container(
     app,
-    tabs         = base_tabs(),
-    training_tab = base_training_tab,
-    extra        = ""
+    tabs          = base_tabs(),
+    detection_tab = base_detection_tab(app),
+    training_tab  = base_training_tab(app),
+    extra         = ""
 ) %}
 <div class="ui hidden section divider"></div> <!--whitespace-->
 <div class="ui container page-wide" id="main-container">
@@ -22,11 +23,11 @@
     {{ tabs | indent }}
 
     <div class="ui active tab segment unselectable" data-tab="detection" style="padding:0">
-        {{ detection_tab(app)    | indent(8) }}
+        {{ detection_tab    | indent(8) }}
     </div>
 
     <div class="ui bottom attached tab" data-tab="training">
-        {{ training_tab(app)     | indent(8) }}
+        {{ training_tab     | indent(8)  }}
     </div>
 
     {{ extra | indent }}

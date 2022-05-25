@@ -51,7 +51,7 @@ BaseFileInput = class {
             //FIXME: works only if visible
             $trow.first().attr('top', $trow.offset().top)
         }
-        $filetable.find('thead th').text(`${files.length} File${(files.length==1)?'':'s'} Loaded`)
+        $filetable.find('thead th#files-loaded-column-header').text(`${files.length} File${(files.length==1)?'':'s'} Loaded`)
     }
 
 

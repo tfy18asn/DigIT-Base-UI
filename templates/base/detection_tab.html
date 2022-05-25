@@ -25,11 +25,14 @@
 </div>
 {% endmacro %}
 
-{% macro base_main_table() %}
+{% macro base_main_table(extra_columns=[]) %}
 <table class="ui celled sortable unstackable table accordion" id="filetable" style="border:0px; margin-top:0px;">
     <thead>
       <tr>
-        <th>No Files Loaded</th>
+        <th id="files-loaded-column-header">No Files Loaded</th>
+        {% for item in extra_columns %}
+            <th>{{ item }}</th>
+        {% endfor %}
       </tr>
     </thead>
     <tbody>
@@ -40,14 +43,14 @@
 
 
 
-{% macro detection_tab(app, main_table = base_main_table) %}
+{% macro detection_tab(app, main_table = base_main_table()) %}
 <!-- MACRO detection_tab() START -->
 {{ filetable_menu(
         callback_on_process_all  = app+".Detection.on_process_all",
         callback_on_cancel       = app+".Detection.on_cancel_processing",
         callback_on_download_all = app+".Download.on_download_all"
     ) }}
-{{ main_table()}}
+{{ main_table }}
 
 <!-- MACRO detection_tab() END -->
 {% endmacro %}

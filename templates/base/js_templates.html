@@ -98,7 +98,7 @@
 {% endmacro %}
 
 
-{% macro filetable_row_template(app="BaseApp", content=filetable_content) %}
+{% macro filetable_row_template(app="BaseApp", content=filetable_content, extra_columns=0) %}
 <template id="filetable-row-template">
     <tr class="ui title table-row" filename="${filename}">
         <!-- table row -->
@@ -107,10 +107,13 @@
             {{ status_icons()         | indent(8) }}
             <label>${filename}</label>
         </td>
+        {% for i in range(extra_columns) %}
+          <td></td>
+        {% endfor %}
     </tr>
     <tr style="display:none" filename="${filename}">
         <!-- content -->
-        <td class="ui content" style="padding:0px;">
+        <td class="ui content" style="padding:0px;"  colspan="{{ extra_columns + 1 }}">
             {{ loading_spinner()      | indent(8) }}
             {{ content(app)           | indent(8) }}
         </td>
