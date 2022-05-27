@@ -1,6 +1,13 @@
 
 
 BaseBoxes = class {
+    static on_draw_new_box_button(event){
+        const $root    = $(event.target).closest('[filename]')
+        const filename = $root.attr('filename')
+        const active   = $root.find('.item.new-box').hasClass('active');
+        this.set_box_drawing_mode(filename, !active);
+    }
+
     static set_box_drawing_mode(filename, state){
         const $root = $(`[filename="${filename}"]`)
         $root.find(`.item.new-box`).toggleClass('active', state)
@@ -33,13 +40,8 @@ BaseBoxes = class {
                     $(document).off('mousemove mouseup');
                     _this.set_box_drawing_mode(filename, false);
 
-                    const parent_box  = $container[0].getBoundingClientRect();
-                    const topleft     = $selection.position()
-                    const bottomright = [topleft.top + $selection.height(), topleft.left + $selection.width()];
-                    const bbox        = [topleft.top/parent_box.height,     topleft.left/parent_box.width,
-                                         bottomright[0]/parent_box.height,  bottomright[1]/parent_box.width];
-                    _this.add_box_overlay(filename, bbox, '???')
-                    $selection.remove();
+                    _this.finalize_box($selection, '???')
+                    $selection.remove()
                     return;
                 }
     
@@ -59,39 +61,57 @@ BaseBoxes = class {
         })
     }
 
-    static on_draw_new_box_button(event){
-        const $root    = $(event.target).closest('[filename]')
-        const filename = $root.attr('filename')
-        const active   = $root.find('.item.new-box').hasClass('active');
-        this.set_box_drawing_mode(filename, !active);
+    static finalize_box( $box_overlay, label, remove=false ){
+        const filename      = $box_overlay.closest('[filename]').attr('filename')
+        
+        const $container    = $(`[filename="${filename}"] .boxes.overlay`)
+        const H   = $container.height(), W = $container.width();
+        //normalized coordinates 0..1
+        const y0  = Math.max(0, $box_overlay.position()['top']/H)
+        const x0  = Math.max(0, $box_overlay.position()['left']/W)
+        const y1  = Math.min(1, ($box_overlay.position()['top']  + $box_overlay.outerHeight())/H );
+        const x1  = Math.min(1, ($box_overlay.position()['left'] + $box_overlay.outerWidth())/W );
+
+        const img   = $(`[filename="${filename}"] img.input-image`)[0];
+        const [imgH,imgW] = [img.naturalHeight, img.naturalWidth]                                               //FIXME: use --imgwidth or better own function
+        //real image coordinates
+        const box   = [x0*imgW, y0*imgH, x1*imgW, y1*imgH]
+
+        //update results
+        const oldresults = GLOBAL.files[filename].results;
+        let   newresults = {
+            'labels': oldresults['predictions'],
+            'boxes':  oldresults['boxes'],
+        }
+        const index = $box_overlay.attr('index')
+        if(remove){
+            //remove box
+            newresults['labels'].splice(index, 1)
+            newresults['boxes'].splice(index, 1)
+        } else if(index == undefined){
+            //add new box
+            newresults['labels'] = newresults['labels'].concat({[label]:1.0})
+            newresults['boxes']  = newresults['boxes'].concat([box])
+        } else {
+            //update old result at index
+            newresults['labels'][index] = {[label]:1.0};                                                         //FIXME: destroys original prediction
+            newresults['boxes'][index]  = box;
+        }
+        App.Detection.set_results(filename, newresults)
     }
 
-    static add_box_overlay(filename, yxyx, label){
-        console.log('New box:', yxyx)
-        const $overlay   = $('#box-overlay-template').tmpl({box:yxyx, label:label})
+    static add_box_overlay(filename, yxyx, label, index){
+        const $overlay   = $('#box-overlay-template').tmpl({box:yxyx, label:label, index:index})
         const $container = $(`[filename="${filename}"] .boxes.overlay`)
         $overlay.appendTo($container)
 
 
+        const _this = this;
         function stop_drag(){
             $(document).off('mousemove mouseup');
-    
-            const H   = $container.height(), W = $container.width();
-            const y0  = Math.max(0, $overlay.position()['top']/H)
-            const x0  = Math.max(0, $overlay.position()['left']/W)
-            const y1  = Math.min(1, ($overlay.position()['top']  + $overlay.outerHeight())/H );
-            const x1  = Math.min(1, ($overlay.position()['left'] + $overlay.outerWidth())/W );
-    
-            //TODO: global.input_files[filename].results[index].box = [y0,x0,y1,x1];
-    
-            $overlay.css({
-                'width' : '',
-                'height': '',
-                'top'   : y0*100 + '%',
-                'left'  : x0*100 + '%',
-                'bottom': 100 - y1*100 + '%',
-                'right' : 100 - x1*100 + '%',
-            })
+
+            _this.finalize_box($overlay, label)
+            return;
         }
 
         $overlay.find('.move-anchor').on('mousedown', function(mousedown_event){
@@ -143,7 +163,7 @@ BaseBoxes = class {
             $(img).one( 'load', _ => this.refresh_boxes(filename) )
             return;
         }
-        const [H,W]   = [img.naturalHeight, img.naturalWidth]  //FIXME: use --imgwidth or better own function
+        const [H,W]   = [img.naturalHeight, img.naturalWidth]              //FIXME: use --imgwidth or better own function
         this.clear_box_overlays(filename)
 
         const results = GLOBAL.files[filename]?.results;
@@ -154,13 +174,13 @@ BaseBoxes = class {
         
         for(const [i,box] of Object.entries(boxes)){
             const yxyx = [box[1]/H, box[0]/W, box[3]/H, box[2]/W]
-            this.add_box_overlay(filename, yxyx, labels[i] )
+            this.add_box_overlay(filename, yxyx, labels[i], i)
         }
-        
     }
 
     static on_remove_box_button(event){
-        console.error('Not implemented')
+        const $box_overlay = $(event.target).closest('.box-overlay')
+        this.finalize_box($box_overlay, undefined, true)
     }
 
     static clear_box_overlays(filename){
@@ -177,42 +197,37 @@ BaseBoxes = class {
             hideAdditions:  false, 
             forceSelection: false, 
             selectOnKeydown: false,
-            fullTextSearch:true,
+            fullTextSearch:  true,
+            silent:          true,
             action: (t,v,el) => {  save(t); },
-            onHide: ()=>{ save(); },
+            onHide: ()       => {  save( ); },
         });
         const $input = $label.closest('.box-overlay').find('.search.dropdown');
         $input.dropdown('setup menu', {
             values: this.get_set_of_all_labels().sort().map( v => {return {name:v};} ),
         });
+        console.warn($input)
         $label.hide();
         $input.show();
     
+        const _this = this;
         const save = function(txt=''){
-            console.log(`save(${txt})`)
-            if(txt.length > 0)
+            //console.log(`save(${txt})`)
+            if(txt.length > 0){
                 $label.text(txt)
+                
+                const box_overlay = $label.closest('.box-overlay')
+                $input.dropdown('unbind intent')    //keep this; seems to prevent an error message
+                _this.finalize_box(box_overlay, txt);
+            }
             $label.show();
             $input.hide();
         }
-        /*var save = function(txt=''){
-            if(txt.length>0){
-                //$label.text( txt );  //done in update_boxlabel via set_custom_label
-                var filename = $label.closest('[filename]').attr('filename');
-                var index    = $label.closest('[index]').attr('index');
-                if(txt.toLowerCase()=='nonpollen')
-                    txt = '';
-                set_custom_label(filename, index, txt);
-            }
-            
-            $label.show();
-            $input.hide();
-        };*/
-        
         $input.find('input').focus().select();
     }
 
     static get_set_of_all_labels(){
+        //to be implemented downstream
         return []
     }
 }

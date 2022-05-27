@@ -5,8 +5,11 @@
 
 {% macro boxes_overlay_template(app) %}
 <template id="box-overlay-template">
-<div style="top:${box[0]*100}%;        left:${box[1]*100}%; 
-            bottom:${100-box[2]*100}%; right:${100-box[3]*100}%;" class="box-overlay">
+<div class="box-overlay" 
+     index="${index}"
+     style="top:${box[0]*100}%;        left:${box[1]*100}%; 
+            bottom:${100-box[2]*100}%; right:${100-box[3]*100}%;">
+    
     <div class="box-label-container">
       <p class="box-label" onclick="{{app}}.Boxes.convert_boxlabel_into_input(event)" data-position="left center" data-variation="mini">
         ${label}
