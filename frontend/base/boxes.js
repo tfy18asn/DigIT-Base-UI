@@ -1,6 +1,8 @@
 
 
 BaseBoxes = class {
+    static NEGATIVE_CLASS_NAME = 'N/A'
+
     static on_draw_new_box_button(event){
         const $root    = $(event.target).closest('[filename]')
         const filename = $root.attr('filename')
@@ -101,9 +103,11 @@ BaseBoxes = class {
     }
 
     static add_box_overlay(filename, yxyx, label, index){
-        const $overlay   = $('#box-overlay-template').tmpl({box:yxyx, label:label, index:index})
+        const display_label = (!!label)? label : this.NEGATIVE_CLASS_NAME;
+        const $overlay   = $('#box-overlay-template').tmpl({box:yxyx, label:display_label, index:index})
         const $container = $(`[filename="${filename}"] .boxes.overlay`)
         $overlay.appendTo($container)
+        $overlay.find('p.box-label').popup({'html':this.tooltip_text(filename, index)});
 
 
         const _this = this;
@@ -156,6 +160,17 @@ BaseBoxes = class {
         })
     }
 
+    static tooltip_text(filename, index){
+        const results    = GLOBAL.files[filename].results;
+        const prediction = results.predictions[index]
+        if(Object.keys(prediction).length==0)
+            return ''
+        let txt = '<b>Prediction:</b>';
+        for(const label of Object.keys(prediction))
+            txt += `<br/>${label? label:this.NEGATIVE_CLASS_NAME}: ${ (prediction[label]*100).toFixed(0) }%`
+        return txt;
+    }
+
     static refresh_boxes(filename){
         const img = $(`[filename="${filename}"] img.input-image`)[0];
         if(img.naturalWidth==0){
@@ -204,7 +219,7 @@ BaseBoxes = class {
         });
         const $input = $label.closest('.box-overlay').find('.search.dropdown');
         $input.dropdown('setup menu', {
-            values: this.get_set_of_all_labels().sort().map( v => {return {name:v};} ),
+            values: this.get_set_of_all_labels().map( v => {return {name:v};} ),
         });
         console.warn($input)
         $label.hide();
