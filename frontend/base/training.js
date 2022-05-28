@@ -5,10 +5,12 @@ BaseTraining = class BaseTraining{
         $table.find('tbody').html('');
 
         //refactor
-        var processed_files = Object.keys(GLOBAL.files).filter( k => (GLOBAL.files[k].results!=undefined) )
-        for(var f of processed_files)
-            $('#training-filetable-row').tmpl({filename:f}).appendTo($table.find('tbody#training-selected-files'))
-        $table.find('.checkbox').checkbox({onChange: _ => this.update_table_header()})
+        if($('tbody#training-selected-files').length>0){    
+            var processed_files = Object.keys(GLOBAL.files).filter( k => (GLOBAL.files[k].results!=undefined) )
+            for(var f of processed_files)
+                $('#training-filetable-row').tmpl({filename:f}).appendTo($table.find('tbody#training-selected-files'))
+            $table.find('.checkbox').checkbox({onChange: _ => this.update_table_header()})
+        }
         
         this.update_table_header()
         this.update_model_info()
