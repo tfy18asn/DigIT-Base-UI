@@ -65,18 +65,19 @@ function scroll_to_filename(filename){
     }, 10);
 }
 
-async function load_tiff_file(file){
-    var promise = new Promise( (resolve, reject) => {
-        var freader = new FileReader()
+async function load_tiff_file(file, page_nr = 0){
+    const promise = new Promise( (resolve, reject) => {
+        const freader = new FileReader()
         freader.onload = function(event){
-            var buffer = event.target.result
-            var ifds   = UTIF.decode(buffer);
-            UTIF.decodeImage(buffer, ifds[0], ifds)
-            var rgba   = UTIF.toRGBA8(ifds[0]);
-            var canvas = $(`<canvas width="${ifds[0].width}" height="${ifds[0].height}">`)[0]
-            var ctx    = canvas.getContext('2d')
-            ctx.putImageData(new ImageData(new Uint8ClampedArray(rgba.buffer),ifds[0].width,ifds[0].height),0,0);
-            canvas.toBlob(blob =>  resolve(blob), 'image/jpeg', 0.92 );
+            const buffer = event.target.result
+            const pages  = UTIF.decode(buffer);
+            const page   = pages[page_nr]
+            UTIF.decodeImage(buffer, page, pages)
+            const rgba   = UTIF.toRGBA8(page);
+            const canvas = $(`<canvas width="${page.width}" height="${page.height}">`)[0]
+            const ctx    = canvas.getContext('2d')
+            ctx.putImageData(new ImageData(new Uint8ClampedArray(rgba.buffer), page.width, page.height), 0, 0);
+            canvas.toBlob(blob =>  resolve(blob), 'image/jpeg', 0.92);
         }
         freader.readAsArrayBuffer(file);
     } )
