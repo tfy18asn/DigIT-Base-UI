@@ -49,11 +49,11 @@ class Settings:
         s = dict([ (k,getattr(self,k,v)) for k,v in s.items() ])
         return {
             'settings'         : s,
-            'available_models' : self.get_available_models()
+            'available_models' : self.get_available_models(with_properties=True)
         }
 
-    @staticmethod
-    def get_available_models():
+    @classmethod
+    def get_available_models(cls, with_properties=False):
         modelsdir  = app.get_models_path()
         contents   = glob.glob(os.path.join(modelsdir, '*'))
         modeltypes = [os.path.basename(x) for x in contents if os.path.isdir(x)]
@@ -61,9 +61,15 @@ class Settings:
         for modeltype in modeltypes:
             modelfiles = glob.glob(os.path.join(modelsdir, modeltype, '*.pt.zip'))
             modelnames = [os.path.basename(m)[:-len('.pt.zip')] for m in modelfiles]
+            modelprops = [cls.get_model_properties(m) for m in modelfiles]
+
             modelfiles = glob.glob(os.path.join(modelsdir, modeltype, '*.pkl'))       #TODO: remove pkl files
             modelnames += [os.path.basename(m)[:-len('.pkl')] for m in modelfiles]
-            models[modeltype] = modelnames
+            modelprops += [cls.get_model_properties(m) for m in modelfiles]
+            if with_properties:
+                models[modeltype] = [{'name':n, 'properties':p} for n,p in zip(modelnames, modelprops)]
+            else:
+                models[modeltype] = modelnames
         return models
 
     @staticmethod
@@ -81,4 +87,17 @@ class Settings:
                 return
             model = pickle.load(open(path, 'rb'))
             return model
+
+    @staticmethod
+    def get_model_properties(modelfile:str) -> dict:
+        if modelfile.endswith('.pt.zip'):
+            try:
+                import torch
+                classes = torch.package.PackageImporter(modelfile).load_text('model', 'class_list.txt').split('\n')
+                classes = [c.title() for c in classes if c not in ['', 'other']]
+                return {'known_classes': classes}
+            except RuntimeError:
+                return None
+        else:
+            return None
 

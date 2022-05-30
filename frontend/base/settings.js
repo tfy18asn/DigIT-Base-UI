@@ -26,16 +26,28 @@ BaseSettings = class{
 
     
     static update_model_selection_dropdown(models, active_model, $dropdown){
-        let dropdown_items = models.map(x => {
-            return {name:x, value:x, selected:(x == active_model)};
+        const modelnames   = models.map( x => ((typeof x) == 'string')? x : x.name )
+        let dropdown_items = modelnames.map( (x,i) => {
+            return {name:x, value:i, selected:(x == active_model)};
         })
         if(active_model == '')
             dropdown_items.push({name:'[UNSAVED MODEL]', value:'', selected:true})
-        $dropdown.dropdown({values: dropdown_items, showOnFocus:false })
+        
+        $dropdown.dropdown({
+            values:      dropdown_items, 
+            showOnFocus: false, 
+            onChange:    (i) => {
+                const properties = models[i]?.properties;
+                this.display_model_properties(properties, $dropdown)
+            }
+        })
+        
+        const i = $dropdown.dropdown('get value')
+        this.display_model_properties(models[i]?.properties, $dropdown)
     }
 
     static apply_settings_from_modal(){
-        GLOBAL.settings.active_models.detection = $("#settings-active-model").dropdown('get value');
+        GLOBAL.settings.active_models.detection = $("#settings-active-model").dropdown('get text');
     }
 
     static on_save_settings(_){
@@ -70,6 +82,17 @@ BaseSettings = class{
         window.dispatchEvent(event)
     }
 
+    static display_model_properties(properties, $dropdown){
+        const $known_classes = $dropdown.siblings('.known-classes').first()
+        if(!properties){
+            $known_classes.hide()
+        } else {
+            $known_classes.find('.label').remove()
+            $known_classes.show().append(
+                properties['known_classes'].map(c => `<div class="ui label">${c}</div>`)
+            )
+        }
+    }
 }
 
 

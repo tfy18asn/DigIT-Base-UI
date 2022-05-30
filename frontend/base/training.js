@@ -33,6 +33,7 @@ BaseTraining = class BaseTraining{
             
             App.Settings.load_settings()
         } catch (e) {
+            console.error(e)
             this.fail_modal()
         } finally {
             $(GLOBAL.event_source).off('training', progress_cb)
