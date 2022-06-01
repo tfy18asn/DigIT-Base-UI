@@ -65,23 +65,31 @@ function scroll_to_filename(filename){
     }, 10);
 }
 
-async function load_tiff_file(file, page_nr = 0){
+async function load_tiff_pages(file){
     const promise = new Promise( (resolve, reject) => {
         const freader = new FileReader()
         freader.onload = function(event){
             const buffer = event.target.result
             const pages  = UTIF.decode(buffer);
-            const page   = pages[page_nr]
-            UTIF.decodeImage(buffer, page, pages)
-            const rgba   = UTIF.toRGBA8(page);
-            const canvas = $(`<canvas width="${page.width}" height="${page.height}">`)[0]
-            const ctx    = canvas.getContext('2d')
-            ctx.putImageData(new ImageData(new Uint8ClampedArray(rgba.buffer), page.width, page.height), 0, 0);
-            canvas.toBlob(blob =>  resolve(blob), 'image/jpeg', 0.92);
+            resolve([pages, buffer])
         }
         freader.readAsArrayBuffer(file);
     } )
     return promise;
+}
+
+async function load_tiff_file(file, page_nr = 0){
+    const [pages, buffer]   = await load_tiff_pages(file)
+    const promise = new Promise( (resolve, reject) => {
+        const page   = pages[page_nr]
+        UTIF.decodeImage(buffer, page, pages)
+        const rgba   = UTIF.toRGBA8(page);
+        const canvas = $(`<canvas width="${page.width}" height="${page.height}">`)[0]
+        const ctx    = canvas.getContext('2d')
+        ctx.putImageData(new ImageData(new Uint8ClampedArray(rgba.buffer), page.width, page.height), 0, 0);
+        canvas.toBlob(blob =>  resolve(blob), 'image/jpeg', 0.92);
+    });
+    return promise
 }
 
 
