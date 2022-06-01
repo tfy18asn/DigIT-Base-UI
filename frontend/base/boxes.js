@@ -96,7 +96,8 @@ BaseBoxes = class {
             newresults['boxes']  = newresults['boxes'].concat([box])
         } else {
             //update old result at index
-            newresults['labels'][index] = {[label]:1.0};                                                         //FIXME: destroys original prediction
+            if(label != undefined)
+                newresults['labels'][index] = {[label]:1.0};                                                         //FIXME: destroys original prediction
             newresults['boxes'][index]  = box;
         }
         GLOBAL.App.Detection.set_results(filename, newresults)
@@ -114,7 +115,7 @@ BaseBoxes = class {
         function stop_drag(){
             $(document).off('mousemove mouseup');
 
-            _this.finalize_box($overlay, label)
+            _this.finalize_box($overlay, undefined)
             return;
         }
 
@@ -221,7 +222,6 @@ BaseBoxes = class {
         $input.dropdown('setup menu', {
             values: this.get_set_of_all_labels().map( v => {return {name:v};} ),
         });
-        console.warn($input)
         $label.hide();
         $input.show();
     
