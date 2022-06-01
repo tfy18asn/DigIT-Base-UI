@@ -30,13 +30,15 @@
 </div>
 {% endmacro %}
 
-{% macro base_main_table(extra_columns=[]) %}
-<table class="ui fixed celled sortable unstackable table accordion" id="filetable" style="border:0px; margin-top:0px;">
+{% macro base_main_table(app, sortable=False, extra_columns=[]) %}
+{% set sort_callback = app+'.Sorting.on_table_header(event)' if sortable else ''  %}
+{% set sort_class    = 'sortable'                            if sortable else ''  %}
+<table class="ui fixed celled {{ sort_class }} unstackable table accordion" id="filetable" style="border:0px; margin-top:0px;">
     <thead>
       <tr>
-        <th id="files-loaded-column-header">No Files Loaded</th>
+        <th id="files-loaded-column-header" onclick="{{ sort_callback }}">No Files Loaded</th>
         {% for item in extra_columns %}
-            <th>{{ item }}</th>
+            <th onclick="{{ sort_callback }}">{{ item }}</th>
         {% endfor %}
       </tr>
     </thead>
@@ -50,7 +52,7 @@
 
 {% macro detection_tab(
     app, 
-    main_table              = base_main_table(), 
+    main_table              = base_main_table(app), 
     filetable_download_menu = None
 )
 %}

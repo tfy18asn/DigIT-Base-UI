@@ -7,6 +7,7 @@ BaseApp = class {
     static FileInput       = BaseFileInput;
     static Training        = BaseTraining;
     static Boxes           = BaseBoxes;
+    static Sorting         = BaseSorting;
 
 
     static init(){
