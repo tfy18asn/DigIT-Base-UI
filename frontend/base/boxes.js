@@ -99,7 +99,7 @@ BaseBoxes = class {
             newresults['labels'][index] = {[label]:1.0};                                                         //FIXME: destroys original prediction
             newresults['boxes'][index]  = box;
         }
-        App.Detection.set_results(filename, newresults)
+        GLOBAL.App.Detection.set_results(filename, newresults)
     }
 
     static add_box_overlay(filename, yxyx, label, index){

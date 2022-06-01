@@ -24,8 +24,26 @@ BaseApp = class {
 }
 
 
-//overwritten downstream
-App = BaseApp;
+
+GLOBAL = {
+    //overwritten downstream
+    App: BaseApp,
+
+    settings: {
+        active_models: {
+            detection : undefined,               //modelname
+            //other types downstream
+        }
+    },
+    available_models: [
+        /* { name:"Modelname", properties:{} } */
+    ],
+
+    files:            [],                        //Array of FILE objects
+    event_source:     undefined,                 //EventSource object
+    cancel_requested: false,
+}
+
 
 
 

@@ -31,7 +31,7 @@ BaseTraining = class BaseTraining{
             if(!$('#training-modal .ui.progress').progress('is complete'))
                 this.interrupted_modal()
             
-            App.Settings.load_settings()
+            GLOBAL.App.Settings.load_settings()
         } catch (e) {
             console.error(e)
             this.fail_modal()
@@ -140,4 +140,4 @@ BaseTraining = class BaseTraining{
     }
 }
 
-window.addEventListener(BaseSettings.SETTINGS_CHANGED, () => App.Training.refresh_table() )
+window.addEventListener(BaseSettings.SETTINGS_CHANGED, () => GLOBAL.App.Training.refresh_table() )

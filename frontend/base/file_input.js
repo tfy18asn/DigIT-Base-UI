@@ -150,7 +150,7 @@ BaseFileInput = class {
         const blob   = await(resultfile.async? resultfile.async('blob') : resultfile)
         const file   = new File([blob], resultfile.name, {type:'image/png'})
         const result = {segmentation: file}
-        App.Detection.set_results(filename, result)
+        GLOBAL.App.Detection.set_results(filename, result)
     }
 };
 

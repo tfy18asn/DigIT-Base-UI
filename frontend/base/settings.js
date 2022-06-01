@@ -10,7 +10,8 @@ BaseSettings = class{
             var models   = data.available_models
             console.log('Loaded settings:  ',settings)
             console.log('Available models: ',models)
-            GLOBAL.settings   = settings
+            GLOBAL.settings         = settings
+            GLOBAL.available_models = data.available_models
             BaseSettings.dispatch_event()
             _this.update_settings_modal(models)
         })
@@ -92,6 +93,12 @@ BaseSettings = class{
                 properties['known_classes'].map(c => `<div class="ui label">${c}</div>`)
             )
         }
+    }
+
+    static get_properties_of_active_model(modeltype='detection'){
+        const modelname = GLOBAL.settings['active_models'][modeltype]
+        const model     = GLOBAL.available_models[modeltype].filter(x => x.name==modelname)[0]
+        return model?.properties;
     }
 }
 
