@@ -84,11 +84,11 @@ BaseDetection = class {
 
         var $root           = $(`#filetable [filename="${filename}"]`)
         var $result_image   = $root.find('img.result-image')
-        set_image_src($result_image, segmentation)
+        GLOBAL.App.ImageLoading.set_image_src($result_image, segmentation)
         $result_image.css('filter',clear? 'contrast(0)' : 'contrast(1)')
 
         var $result_overlay = $root.find(`img.overlay`)
-        set_image_src($result_overlay, segmentation)
+        GLOBAL.App.ImageLoading.set_image_src($result_overlay, segmentation)
 
         GLOBAL.files[filename].results = results;  //TODO: call it detection_results
 

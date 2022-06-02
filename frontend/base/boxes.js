@@ -74,7 +74,7 @@ BaseBoxes = class {
         const y1  = Math.min(1, ($box_overlay.position()['top']  + $box_overlay.outerHeight())/H );
         const x1  = Math.min(1, ($box_overlay.position()['left'] + $box_overlay.outerWidth())/W );
 
-        const [imgW,imgH] = get_imagesize(filename)
+        const [imgW,imgH] = GLOBAL.App.ImageLoading.get_imagesize(filename)
         //real image coordinates
         const box   = [x0*imgW, y0*imgH, x1*imgW, y1*imgH]
 
@@ -178,7 +178,7 @@ BaseBoxes = class {
             $(img).one( 'load', _ => this.refresh_boxes(filename) )
             return;
         }
-        const [W,H] = get_imagesize(filename)
+        const [W,H] = GLOBAL.App.ImageLoading.get_imagesize(filename)
         console.warn(W,H)
         this.clear_box_overlays(filename)
 

@@ -8,6 +8,7 @@ BaseApp = class {
     static Training        = BaseTraining;
     static Boxes           = BaseBoxes;
     static Sorting         = BaseSorting;
+    static ImageLoading    = BaseImageLoading;
 
 
     static init(){
@@ -15,7 +16,12 @@ BaseApp = class {
             this.Settings.load_settings();
             setup_sse()
         }
-        $('#filetable.accordion').accordion({duration:0, onOpening:on_accordion_open})
+
+        $('#filetable.accordion').accordion({
+            duration:  0, 
+            onOpening: function() { GLOBAL.App.ImageLoading.on_accordion_open(this) },
+        })
+
         $('.tabs.menu .item').tab({onLoad: path => {
             if(path=='training')
                 this.Training.refresh_table()

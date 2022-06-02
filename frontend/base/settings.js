@@ -20,9 +20,10 @@ BaseSettings = class{
     static update_settings_modal(models){
         const settings = GLOBAL.settings;
 
-        this.update_model_selection_dropdown(
-            models.detection, settings.active_models.detection, $("#settings-active-model")
-        )
+        if(models.detection)
+            this.update_model_selection_dropdown(
+                models.detection, settings.active_models.detection, $("#settings-active-model")
+            )
     }
 
     
