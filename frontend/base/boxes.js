@@ -74,8 +74,7 @@ BaseBoxes = class {
         const y1  = Math.min(1, ($box_overlay.position()['top']  + $box_overlay.outerHeight())/H );
         const x1  = Math.min(1, ($box_overlay.position()['left'] + $box_overlay.outerWidth())/W );
 
-        const img   = $(`[filename="${filename}"] img.input-image`)[0];
-        const [imgH,imgW] = [img.naturalHeight, img.naturalWidth]                                               //FIXME: use --imgwidth or better own function
+        const [imgW,imgH] = get_imagesize(filename)
         //real image coordinates
         const box   = [x0*imgW, y0*imgH, x1*imgW, y1*imgH]
 
@@ -97,7 +96,7 @@ BaseBoxes = class {
         } else {
             //update old result at index
             if(label != undefined)
-                newresults['labels'][index] = {[label]:1.0};                                                         //FIXME: destroys original prediction
+                newresults['labels'][index] = {[label]:1.0};
             newresults['boxes'][index]  = box;
         }
         GLOBAL.App.Detection.set_results(filename, newresults)
@@ -179,7 +178,8 @@ BaseBoxes = class {
             $(img).one( 'load', _ => this.refresh_boxes(filename) )
             return;
         }
-        const [H,W]   = [img.naturalHeight, img.naturalWidth]              //FIXME: use --imgwidth or better own function
+        const [W,H] = get_imagesize(filename)
+        console.warn(W,H)
         this.clear_box_overlays(filename)
 
         const results = GLOBAL.files[filename]?.results;

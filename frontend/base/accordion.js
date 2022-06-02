@@ -1,4 +1,5 @@
 
+//TODO: convert to a class/namespace
 
 function on_accordion_open(){
     var $root    = $(this).closest('[filename]')
@@ -113,5 +114,17 @@ function rescale_image(img, scale=0.5, smoothing=false){
     const format = smoothing? 'image/jpeg' : 'image/png'
     $(img).one('load', _ => console.log(`Image rescaled in ${Date.now() - t0}ms`) )
     canvas.toBlob(blob =>  set_image_src($(img), blob), format, 0.92 );
+}
+
+//return the real/natural image size (or undefined if image not yet loaded)
+function get_imagesize(filename){
+    const $container = $(`[filename="${filename}"] .set-aspect-ratio-manually`)
+    const img        = $(`[filename="${filename}"] img.input-image`)[0]
+    if($container.length){
+        const W  = Number($container.css('--imagewidth')  ?? img.naturalWidth  );
+        const H  = Number($container.css('--imageheight') ?? img.naturalHeight );
+        return [W,H]
+    }
+    return undefined;
 }
 
