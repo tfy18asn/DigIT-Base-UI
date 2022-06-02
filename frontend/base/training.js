@@ -27,7 +27,7 @@ BaseTraining = class BaseTraining{
 
             $(GLOBAL.event_source).on('training', progress_cb)
             //FIXME: success/fail should not be determined by this request
-            await $.post('/training', {filenames:filenames, options:this.get_training_options()})
+            await $.post('/training', JSON.stringify({filenames:filenames, options:this.get_training_options()}))
             if(!$('#training-modal .ui.progress').progress('is complete'))
                 this.interrupted_modal()
             
