@@ -113,6 +113,7 @@ BaseTraining = class BaseTraining{
     static on_training_progress(message){
         var data = JSON.parse(message.originalEvent.data)
         $('#training-modal .progress').progress({percent:data.progress*100, autoSuccess:false})
+        $('#training-modal .label').text(data.description)
         if(data.progress >= 1){
             this.success_modal()
             //this.update_model_info()
