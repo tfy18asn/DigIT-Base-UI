@@ -81,8 +81,8 @@ BaseBoxes = class {
         //update results
         const oldresults = GLOBAL.files[filename].results;
         let   newresults = {
-            'labels': oldresults['predictions'],
-            'boxes':  oldresults['boxes'],
+            'labels': oldresults['predictions'] ?? [],
+            'boxes':  oldresults['boxes']       ?? [],
         }
         const index = $box_overlay.attr('index')
         if(remove){
@@ -107,7 +107,9 @@ BaseBoxes = class {
         const $overlay   = $('#box-overlay-template').tmpl({box:yxyx, label:display_label, index:index})
         const $container = $(`[filename="${filename}"] .boxes.overlay`)
         $overlay.appendTo($container)
-        $overlay.find('p.box-label').popup({'html':this.tooltip_text(filename, index)});
+        const tooltip_text = this.tooltip_text(filename, index)
+        if(tooltip_text)
+            $overlay.find('p.box-label').popup({'html':tooltip_text});
 
 
         const _this = this;
@@ -162,9 +164,13 @@ BaseBoxes = class {
 
     static tooltip_text(filename, index){
         const results    = GLOBAL.files[filename].results;
+        if( !results.predictions )
+            return '';
+        
         const prediction = results.predictions[index]
         if(Object.keys(prediction).length==0)
             return ''
+        
         let txt = '<b>Prediction:</b>';
         for(const label of Object.keys(prediction))
             txt += `<br/>${label? label:this.NEGATIVE_CLASS_NAME}: ${ (prediction[label]*100).toFixed(0) }%`
@@ -179,7 +185,6 @@ BaseBoxes = class {
             return;
         }
         const [W,H] = GLOBAL.App.ImageLoading.get_imagesize(filename)
-        console.warn(W,H)
         this.clear_box_overlays(filename)
 
         const results = GLOBAL.files[filename]?.results;

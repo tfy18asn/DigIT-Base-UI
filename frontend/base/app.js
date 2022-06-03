@@ -53,6 +53,19 @@ GLOBAL = {
 
 
 
+InputFile = class extends File {
+    results = {};
+
+    constructor(file){
+        super([file], file.name, {type: file.type, lastModified:file.lastModified})
+    }
+
+    /*set_results(raw_results) {
+
+    }*/
+}
+
+
 
 //set up server-side events
 function setup_sse(){

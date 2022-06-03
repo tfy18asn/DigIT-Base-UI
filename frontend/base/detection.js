@@ -91,6 +91,7 @@ BaseDetection = class {
         GLOBAL.App.ImageLoading.set_image_src($result_overlay, segmentation)
 
         GLOBAL.files[filename].results = results;  //TODO: call it detection_results
+        GLOBAL.App.Boxes.refresh_boxes(filename)
 
         this.set_processed(filename, clear)
     }

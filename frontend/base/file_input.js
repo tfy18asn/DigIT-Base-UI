@@ -30,7 +30,7 @@ BaseFileInput = class {
 
         GLOBAL.files = []
         for(let f of files)
-            GLOBAL.files[f.name] = f
+            GLOBAL.files[f.name] = new InputFile(f)
         //FIXME: currently the detection tab needs to be visible
         $('.tabs .item[data-tab="detection"]').click()
         this.refresh_filetable(files);
