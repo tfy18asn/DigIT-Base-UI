@@ -86,5 +86,5 @@ class SettingsTests(BaseCase):
 
             #click on settings to open dialog
             self.click("#settings-button")
-            selected = self.get_attribute(f'{css_active_model} input', 'value')
+            selected = self.get_attribute(f'{css_active_model} .text', 'innerText')
             assert selected == element_text

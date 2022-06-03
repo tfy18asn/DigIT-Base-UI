@@ -65,6 +65,10 @@ function is_string(x){
     return (x instanceof String || typeof x === "string")
 }
 
+function sort_object(o, sorted_keys){
+    return sorted_keys.reduce( (new_o, k) => (new_o[k] = o[k], new_o), {} );
+}
+
 
 //parses a string like "matrix(1,0,0,1,0,0)"  //TODO: use DOMMatrix() instead
 function parse_css_matrix(maxtrix_str){

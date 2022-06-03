@@ -1,6 +1,6 @@
 
 <!--------- INCLUDE base/js_templates.html START---------->
-
+{% import 'base/boxes.html'        as base_boxes   %}
 {% import 'base/content_menu.html' as content_menu %}
 
 {% macro loading_spinner() %}
@@ -13,19 +13,29 @@
 {% endmacro %}
 
 
+{% macro image_overlay(name) %}
+<img class="{{name}} overlay unselectable pixelated"  draggable="false">
+{% endmacro %}
 
-{% macro content_image(name, overlay=True, viewcontrols="ViewControls", extras="") %}
+{% macro image_and_boxes_overlay(name) %}
+  {{ image_overlay(name) }}
+  {{ base_boxes.boxes_overlay() }}
+{% endmacro %}
+
+{% macro content_image(name, overlay="", viewcontrols="ViewControls") %}
 <!--------- MACRO content_image() START---------->
 <div class="{{name}} view-box stripes" ondblclick="{{ viewcontrols }}.on_viewbox_dblclick(event)">
-  <div class="transform-box set-aspect-ratio-manually unselectable" style="transform: matrix(1,0,0,1,0,0)"
-        onmousedown="{{ viewcontrols }}.on_transformbox_mousedown(event)"
-        onmousemove="{{ viewcontrols }}.on_transformbox_mousemove(event)"
-        onwheel    ="{{ viewcontrols }}.on_transformbox_wheel(event)">
-    <img class="{{name}}-image unselectable" style="width:100%;" draggable="false">
-    {% if overlay -%}
-    <img class="{{name}} overlay unselectable pixelated"  draggable="false">
-    {%- endif %}
-    {{ extras }}
+    <div class="transform-box unselectable set-aspect-ratio-manually" style="transform: matrix(1,0,0,1,0,0);"
+      {% if viewcontrols -%}
+          onmousedown="{{ viewcontrols }}.on_transformbox_mousedown(event)"
+          onmousemove="{{ viewcontrols }}.on_transformbox_mousemove(event)"
+          onwheel    ="{{ viewcontrols }}.on_transformbox_wheel(event)"
+      {%- endif %}
+    >
+      <img class="{{name}}-image unselectable" style="width:100%;" draggable="false">
+      {% if overlay -%}
+        {{ overlay | indent(8) }}
+      {%- endif %}
   </div>
 </div>
 <!--------- MACRO content_image() END---------->
@@ -54,12 +64,12 @@
 
 
 
-{% macro filetable_content(app, view_menu_kwargs={'show_results_layout':True}, content_image_extras="") %}
+{% macro filetable_content(app, view_menu_kwargs={'show_results_layout':True}) %}
 <div class="filetable-content" style="display:none">
     {{ content_menu.content_menu(
             callback_on_process        = app+".Detection.on_process_image",
             callback_apply_corrections = None,
-            callback_new_box           = None,
+            callback_new_box           = app+".Boxes.on_draw_new_box_button",
             callback_download          = app+".Download.on_single_item_download_click",
             view_menu_kwargs           = view_menu_kwargs
     ) | indent }}
@@ -67,13 +77,12 @@
     <div class="image-container">
       {{ content_image(
           name           = "input",  
-          overlay        = True,  
-          viewcontrols   = app+".ViewControls",
-          extras         = content_image_extras
+          overlay        = image_and_boxes_overlay("input"),
+          viewcontrols   = app+".ViewControls"
         ) | indent(8) }}
       {{ content_image(
           name           = "result", 
-          overlay        = False, 
+          overlay        = None, 
           viewcontrols   = app+".ViewControls"
       ) | indent(8) }}
       {{ progress_dimmer() }}
@@ -90,7 +99,7 @@
 {% endmacro %}
 
 
-{% macro filetable_row_template(app="BaseApp", content=filetable_content) %}
+{% macro filetable_row_template(app="BaseApp", content=filetable_content, extra_columns=0) %}
 <template id="filetable-row-template">
     <tr class="ui title table-row" filename="${filename}">
         <!-- table row -->
@@ -99,15 +108,20 @@
             {{ status_icons()         | indent(8) }}
             <label>${filename}</label>
         </td>
+        {% for i in range(extra_columns) %}
+          <td></td>
+        {% endfor %}
     </tr>
     <tr style="display:none" filename="${filename}">
         <!-- content -->
-        <td class="ui content" style="padding:0px;">
+        <td class="ui content" style="padding:0px;"  colspan="{{ extra_columns + 1 }}">
             {{ loading_spinner()      | indent(8) }}
             {{ content(app)           | indent(8) }}
         </td>
     </tr>
 </template>
+
+{{ base_boxes.boxes_overlay_template(app) }}
 
 
 {# TODO: put somewhere else #}

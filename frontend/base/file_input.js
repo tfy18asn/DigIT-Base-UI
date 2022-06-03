@@ -30,7 +30,7 @@ BaseFileInput = class {
 
         GLOBAL.files = []
         for(let f of files)
-            GLOBAL.files[f.name] = f
+            GLOBAL.files[f.name] = new InputFile(f)
         //FIXME: currently the detection tab needs to be visible
         $('.tabs .item[data-tab="detection"]').click()
         this.refresh_filetable(files);
@@ -51,7 +51,7 @@ BaseFileInput = class {
             //FIXME: works only if visible
             $trow.first().attr('top', $trow.offset().top)
         }
-        $filetable.find('thead th').text(`${files.length} File${(files.length==1)?'':'s'} Loaded`)
+        $filetable.find('thead th#files-loaded-column-header').text(`${files.length} File${(files.length==1)?'':'s'} Loaded`)
     }
 
 
@@ -150,7 +150,7 @@ BaseFileInput = class {
         const blob   = await(resultfile.async? resultfile.async('blob') : resultfile)
         const file   = new File([blob], resultfile.name, {type:'image/png'})
         const result = {segmentation: file}
-        App.Detection.set_results(filename, result)
+        GLOBAL.App.Detection.set_results(filename, result)
     }
 };
 

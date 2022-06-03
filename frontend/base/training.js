@@ -5,10 +5,12 @@ BaseTraining = class BaseTraining{
         $table.find('tbody').html('');
 
         //refactor
-        var processed_files = Object.keys(GLOBAL.files).filter( k => (GLOBAL.files[k].results!=undefined) )
-        for(var f of processed_files)
-            $('#training-filetable-row').tmpl({filename:f}).appendTo($table.find('tbody#training-selected-files'))
-        $table.find('.checkbox').checkbox({onChange: _ => this.update_table_header()})
+        if($('tbody#training-selected-files').length>0){    
+            var processed_files = Object.keys(GLOBAL.files).filter( k => (GLOBAL.files[k].results!=undefined) )
+            for(var f of processed_files)
+                $('#training-filetable-row').tmpl({filename:f}).appendTo($table.find('tbody#training-selected-files'))
+            $table.find('.checkbox').checkbox({onChange: _ => this.update_table_header()})
+        }
         
         this.update_table_header()
         this.update_model_info()
@@ -25,12 +27,13 @@ BaseTraining = class BaseTraining{
 
             $(GLOBAL.event_source).on('training', progress_cb)
             //FIXME: success/fail should not be determined by this request
-            await $.post('/training', {filenames:filenames, options:this.get_training_options()})
+            await $.post('/training', JSON.stringify({filenames:filenames, options:this.get_training_options()}))
             if(!$('#training-modal .ui.progress').progress('is complete'))
                 this.interrupted_modal()
             
-            App.Settings.load_settings()
+            GLOBAL.App.Settings.load_settings()
         } catch (e) {
+            console.error(e)
             this.fail_modal()
         } finally {
             $(GLOBAL.event_source).off('training', progress_cb)
@@ -110,6 +113,7 @@ BaseTraining = class BaseTraining{
     static on_training_progress(message){
         var data = JSON.parse(message.originalEvent.data)
         $('#training-modal .progress').progress({percent:data.progress*100, autoSuccess:false})
+        $('#training-modal .label').text(data.description)
         if(data.progress >= 1){
             this.success_modal()
             //this.update_model_info()
@@ -137,4 +141,4 @@ BaseTraining = class BaseTraining{
     }
 }
 
-window.addEventListener(BaseSettings.SETTINGS_CHANGED, () => App.Training.refresh_table() )
+window.addEventListener(BaseSettings.SETTINGS_CHANGED, () => GLOBAL.App.Training.refresh_table() )

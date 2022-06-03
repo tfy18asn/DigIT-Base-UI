@@ -1,3 +1,10 @@
+{% macro known_classes_properties() %}
+<div class="ui labels known-classes" style="padding-top:5px;">
+  <b>Known classes:</b>
+  <!-- <div class="ui label">Classname</div> -->
+</div>
+{% endmacro %}
+
 {% macro modal_settings() %}
 <!-- Settings -->
 <div class="ui tiny modal" id="settings-dialog">
@@ -17,6 +24,9 @@
                 <div class="item" data-value="0">model_2</div>-->
               </div>
             </div>
+
+            {{ known_classes_properties() }}
+            <div class="ui divider"></div>
         </div>
 
 

@@ -23,6 +23,8 @@
   {% if show_results_layout -%}
     {{ results_layout() | indent }}
   {%- endif %}
+
+  {% if brightness_max -%}
   <div class="item brightness">
     <i class="sun icon"></i>
     Brightness
@@ -32,6 +34,8 @@
       max:{{ brightness_max }} 
     }).slider('set value', 10); </script>
   </div>
+  {%- endif %}
+
   {% if extras -%}
     <div class="divider"></div>
     {{ extras | indent }}
@@ -83,14 +87,23 @@
       <i class="check icon"></i>
     </a>
     {%- endif %}
+
     {% if callback_new_box -%}
-    <a class="item" onclick="{{ callback_new_box }}(event)"><i class="vector square icon"></i></a>
+    <a class="item new-box" onclick="{{ callback_new_box }}(event)"  data-tooltip="Add new box" data-position="bottom left">
+      <i class="vector square icon"></i>
+    </a>
     {%- endif %}
+
+    {% if callback_download -%}
     <a class="disabled download item" onclick="{{ callback_download }}(event)" data-tooltip="Download Result" data-position="bottom left">
       <i class="download icon"></i>
     </a>
+    {%- endif %}
+
+    {% if help_popup -%}
     <a class="item help-menu-button"><i class="help icon"></i></a>
     {{ help_popup }}
+    {%- endif %}
 </div>
 <!--------- MACRO content_menu() END  ---------->
 {% endmacro %} {# end content_menu #}

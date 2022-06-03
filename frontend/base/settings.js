@@ -10,7 +10,8 @@ BaseSettings = class{
             var models   = data.available_models
             console.log('Loaded settings:  ',settings)
             console.log('Available models: ',models)
-            GLOBAL.settings   = settings
+            GLOBAL.settings         = settings
+            GLOBAL.available_models = data.available_models
             BaseSettings.dispatch_event()
             _this.update_settings_modal(models)
         })
@@ -19,23 +20,36 @@ BaseSettings = class{
     static update_settings_modal(models){
         const settings = GLOBAL.settings;
 
-        this.update_model_selection_dropdown(
-            models.detection, settings.active_models.detection, $("#settings-active-model")
-        )
+        if(models.detection)
+            this.update_model_selection_dropdown(
+                models.detection, settings.active_models.detection, $("#settings-active-model")
+            )
     }
 
     
     static update_model_selection_dropdown(models, active_model, $dropdown){
-        let dropdown_items = models.map(x => {
-            return {name:x, value:x, selected:(x == active_model)};
+        const modelnames   = models.map( x => ((typeof x) == 'string')? x : x.name )
+        let dropdown_items = modelnames.map( (x,i) => {
+            return {name:x, value:i, selected:(x == active_model)};
         })
         if(active_model == '')
             dropdown_items.push({name:'[UNSAVED MODEL]', value:'', selected:true})
-        $dropdown.dropdown({values: dropdown_items, showOnFocus:false })
+        
+        $dropdown.dropdown({
+            values:      dropdown_items, 
+            showOnFocus: false, 
+            onChange:    (i) => {
+                const properties = models[i]?.properties;
+                this.display_model_properties(properties, $dropdown)
+            }
+        })
+        
+        const i = $dropdown.dropdown('get value')
+        this.display_model_properties(models[i]?.properties, $dropdown)
     }
 
     static apply_settings_from_modal(){
-        GLOBAL.settings.active_models.detection = $("#settings-active-model").dropdown('get value');
+        GLOBAL.settings.active_models.detection = $("#settings-active-model").dropdown('get text');
     }
 
     static on_save_settings(_){
@@ -70,6 +84,23 @@ BaseSettings = class{
         window.dispatchEvent(event)
     }
 
+    static display_model_properties(properties, $dropdown){
+        const $known_classes = $dropdown.siblings('.known-classes').first()
+        if(!properties){
+            $known_classes.hide()
+        } else {
+            $known_classes.find('.label').remove()
+            $known_classes.show().append(
+                properties['known_classes'].map(c => `<div class="ui label">${c}</div>`)
+            )
+        }
+    }
+
+    static get_properties_of_active_model(modeltype='detection'){
+        const modelname = GLOBAL.settings['active_models'][modeltype]
+        const model     = GLOBAL.available_models[modeltype].filter(x => x.name==modelname)[0]
+        return model?.properties;
+    }
 }
 
 
