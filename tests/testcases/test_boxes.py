@@ -57,7 +57,16 @@ class TestBoxes(BaseCase):
             and abs(boxes2[0][3] - boxes1[0][3]) < 1 \
             ,   (boxes1, boxes2)
 
+        #remove box
+        self.hover_on_element(root_css+' .box-overlay')
+        self.click(root_css+' .close.red.icon')
+        self.sleep(0.1)
 
+        boxes = self.find_elements(root_css+' .box-overlay')
+        assert len(boxes) == 0
+        get_boxes_js = 'return GLOBAL.files["test_image1.jpg"].results.boxes'
+        boxes3        = self.execute_script(get_boxes_js)
+        assert len(boxes3) == 0, boxes3
 
         if self.demo_mode:
             self.sleep(1)

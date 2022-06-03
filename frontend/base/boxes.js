@@ -110,6 +110,11 @@ BaseBoxes = class {
         const tooltip_text = this.tooltip_text(filename, index)
         if(tooltip_text)
             $overlay.find('p.box-label').popup({'html':tooltip_text});
+        
+        //clip label position to stay within image borders
+        const box_label = $overlay.find('.box-label-container')[0]
+        const top = ($container[0].getBoundingClientRect().top - box_label.getBoundingClientRect().top - 20)
+        $(box_label).css('top', Math.max(top, -20) )
 
 
         const _this = this;
