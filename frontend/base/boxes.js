@@ -232,7 +232,8 @@ BaseBoxes = class {
         $input.dropdown('setup menu', {
             values: this.get_set_of_all_labels().map( v => {return {name:v};} ),
         });
-        $label.hide();
+        //$label.hide();
+        $label.css('visibility', 'hidden');
         $input.show();
     
         const _this = this;
@@ -245,7 +246,7 @@ BaseBoxes = class {
                 $input.dropdown('unbind intent')    //keep this; seems to prevent an error message
                 _this.finalize_box(box_overlay, txt);
             }
-            $label.show();
+            $label.show().css('visibility', '');
             $input.hide();
         }
         $input.find('input').focus().select();

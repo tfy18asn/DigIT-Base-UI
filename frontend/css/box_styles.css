@@ -40,6 +40,7 @@
     border-radius:    0;
     min-width:        100%;
     min-height:       20px;
+    position:         absolute;
 }
 
 .box-overlay .menu.transition {
@@ -51,7 +52,9 @@
 }
 
 .box-overlay .menu.transition .item {
-    padding:          4px!important;      /*FIXME: doesnt work*/
+    padding:           4px!important;      /*FIXME: doesnt work*/
+    height:            unset;
+    min-height:        unset;
 }
 
 .box-overlay p.box-label, .box-overlay input.search {
@@ -62,6 +65,7 @@
     color:          gray!important;
     left:             0px!important;
     bottom:           1px!important;
+    white-space:      nowrap;
 }
 
 .box-overlay i.dropdown.icon {
@@ -91,3 +95,4 @@
     bottom:            -5px;
     right:             -5px;
 }
+

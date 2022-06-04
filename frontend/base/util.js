@@ -69,6 +69,10 @@ function sort_object(o, sorted_keys){
     return sorted_keys.reduce( (new_o, k) => (new_o[k] = o[k], new_o), {} );
 }
 
+function sort_object_by_value(o) {
+    return Object.keys(o).sort(function(a,b){return o[b]-o[a]}).reduce((r, k) => (r[k] = o[k], r), {});
+}
+
 
 //parses a string like "matrix(1,0,0,1,0,0)"  //TODO: use DOMMatrix() instead
 function parse_css_matrix(maxtrix_str){
