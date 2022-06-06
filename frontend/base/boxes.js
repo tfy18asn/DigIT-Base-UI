@@ -177,8 +177,11 @@ BaseBoxes = class {
             return ''
         
         let txt = '<b>Prediction:</b>';
-        for(const label of Object.keys(prediction))
+        for(const [label, confidence] of Object.entries(prediction)){
+            if(confidence < 0.1)
+                continue;
             txt += `<br/>${label? label:this.NEGATIVE_CLASS_NAME}: ${ (prediction[label]*100).toFixed(0) }%`
+        }
         return txt;
     }
 
