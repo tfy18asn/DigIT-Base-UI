@@ -1,6 +1,6 @@
 
 BaseTraining = class BaseTraining{
-    static refresh_table(){
+    static refresh_tab(){
         var $table          = $('#training-filetable')
         $table.find('tbody').html('');
 
@@ -145,9 +145,8 @@ BaseTraining = class BaseTraining{
 
 ObjectDetectionTraining = class extends BaseTraining {
     //override
-    static refresh_table(){
-        super.refresh_table()
-
+    static refresh_tab(){
+        super.refresh_tab()
         
         const train_det = $('#train-detector-checkbox').checkbox('is checked')
         const train_cls = $('#train-classifier-checkbox').checkbox('is checked')
@@ -269,12 +268,27 @@ ObjectDetectionTraining = class extends BaseTraining {
 
         this.refresh_class_count_table()
     }
+
+    static reset_class_selection(){
+        const all_classes     = this.collect_class_counts()[0]
+        let   known_classes   = GLOBAL.App.Settings.get_properties_of_active_model()?.['known_classes'] ?? []
+              known_classes   = known_classes.map( s => s.toLowerCase() )
+        let   unknown_classes = all_classes.map( s => s.toLowerCase() )
+                                           .filter( x => x.includes('unknown') )
+                                           .filter( x => x.includes('undeterminable') )
+
+        console.warn('>>', known_classes)
+        $('#classes-of-interest-dropdown')
+            .dropdown('refresh')
+            .dropdown('set selected', known_classes)
+        $('#unknown-classes-dropdown')
+            .dropdown('refresh')
+            .dropdown('set selected', unknown_classes)
+    }
 }
 
 
-
-
-
-
-
-window.addEventListener(BaseSettings.SETTINGS_CHANGED, () => GLOBAL.App.Training.refresh_table() )
+window.addEventListener(BaseSettings.SETTINGS_CHANGED, () => {
+    GLOBAL.App.Training.refresh_tab();
+    GLOBAL.App.Training.reset_class_selection();
+})

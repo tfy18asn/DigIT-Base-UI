@@ -1,13 +1,13 @@
 import zipfile, os, time, pickle, pkgutil, sys
 import numpy as np
 import PIL.Image
-import cloudpickle
+import torch
 
 
 #additional optional modules to import
 import importlib
-modules   = []
-#[...]    =  [importlib.reload(importlib.import_module(m)) for m in modules]
+MODULES   = []
+#[...]    =  [importlib.reload(importlib.import_module(m)) for m in MODULES]
 
 
 class Model:
@@ -47,16 +47,22 @@ class Model:
 
     def stop_training(self):
         self.stop_requested = True
-
+    
     def save(self, destination):
-        for m in [__name__]+modules:
-            if m in sys.modules:
-                cloudpickle.register_pickle_by_value(sys.modules[m])
-        if not destination.endswith('.pkl'):
-            destination = destination+'.pkl'
-        if isinstance(destination, str):
-            destination = os.path.expanduser(destination)
-            destination = time.strftime(destination)
-        open(destination,'wb').write(cloudpickle.dumps(self))
+        if not destination.endswith('.pt.zip'):
+            destination += '.pt.zip'
+        
+        try:
+            import torch_package_importer as imp
+            #re-export
+            importer = (imp, torch.package.sys_importer)
+        except ImportError as e:
+            #first export
+            importer = (torch.package.sys_importer,)
+        with torch.package.PackageExporter(destination, importer) as pe:
+            interns = [__name__.split('.')[-1]]+MODULES
+            pe.intern(interns)
+            pe.extern('**')
+            pe.save_pickle('model', 'model.pkl', self)
         return destination
     
