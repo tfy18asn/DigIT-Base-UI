@@ -277,7 +277,6 @@ ObjectDetectionTraining = class extends BaseTraining {
                                            .filter( x => x.includes('unknown') )
                                            .filter( x => x.includes('undeterminable') )
 
-        console.warn('>>', known_classes)
         $('#classes-of-interest-dropdown')
             .dropdown('refresh')
             .dropdown('set selected', known_classes)
