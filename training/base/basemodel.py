@@ -66,3 +66,6 @@ class Model:
             pe.save_pickle('model', 'model.pkl', self)
         return destination
     
+
+if __name__=='__main__':
+    Model().save('./model')
