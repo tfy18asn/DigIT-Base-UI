@@ -19,7 +19,13 @@ BaseDetection = class {
         for(var filename of filenames){
             if(GLOBAL.cancel_requested)
                 break;
-            await this.process_image(filename)  //TODO: error handling
+            
+            try {
+                await this.process_image(filename)  //TODO: error handling
+            } catch {
+                $('body').toast({message:'Processing failed.', class:'error', displayTime: 0, closeIcon: true})
+                break;
+            }
         }
         $(event.target).show()
         $(event.target).siblings('.cancel-processing, .processing').hide()
