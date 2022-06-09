@@ -33,7 +33,7 @@ class TestBasic(BaseCase):
         #self.save_screenshot(name="screenshot1.png", selector=None)
         #assert 0
 
-
+    @BaseCase.maybe_skip
     def test_load_tiff(self):
         self.open_main(static=True)
         self.send_input_files_from_assets([ "test_image2.tiff" ])
