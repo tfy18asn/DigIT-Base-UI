@@ -37,7 +37,8 @@ class ProcessingTest(BaseCase):
 
         #result image is grayed out with contrast(0) at the start, this should be removed now
         script = f''' return $('{root_css} .result img').css('filter') '''
-        assert 'contrast(0)' not in self.execute_script(script)
+        if self.is_element_visible(f'{root_css} .result img'):
+            assert 'contrast(0)' not in self.execute_script(script)
 
         #TODO: check some indication that a file is finished processing (bold font in the file list)
         
@@ -85,7 +86,8 @@ class ProcessingTest(BaseCase):
         self.wait_for_element_not_visible(root_css+' .dimmer', timeout=6)
 
         #download button should be disabled
-        assert 'disabled' in self.get_attribute(root_css + ' a.download', 'class')
+        if self.is_element_visible(root_css + ' a.download'):
+            assert 'disabled' in self.get_attribute(root_css + ' a.download', 'class')
         #processing button should be enabled
         assert 'disabled' not in self.get_attribute(root_css + ' a.process', 'class')
 
