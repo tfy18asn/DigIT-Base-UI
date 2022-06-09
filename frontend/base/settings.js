@@ -3,18 +3,20 @@
 BaseSettings = class{
     static SETTINGS_CHANGED = 'settings-changed'
 
-    static load_settings(){
-        var _this = this;
-        $.get('/settings').done(function(data){
-            var settings = data.settings
-            var models   = data.available_models
-            console.log('Loaded settings:  ',settings)
-            console.log('Available models: ',models)
-            GLOBAL.settings         = settings
-            GLOBAL.available_models = data.available_models
-            BaseSettings.dispatch_event()
-            _this.update_settings_modal(models)
-        })
+    static async load_settings(){
+        //TODO: error handling
+        const data = await $.get('/settings')
+        
+        const settings = data.settings
+        const models   = data.available_models
+        console.log('Loaded settings:  ',settings)
+        console.log('Available models: ',models)
+        GLOBAL.settings         = settings
+        GLOBAL.available_models = data.available_models
+        BaseSettings.dispatch_event()
+        this.update_settings_modal(models)
+        
+        return data;
     }
 
     static update_settings_modal(models){
