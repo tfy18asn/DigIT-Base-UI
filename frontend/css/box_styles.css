@@ -51,7 +51,7 @@
     width:            100%!important;
 }
 
-.box-overlay .menu.transition .item {
+.boxes.overlay .box-overlay .menu.transition .item {
     padding:           4px!important;      /*FIXME: doesnt work*/
     height:            unset;
     min-height:        unset;
