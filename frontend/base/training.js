@@ -289,5 +289,5 @@ ObjectDetectionTraining = class extends BaseTraining {
 
 window.addEventListener(BaseSettings.SETTINGS_CHANGED, () => {
     GLOBAL.App.Training.refresh_tab();
-    GLOBAL.App.Training.reset_class_selection();
+    GLOBAL.App.Training.reset_class_selection?.();
 })
