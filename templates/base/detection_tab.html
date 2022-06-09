@@ -30,18 +30,24 @@
 </div>
 {% endmacro %}
 
-{% macro base_main_table(app, sortable=False, extra_columns=[]) %}
-{% set sort_callback = app+'.Sorting.on_table_header(event)' if sortable else ''  %}
+
+
+{% macro main_table_head(app) %}
+<thead>
+    <tr>
+        <th class="six wide"  onclick="{{ app }}.Sorting.on_table_header(event)" id="files-loaded-column-header">
+            No Files Loaded
+        </th>
+    </tr>
+</thead>
+{% endmacro %}
+
+
+
+{% macro base_main_table(app, sortable=False, table_head=main_table_head(app)) %}
 {% set sort_class    = 'sortable'                            if sortable else ''  %}
 <table class="ui fixed celled {{ sort_class }} unstackable table accordion" id="filetable" style="border:0px; margin-top:0px;">
-    <thead>
-      <tr>
-        <th id="files-loaded-column-header" onclick="{{ sort_callback }}">No Files Loaded</th>
-        {% for item in extra_columns %}
-            <th onclick="{{ sort_callback }}">{{ item }}</th>
-        {% endfor %}
-      </tr>
-    </thead>
+    {{ table_head }}
     <tbody>
         {# #filetable-row-template inserted here from javascript #}
     </tbody>

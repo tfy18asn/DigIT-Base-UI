@@ -24,7 +24,7 @@ BaseApp = class {
 
         $('.tabs.menu .item').tab({onLoad: path => {
             if(path=='training')
-                this.Training.refresh_table()
+                this.Training.refresh_tab()
         } });
         this.FileInput.setup_drag_and_drop()
     }

@@ -197,15 +197,18 @@ class App(flask.Flask):
         return 'OK' if ok else 'INTERRUPTED'
     
     def save_model(self):
-        newname = flask.request.args['newname']
+        newname    = flask.request.args['newname']
         print('Saving training model as:', newname)
-        path = f'{get_models_path()}/detection/{newname}.pkl'
-        self.settings.models['detection'].save(path)
-        self.settings.active_models['detection'] = newname
+        modeltype = 'detection'
+        path      = f'{get_models_path()}/{modeltype}/{newname}'
+        self.settings.models[modeltype].save(path)
+        self.settings.active_models[modeltype] = newname
         return 'OK'
 
     def stop_training(self):
-        self.settings.models['detection'].stop_training()
+        #XXX: brute-force approach to avoid boilerplate code
+        for m in self.settings.models.values():
+            m.stop_training()
         return 'OK'
     
 

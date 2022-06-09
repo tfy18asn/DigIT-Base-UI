@@ -44,31 +44,61 @@ BaseDownload = class {
 }
 
 
-//downloads an element from the uri (to the user hard drive)
-function downloadURI(filename, uri) {
-    var element = document.createElement('a');
-    element.setAttribute('href', uri);
-    element.setAttribute('download', filename);
-    element.style.display = 'none';
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-}
-  
-function download_text(filename, text){
-    return downloadURI(filename, 'data:text/plain;charset=utf-8,'+encodeURIComponent(text))
-}
-  
-function download_blob(filename, blob){
-    return downloadURI(filename, URL.createObjectURL(blob));
+ObjectDetectionDownload = class extends BaseDownload{
+    //callback to download annotation .json files
+    static on_download_json(event){
+        let zipdata = {}
+        for(const [filename, f] of Object.entries(GLOBAL.files)){
+            if(!f.results)
+                continue;
+
+            const jsonfile         = this.build_annotation_jsonfile(filename, f.results)
+            zipdata[jsonfile.name] = jsonfile
+        }
+        if(Object.keys(zipdata).length > 0)
+            download_zip('annotations.zip', zipdata)
+    }
+
+    static build_annotation_jsonfile(filename, results, negative_class="N/A"){
+        let jsondata = deepcopy(LABELME_TEMPLATE);
+        jsondata.imagePath = filename
+
+        for(const [i,box] of Object.entries(results.boxes)){
+            const label      = results.labels[i].trim() || negative_class;
+            //if(label.trim()=="")
+            //    continue;
+            let jsonshape    = deepcopy(LABELME_SHAPE_TEMPLATE);
+            jsonshape.label  = label;
+            jsonshape.points = [ [box[0], box[1]], [box[2], box[3]] ];
+            jsondata.shapes.push(jsonshape);
+        }
+
+        const jsonfilename = filename.split('.').slice(0, -1).join('.')+'.json'
+        const blob         = new Blob([JSON.stringify(jsondata, null, 2)], {type : 'application/json'})
+        const jsonfile     = new File([blob], jsonfilename)
+        return jsonfile
+    }
 }
 
-async function download_zip(filename, zipdata){
-    var zip = new JSZip();
-    for(var fname in zipdata)
-        zip.file(fname, await zipdata[fname], {binary:true});
-    
-    zip.generateAsync({type:"blob"}).then( blob => {
-        download_blob(filename, blob  );
-    } );
+
+const LABELME_TEMPLATE = {
+    //version: "3.16.2",
+    flags: {},
+    shapes: [    ],
+    lineColor: [ 0, 255, 0, 128 ],
+    fillColor: [255,  0, 0, 128 ],
+    imagePath: "",
+    imageData: null
 }
+
+const LABELME_SHAPE_TEMPLATE = {
+    label: "???",
+    line_color: null,
+    fill_color: null,
+    points: [ [ 2297.6377952755906, 2039.3700787401574 ],
+              [ 3204.7244094488187, 2317.3228346456694 ] ],
+    shape_type: "rectangle",
+    flags: {}
+}
+
+

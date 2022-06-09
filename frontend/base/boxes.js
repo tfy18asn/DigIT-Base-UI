@@ -109,7 +109,7 @@ BaseBoxes = class {
         $overlay.appendTo($container)
         const tooltip_text = this.tooltip_text(filename, index)
         if(tooltip_text)
-            $overlay.find('p.box-label').popup({'html':tooltip_text});
+            $overlay.find('.box-label-container').popup({'html':tooltip_text});
         
         //clip label position to stay within image borders
         const box_label = $overlay.find('.box-label-container')[0]
@@ -177,8 +177,11 @@ BaseBoxes = class {
             return ''
         
         let txt = '<b>Prediction:</b>';
-        for(const label of Object.keys(prediction))
+        for(const [label, confidence] of Object.entries(prediction)){
+            if(confidence < 0.1)
+                continue;
             txt += `<br/>${label? label:this.NEGATIVE_CLASS_NAME}: ${ (prediction[label]*100).toFixed(0) }%`
+        }
         return txt;
     }
 
@@ -232,7 +235,8 @@ BaseBoxes = class {
         $input.dropdown('setup menu', {
             values: this.get_set_of_all_labels().map( v => {return {name:v};} ),
         });
-        $label.hide();
+        //$label.hide();
+        $label.css('visibility', 'hidden');
         $input.show();
     
         const _this = this;
@@ -245,7 +249,7 @@ BaseBoxes = class {
                 $input.dropdown('unbind intent')    //keep this; seems to prevent an error message
                 _this.finalize_box(box_overlay, txt);
             }
-            $label.show();
+            $label.show().css('visibility', '');
             $input.hide();
         }
         $input.find('input').focus().select();

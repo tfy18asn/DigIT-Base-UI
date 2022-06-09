@@ -26,7 +26,8 @@ BaseFileInput = class {
 
     static set_input_files(files){
         //send request to flask to clear cache folder
-        $.get('/clear_cache')
+        if(!window.location.href.startsWith('file://'))
+            $.get('/clear_cache')
 
         GLOBAL.files = []
         for(let f of files)
