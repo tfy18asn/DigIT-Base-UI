@@ -93,7 +93,9 @@ BaseSettings = class{
         } else {
             $known_classes.find('.label').remove()
             $known_classes.show().append(
-                properties['known_classes'].map(c => `<div class="ui label">${c}</div>`)
+                properties['known_classes']
+                    .filter( x => x.toLowerCase() != GLOBAL.App.NEGATIVE_CLASS.toLowerCase() )
+                    .map(c => `<div class="ui label">${c}</div>`)
             )
         }
     }

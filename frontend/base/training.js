@@ -190,13 +190,13 @@ ObjectDetectionTraining = class extends BaseTraining {
     }
 
 
-    static collect_class_counts(negative_class='N/A'){
+    static collect_class_counts(){
         const filenames = this.get_selected_files()
         const labels    = filenames
                           .map( f => GLOBAL.files[f].results?.labels )
                           .filter(Boolean)
                           .flat()
-                          .map( l => l.trim() || negative_class )
+                          .map( l => l.trim() || GLOBAL.App.NEGATIVE_CLASS )
         let   label_set = new Set(labels)
         const known_classes = GLOBAL.App.Settings.get_properties_of_active_model()?.['known_classes'] ?? []
         known_classes.map(c => label_set.add(c))
@@ -273,6 +273,7 @@ ObjectDetectionTraining = class extends BaseTraining {
         const all_classes     = this.collect_class_counts()[0]
         let   known_classes   = GLOBAL.App.Settings.get_properties_of_active_model()?.['known_classes'] ?? []
               known_classes   = known_classes.map( s => s.toLowerCase() )
+                                             .filter( x => x != GLOBAL.App.NEGATIVE_CLASS.toLowerCase() )
         let   unknown_classes = all_classes.map( s => s.toLowerCase() )
                                            .filter( x => x.includes('unknown') )
                                            .filter( x => x.includes('undeterminable') )
