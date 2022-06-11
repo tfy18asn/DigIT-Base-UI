@@ -34,25 +34,56 @@ BaseFileInput = class {
             GLOBAL.files[f.name] = new InputFile(f)
         //FIXME: currently the detection tab needs to be visible
         $('.tabs .item[data-tab="detection"]').click()
-        this.refresh_filetable(files);
+        this.refresh_filetable(files)
     }
 
     //update the ui accordion table
-    static refresh_filetable(files){
+    static async refresh_filetable(files){
         var $filetable = $('#filetable');
         if(!$filetable.is(':visible'))
             console.error('Detection file table is not visible')
         $filetable.find('tbody').html('');
 
-        for(var f of Object.values(files)){
-            var $trow = $("template#filetable-row-template").tmpl([{filename:f.name}])
+        //show progress
+        const $modal = $('#loading-files-modal')
+        $modal.modal({closable: false, inverted:true, duration : 0,}).modal('show');
+        $modal.find('.progress').progress({
+            total: files.length,
+            value: 0, showActivity:false,
+        })
+
+        const insert_single_table_row = async function(i){
+            const f     = files[i]
+            if(!f){
+                //FIXME: ugly/hacky (but faster than using <script> in every row)
+                const $after_inserts = $('after-insert-script')
+                const scripts = [...(new Set($after_inserts.get().map(x => x.innerHTML.trim()) ))]
+                scripts.map(eval)
+                //$after_inserts.remove()   //slow if many
+                
+                $modal.modal({closable: true}).modal('hide');
+                //await sleep(500)    //XXX? needed?
+                $modal.find('.progress').progress('reset')
+
+                return;
+            }
+            
+            const $trow = $("template#filetable-row-template").tmpl([{filename:f.name}])
             $trow.appendTo($filetable.find('tbody'));
             //get the y-coordinate of the row, as long as all rows are closed
             //would be unreliable later on
             //FIXME: works only if visible
             $trow.first().attr('top', $trow.offset().top)
+
+            $filetable.find('thead th#files-loaded-column-header').text(`${i+1} File${(i+1==1)?'':'s'} Loaded`)
+            $modal.find('.progress').progress('set progress', i)
+
+            //using timeouts to avoid frozen UI
+            setTimeout(() => {
+                insert_single_table_row(i+1);
+            }, 0);
         }
-        $filetable.find('thead th#files-loaded-column-header').text(`${files.length} File${(files.length==1)?'':'s'} Loaded`)
+        insert_single_table_row(0)
     }
 
 
