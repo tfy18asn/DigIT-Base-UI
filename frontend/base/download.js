@@ -63,7 +63,7 @@ ObjectDetectionDownload = class extends BaseDownload{
         let jsondata = deepcopy(LABELME_TEMPLATE);
         jsondata.imagePath = filename
 
-        for(const [i,box] of Object.entries(results.boxes)){
+        for(const [i,box] of Object.entries(results.boxes ?? {})){
             const label      = results.labels[i].trim() || GLOBAL.App.NEGATIVE_CLASS;
             //if(label.trim()=="")
             //    continue;

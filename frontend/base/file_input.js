@@ -34,7 +34,7 @@ BaseFileInput = class {
             GLOBAL.files[f.name] = new InputFile(f)
         //FIXME: currently the detection tab needs to be visible
         $('.tabs .item[data-tab="detection"]').click()
-        this.refresh_filetable(files)
+        return this.refresh_filetable(files)
     }
 
     //update the ui accordion table
@@ -52,7 +52,7 @@ BaseFileInput = class {
             value: 0, showActivity:false,
         })
 
-        const insert_single_table_row = async function(i){
+        const insert_single_table_row = async function(i, resolve){
             const f     = files[i]
             if(!f){
                 //FIXME: ugly/hacky (but faster than using <script> in every row)
@@ -65,6 +65,8 @@ BaseFileInput = class {
                 //await sleep(500)    //XXX? needed?
                 $modal.find('.progress').progress('reset')
 
+                console.warn('refresh finished', performance.now())
+                resolve('!!!!')
                 return;
             }
             
@@ -80,10 +82,13 @@ BaseFileInput = class {
 
             //using timeouts to avoid frozen UI
             setTimeout(() => {
-                insert_single_table_row(i+1);
+                insert_single_table_row(i+1, resolve);
             }, 0);
         }
-        insert_single_table_row(0)
+
+        return new Promise((resolve, _reject) => {
+            insert_single_table_row(0, resolve)
+        });
     }
 
 
@@ -103,11 +108,11 @@ BaseFileInput = class {
     }
 
     //load files, some might be input files, others results
-    static load_list_of_files(files){
+    static async load_list_of_files(files){
         var files = Array(...files)
         var inputfiles = files.filter( f => ["image/jpeg", "image/tiff"].indexOf(f.type)!=-1); //no png
         if(inputfiles.length)
-            this.set_input_files(inputfiles)
+            await this.set_input_files(inputfiles)
         
         var remaining_files = files.filter( f => inputfiles.indexOf(f)==-1 )
         this.load_result_files(remaining_files)
@@ -115,6 +120,7 @@ BaseFileInput = class {
 
     //load files as results if the match already loaded input files
     static async load_result_files(files){
+        console.warn('load_result_files', performance.now())
         var result_files = await this.collect_result_files(files)
         console.log('result_files.length:', Object.keys(result_files).length)
         if(Object.keys(result_files).length==0)
