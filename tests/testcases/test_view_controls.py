@@ -46,6 +46,7 @@ class TestViewControls(BaseCase):
         assert self.find_element(menu_css+' .overlay-item.active')
         self.wait_for_element_visible(root_css+' img.input.overlay') 
 
+    @BaseCase.maybe_skip
     def test_brightness(self):
         self.open_main(static=True)
 
@@ -89,6 +90,7 @@ class TestViewControls(BaseCase):
         if self.demo_mode:
             self.sleep(1)
 
+    @BaseCase.maybe_skip
     def test_panning(self):
         self.open_main(static=True)
 

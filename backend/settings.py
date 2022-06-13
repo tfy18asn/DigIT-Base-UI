@@ -94,7 +94,7 @@ class Settings:
             try:
                 import torch
                 classes = torch.package.PackageImporter(modelfile).load_text('model', 'class_list.txt').split('\n')
-                classes = [c.title() for c in classes if c not in ['', 'other']]
+                classes = [c for c in classes if c.lower() not in ['', 'other']]
                 return {'known_classes': classes}
             except RuntimeError:
                 return None

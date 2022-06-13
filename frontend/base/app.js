@@ -11,6 +11,8 @@ BaseApp = class {
     static ImageLoading    = BaseImageLoading;
 
 
+    static NEGATIVE_CLASS  = 'N/A'
+
     static init(){
         if(!window.location.href.startsWith('file://')){
             this.Settings.load_settings();

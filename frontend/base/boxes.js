@@ -1,8 +1,6 @@
 
 
 BaseBoxes = class {
-    static NEGATIVE_CLASS_NAME = 'N/A'
-
     static on_draw_new_box_button(event){
         const $root    = $(event.target).closest('[filename]')
         const filename = $root.attr('filename')
@@ -103,7 +101,7 @@ BaseBoxes = class {
     }
 
     static add_box_overlay(filename, yxyx, label, index){
-        const display_label = (!!label)? label : this.NEGATIVE_CLASS_NAME;
+        const display_label = (!!label)? label : GLOBAL.App.NEGATIVE_CLASS;
         const $overlay   = $('#box-overlay-template').tmpl({box:yxyx, label:display_label, index:index})
         const $container = $(`[filename="${filename}"] .boxes.overlay`)
         $overlay.appendTo($container)
@@ -180,7 +178,7 @@ BaseBoxes = class {
         for(const [label, confidence] of Object.entries(prediction)){
             if(confidence < 0.1)
                 continue;
-            txt += `<br/>${label? label:this.NEGATIVE_CLASS_NAME}: ${ (prediction[label]*100).toFixed(0) }%`
+            txt += `<br/>${label? label:GLOBAL.App.NEGATIVE_CLASS}: ${ (prediction[label]*100).toFixed(0) }%`
         }
         return txt;
     }

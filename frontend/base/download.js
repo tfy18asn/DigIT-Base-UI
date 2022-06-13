@@ -59,12 +59,12 @@ ObjectDetectionDownload = class extends BaseDownload{
             download_zip('annotations.zip', zipdata)
     }
 
-    static build_annotation_jsonfile(filename, results, negative_class="N/A"){
+    static build_annotation_jsonfile(filename, results){
         let jsondata = deepcopy(LABELME_TEMPLATE);
         jsondata.imagePath = filename
 
-        for(const [i,box] of Object.entries(results.boxes)){
-            const label      = results.labels[i].trim() || negative_class;
+        for(const [i,box] of Object.entries(results.boxes ?? {})){
+            const label      = results.labels[i].trim() || GLOBAL.App.NEGATIVE_CLASS;
             //if(label.trim()=="")
             //    continue;
             let jsonshape    = deepcopy(LABELME_SHAPE_TEMPLATE);

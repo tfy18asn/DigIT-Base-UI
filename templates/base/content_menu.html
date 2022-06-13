@@ -29,10 +29,10 @@
     <i class="sun icon"></i>
     Brightness
     <div class="ui slider brightness-slider" style="padding:0px; padding-top:5px;"></div>
-    <script> $('.brightness-slider').slider({
+    <after-insert-script style="display:none"> $(`.brightness-slider`).slider({
       onMove:on_brightness_slider, 
       max:{{ brightness_max }} 
-    }).slider('set value', 10); </script>
+    }).slider('set value', 10); </after-insert-script>
   </div>
   {%- endif %}
 
@@ -53,7 +53,7 @@
     <li><b>SHIFT + Double-click</b> to reset</li>
   </ul>
 </div>
-<script>$('.help-menu-button').popup({hoverable:false});</script>
+<after-insert-script style="display:none">$(`.help-menu-button`).popup({hoverable:false});</after-insert-script>
 {% endmacro %}
 
 

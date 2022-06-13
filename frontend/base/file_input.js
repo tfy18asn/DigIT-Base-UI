@@ -34,25 +34,61 @@ BaseFileInput = class {
             GLOBAL.files[f.name] = new InputFile(f)
         //FIXME: currently the detection tab needs to be visible
         $('.tabs .item[data-tab="detection"]').click()
-        this.refresh_filetable(files);
+        return this.refresh_filetable(files)
     }
 
     //update the ui accordion table
-    static refresh_filetable(files){
+    static async refresh_filetable(files){
         var $filetable = $('#filetable');
         if(!$filetable.is(':visible'))
             console.error('Detection file table is not visible')
         $filetable.find('tbody').html('');
 
-        for(var f of Object.values(files)){
-            var $trow = $("template#filetable-row-template").tmpl([{filename:f.name}])
+        //show progress
+        const $modal = $('#loading-files-modal')
+        $modal.modal({closable: false, inverted:true, duration : 0,}).modal('show');
+        $modal.find('.progress').progress({
+            total: files.length,
+            value: 0, showActivity:false,
+        })
+
+        const insert_single_table_row = async function(i, resolve){
+            const f     = files[i]
+            if(!f){
+                //FIXME: ugly/hacky (but faster than using <script> in every row)
+                const $after_inserts = $('after-insert-script')
+                const scripts = [...(new Set($after_inserts.get().map(x => x.innerHTML.trim()) ))]
+                scripts.map(eval)
+                //$after_inserts.remove()   //slow if many
+                
+                $modal.modal({closable: true}).modal('hide');
+                //await sleep(500)    //XXX? needed?
+                $modal.find('.progress').progress('reset')
+
+                console.warn('refresh finished', performance.now())
+                resolve('!!!!')
+                return;
+            }
+            
+            const $trow = $("template#filetable-row-template").tmpl([{filename:f.name}])
             $trow.appendTo($filetable.find('tbody'));
             //get the y-coordinate of the row, as long as all rows are closed
             //would be unreliable later on
             //FIXME: works only if visible
             $trow.first().attr('top', $trow.offset().top)
+
+            $filetable.find('thead th#files-loaded-column-header').text(`${i+1} File${(i+1==1)?'':'s'} Loaded`)
+            $modal.find('.progress').progress('set progress', i)
+
+            //using timeouts to avoid frozen UI
+            setTimeout(() => {
+                insert_single_table_row(i+1, resolve);
+            }, 0);
         }
-        $filetable.find('thead th#files-loaded-column-header').text(`${files.length} File${(files.length==1)?'':'s'} Loaded`)
+
+        return new Promise((resolve, _reject) => {
+            insert_single_table_row(0, resolve)
+        });
     }
 
 
@@ -72,11 +108,11 @@ BaseFileInput = class {
     }
 
     //load files, some might be input files, others results
-    static load_list_of_files(files){
+    static async load_list_of_files(files){
         var files = Array(...files)
         var inputfiles = files.filter( f => ["image/jpeg", "image/tiff"].indexOf(f.type)!=-1); //no png
         if(inputfiles.length)
-            this.set_input_files(inputfiles)
+            await this.set_input_files(inputfiles)
         
         var remaining_files = files.filter( f => inputfiles.indexOf(f)==-1 )
         this.load_result_files(remaining_files)
@@ -84,6 +120,7 @@ BaseFileInput = class {
 
     //load files as results if the match already loaded input files
     static async load_result_files(files){
+        console.warn('load_result_files', performance.now())
         var result_files = await this.collect_result_files(files)
         console.log('result_files.length:', Object.keys(result_files).length)
         if(Object.keys(result_files).length==0)

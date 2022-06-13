@@ -190,13 +190,13 @@ ObjectDetectionTraining = class extends BaseTraining {
     }
 
 
-    static collect_class_counts(negative_class='N/A'){
+    static collect_class_counts(){
         const filenames = this.get_selected_files()
         const labels    = filenames
                           .map( f => GLOBAL.files[f].results?.labels )
                           .filter(Boolean)
                           .flat()
-                          .map( l => l.trim() || negative_class )
+                          .map( l => l.trim() || GLOBAL.App.NEGATIVE_CLASS )
         let   label_set = new Set(labels)
         const known_classes = GLOBAL.App.Settings.get_properties_of_active_model()?.['known_classes'] ?? []
         known_classes.map(c => label_set.add(c))
@@ -211,7 +211,7 @@ ObjectDetectionTraining = class extends BaseTraining {
         const oth_selected = $('#other-classes-dropdown').dropdown('get value').split(',')
         const unk_selected = $('#unknown-classes-dropdown').dropdown('get value').split(',')
         const any_selected = [...coi_selected, ...oth_selected, ...unk_selected]
-        const rejected     = all_classes.filter( s => !any_selected.includes(s.toLowerCase()) )
+        const rejected     = all_classes.filter( s => !any_selected.includes(s) )
 
         return [coi_selected, oth_selected, unk_selected, rejected]
     }
@@ -220,9 +220,9 @@ ObjectDetectionTraining = class extends BaseTraining {
         const [classes, counts]  = this.collect_class_counts()
 
         const [coi_selected, oth_selected, unk_selected, _rejected] = this.get_class_selection()
-        const coi_ixs      = Object.keys(classes).filter( i => coi_selected.includes(classes[i].toLowerCase()) )
-        const oth_ixs      = Object.keys(classes).filter( i => oth_selected.includes(classes[i].toLowerCase()) )
-        const unk_ixs      = Object.keys(classes).filter( i => unk_selected.includes(classes[i].toLowerCase()) )
+        const coi_ixs      = Object.keys(classes).filter( i => coi_selected.includes(classes[i]) )
+        const oth_ixs      = Object.keys(classes).filter( i => oth_selected.includes(classes[i]) )
+        const unk_ixs      = Object.keys(classes).filter( i => unk_selected.includes(classes[i]) )
 
         const $table       = $('table#classifier-classes tbody')
         $table.html('')
@@ -251,15 +251,15 @@ ObjectDetectionTraining = class extends BaseTraining {
         
         const $coi_list     = $('#classes-of-interest-list')
         $coi_list.html('')
-        rejected.map( s => $(`<div class="item">${s}</div>`).appendTo($coi_list) )
+        rejected.map( s => $(`<div class="item" data-value="${s}">${s}</div>`).appendTo($coi_list) )
 
         const $oth_list     = $('#other-classes-list')
         $oth_list.html('')
-        rejected.map( s => $(`<div class="item">${s}</div>`).appendTo($oth_list) )
+        rejected.map( s => $(`<div class="item" data-value="${s}">${s}</div>`).appendTo($oth_list) )
 
         const $unk_list     = $('#unknown-classes-list')
         $unk_list.html('')
-        rejected.map( s => $(`<div class="item">${s}</div>`).appendTo($unk_list) )
+        rejected.map( s => $(`<div class="item" data-value="${s}">${s}</div>`).appendTo($unk_list) )
 
 
         const $rejectedlist = $('#rejected-classes-list')
@@ -272,9 +272,8 @@ ObjectDetectionTraining = class extends BaseTraining {
     static reset_class_selection(){
         const all_classes     = this.collect_class_counts()[0]
         let   known_classes   = GLOBAL.App.Settings.get_properties_of_active_model()?.['known_classes'] ?? []
-              known_classes   = known_classes.map( s => s.toLowerCase() )
-        let   unknown_classes = all_classes.map( s => s.toLowerCase() )
-                                           .filter( x => x.includes('unknown') )
+              known_classes   = known_classes.filter( x => x != GLOBAL.App.NEGATIVE_CLASS )
+        let   unknown_classes = all_classes.filter( x => x.includes('unknown') )
                                            .filter( x => x.includes('undeterminable') )
 
         $('#classes-of-interest-dropdown')
