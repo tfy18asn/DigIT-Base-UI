@@ -56,7 +56,7 @@ GLOBAL = {
 
 
 InputFile = class extends File {
-    results = {};
+    results = undefined;
 
     constructor(file){
         super([file], file.name, {type: file.type, lastModified:file.lastModified})

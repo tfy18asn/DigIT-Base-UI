@@ -1,6 +1,5 @@
 import argparse, pathlib, glob, os, sys
 
-import backend.processing
 import backend.settings
 
 
@@ -17,7 +16,7 @@ class CLI:
             description = description,
             epilog = 'If used without arguments, the user interface is started.'
         )
-        parser.add_argument('--input', type=pathlib.Path,
+        parser.add_argument('--input', type=pathlib.Path, default=None,
                             help='Path to input images (e.g. --input=path/to/*.jpg)')
         parser.add_argument('--output', type=pathlib.Path, default=default_output,
                             help=f'Path to output file (e.g. --output={default_output})')
@@ -39,6 +38,8 @@ class CLI:
         settings = backend.settings.Settings()
 
         results = []
+
+        import backend.processing  #FIXME
         for i,f in enumerate(inputfiles):
             print(f'[{i:4d} / {len(inputfiles)}] {f}')
             try:
