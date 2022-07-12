@@ -32,7 +32,7 @@ BaseSettings = class{
     static update_model_selection_dropdown(models, active_model, $dropdown){
         const modelnames   = models.map( x => ((typeof x) == 'string')? x : x.name )
         let dropdown_items = modelnames.map( (x,i) => {
-            return {name:x, value:i, selected:(x == active_model)};
+            return {name:x, value:x, selected:(x == active_model)};
         })
         if(active_model == '')
             dropdown_items.push({name:'[UNSAVED MODEL]', value:'', selected:true})
@@ -51,7 +51,7 @@ BaseSettings = class{
     }
 
     static apply_settings_from_modal(){
-        GLOBAL.settings.active_models.detection = $("#settings-active-model").dropdown('get text');
+        GLOBAL.settings.active_models.detection = $("#settings-active-model").dropdown('get value');
     }
 
     static on_save_settings(_){

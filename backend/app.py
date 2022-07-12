@@ -188,7 +188,7 @@ class App(flask.Flask):
     def save_model(self):
         newname    = flask.request.args['newname']
         print('Saving training model as:', newname)
-        modeltype = 'detection'
+        modeltype = flask.request.args.get('options[training_type]', 'detection')
         path      = f'{get_models_path()}/{modeltype}/{newname}'
         self.settings.models[modeltype].save(path)
         self.settings.active_models[modeltype] = newname

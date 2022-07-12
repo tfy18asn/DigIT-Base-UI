@@ -79,8 +79,8 @@ BaseBoxes = class {
         //update results
         const oldresults = GLOBAL.files[filename].results;
         let   newresults = {
-            'labels': oldresults['predictions'] ?? [],
-            'boxes':  oldresults['boxes']       ?? [],
+            'labels': oldresults?.['predictions']  ?? [],
+            'boxes':  oldresults?.['boxes']        ?? [],
         }
         const index = $box_overlay.attr('index')
         if(remove){

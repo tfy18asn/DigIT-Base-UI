@@ -27,7 +27,7 @@ class BaseCase(SeleniumBaseCase):
             return self.open(f"file://{os.environ['INSTANCE_PATH']}/static/index.html")
         else:
             self.port = self.start_flask()
-            time.sleep(0.2)
+            time.sleep(0.5)
             return self.open(f"http://localhost:{self.port}/")
     
     def start_flask(self):

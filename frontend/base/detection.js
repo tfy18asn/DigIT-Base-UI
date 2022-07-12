@@ -96,7 +96,8 @@ BaseDetection = class {
         var $result_overlay = $root.find(`img.overlay`)
         GLOBAL.App.ImageLoading.set_image_src($result_overlay, segmentation)
 
-        GLOBAL.files[filename].results = results;  //TODO: call it detection_results
+        //GLOBAL.files[filename].results = results;  //TODO: call it detection_results
+        GLOBAL.files[filename].set_results(results)
         GLOBAL.App.Boxes.refresh_boxes(filename)
 
         this.set_processed(filename, clear)
