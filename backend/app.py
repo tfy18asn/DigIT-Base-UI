@@ -197,7 +197,8 @@ class App(flask.Flask):
     def stop_training(self):
         #XXX: brute-force approach to avoid boilerplate code
         for m in self.settings.models.values():
-            m.stop_training()
+            if hasattr(m, 'stop_training'):
+                m.stop_training()
         return 'OK'
     
 
