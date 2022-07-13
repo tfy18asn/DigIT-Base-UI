@@ -16,12 +16,20 @@
 <!--------- MACRO results_layout() END  ---------->
 {% endmacro %}
 
+{% macro results_checkbox() %}
+<div class="ui item disabled checkbox show-results-checkbox">
+  <input type="checkbox">
+  <label style="padding-top:2px;">Show results</label>
+</div>
+<div class="divider"></div>
+{% endmacro %}
 
-{% macro view_menu(show_results_layout=False, extras='', brightness_max=30) %}
+
+{% macro view_menu(show_results_checkbox=False, extras='', brightness_max=30) %}
 <!--------- MACRO view_menu() START---------->
 <div class="menu view-menu">
-  {% if show_results_layout -%}
-    {{ results_layout() | indent }}
+  {% if show_results_checkbox -%}
+    {{ results_checkbox() | indent }}
   {%- endif %}
 
   {% if brightness_max -%}
