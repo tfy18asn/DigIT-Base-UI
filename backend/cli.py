@@ -20,7 +20,7 @@ class CLI:
                             help='Path to input images (e.g. --input=path/to/*.jpg)')
         parser.add_argument('--output', type=pathlib.Path, default=default_output,
                             help=f'Path to output file (e.g. --output={default_output})')
-        parser.add_argument('--model',  type=argparse.FileType('rb'),
+        parser.add_argument('--model',  type=pathlib.Path,
                             help='Path to model file (default: last used)')
         return parser
 

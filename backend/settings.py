@@ -72,21 +72,26 @@ class Settings:
                 models[modeltype] = modelnames
         return models
 
-    @staticmethod
-    def load_model(modeltype, modelname):
+    @classmethod
+    def load_model(cls, modeltype, modelname):
         import pickle
         print(f'Loading model {modeltype}/{modelname}')
-        path  = os.path.join(app.get_models_path(), modeltype, f'{modelname}.pt.zip')
-        if os.path.exists(path):
-            model = torch.package.PackageImporter(path).load_pickle('model', 'model.pkl')
-            return model
-        else:
-            path  = os.path.join(app.get_models_path(), modeltype, f'{modelname}.pkl')
+        models_dir = app.get_models_path()
+        path  = os.path.join(models_dir, modeltype, f'{modelname}.pt.zip')
+        if not os.path.exists(path):
+            path  = os.path.join(models_dir, modeltype, f'{modelname}.pkl')
             if not os.path.exists(path):
                 print(f'[ERROR] model file "{path}" does not exist.')
                 return
-            model = pickle.load(open(path, 'rb'))
-            return model
+        return cls.load_modelfile(path)
+        
+    @staticmethod
+    def load_modelfile(file_path:str) -> "torch.nn.Module":
+        if file_path.endswith('.pt.zip'):
+            return torch.package.PackageImporter(file_path).load_pickle('model', 'model.pkl')
+        elif file_path.endswith('.pkl'):
+            import pickle
+            return pickle.load(open(file_path, 'rb'))
 
     @staticmethod
     def get_model_properties(modelfile:str) -> dict:

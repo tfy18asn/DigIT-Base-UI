@@ -65,7 +65,7 @@ InputFile = class extends File {
     set_results(raw_results) {
         this.results = raw_results
         
-        if(raw_results.labels){
+        if(raw_results?.labels){
             this.results.predictions = raw_results.labels?.map(sort_object_by_value) ?? [];
             this.results.labels      = this.results.predictions.map(p => Object.keys(p)[0])
         }
