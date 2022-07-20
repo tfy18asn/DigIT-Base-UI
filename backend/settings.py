@@ -88,7 +88,7 @@ class Settings:
     @staticmethod
     def load_modelfile(file_path:str) -> "torch.nn.Module":
         if file_path.endswith('.pt.zip'):
-            return torch.package.PackageImporter(file_path).load_pickle('model', 'model.pkl')
+            return torch.package.PackageImporter(file_path).load_pickle('model', 'model.pkl', map_location='cpu')
         elif file_path.endswith('.pkl'):
             import pickle
             return pickle.load(open(file_path, 'rb'))
