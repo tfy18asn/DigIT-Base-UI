@@ -64,7 +64,7 @@
 
 
 
-{% macro filetable_content(app, view_menu_kwargs={'show_results_layout':True}) %}
+{% macro filetable_content(app, view_menu_kwargs={'show_results_checkbox':True}) %}
 <div class="filetable-content" style="display:none">
     {{ content_menu.content_menu(
             callback_on_process        = app+".Detection.on_process_image",
@@ -80,11 +80,6 @@
           overlay        = image_and_boxes_overlay("input"),
           viewcontrols   = app+".ViewControls"
         ) | indent(8) }}
-      {{ content_image(
-          name           = "result", 
-          overlay        = None, 
-          viewcontrols   = app+".ViewControls"
-      ) | indent(8) }}
       {{ progress_dimmer() }}
     </div>
 </div>

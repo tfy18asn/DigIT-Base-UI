@@ -32,10 +32,11 @@
 
 
 
-{% macro main_table_head(app) %}
+{% macro main_table_head(app, sortable=False) %}
+{% set sort_callback = app+'.Sorting.on_table_header(event)' if sortable else ''  %}
 <thead>
     <tr>
-        <th class="six wide"  onclick="{{ app }}.Sorting.on_table_header(event)" id="files-loaded-column-header">
+        <th class="sixteen wide" onclick="{{ sort_callback }}" id="files-loaded-column-header">
             No Files Loaded
         </th>
     </tr>
@@ -44,7 +45,7 @@
 
 
 
-{% macro base_main_table(app, sortable=False, table_head=main_table_head(app)) %}
+{% macro base_main_table(app, sortable=False, table_head=main_table_head(app, sortable)) %}
 {% set sort_class    = 'sortable'                            if sortable else ''  %}
 <table class="ui fixed celled {{ sort_class }} unstackable table accordion" id="filetable" style="border:0px; margin-top:0px;">
     {{ table_head }}

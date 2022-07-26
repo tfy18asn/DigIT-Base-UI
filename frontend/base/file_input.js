@@ -65,8 +65,7 @@ BaseFileInput = class {
                 //await sleep(500)    //XXX? needed?
                 $modal.find('.progress').progress('reset')
 
-                console.warn('refresh finished', performance.now())
-                resolve('!!!!')
+                resolve()
                 return;
             }
             

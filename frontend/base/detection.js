@@ -89,14 +89,17 @@ BaseDetection = class {
         var segmentation = clear? undefined : results.segmentation;
 
         var $root           = $(`#filetable [filename="${filename}"]`)
-        var $result_image   = $root.find('img.result-image')
-        GLOBAL.App.ImageLoading.set_image_src($result_image, segmentation)
-        $result_image.css('filter',clear? 'contrast(0)' : 'contrast(1)')
+        //var $result_image   = $root.find('img.result-image')
+        //GLOBAL.App.ImageLoading.set_image_src($result_image, segmentation)
+        //$result_image.css('filter',clear? 'contrast(0)' : 'contrast(1)')
+        $root.find('.show-results-checkbox')
+            .checkbox({onChange: () => GLOBAL.App.ViewControls.toggle_results(filename)})
+            .checkbox('check')
 
         var $result_overlay = $root.find(`img.overlay`)
         GLOBAL.App.ImageLoading.set_image_src($result_overlay, segmentation)
 
-        GLOBAL.files[filename].results = results;  //TODO: call it detection_results
+        GLOBAL.files[filename].set_results(results)
         GLOBAL.App.Boxes.refresh_boxes(filename)
 
         this.set_processed(filename, clear)

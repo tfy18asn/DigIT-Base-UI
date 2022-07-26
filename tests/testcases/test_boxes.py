@@ -25,6 +25,7 @@ class TestBoxes(BaseCase):
         get_boxes_js = 'return GLOBAL.files["test_image1.jpg"].results.boxes'
         boxes0        = self.execute_script(get_boxes_js)
         assert len(boxes0) == 1 and len(boxes0[0]) == 4, boxes0
+        assert self.get_text("p.box-label") == '???'
 
         self.hover_on_element(root_css+' .box-overlay')
         move_anchor = self.find_element(root_css+' .move-anchor')

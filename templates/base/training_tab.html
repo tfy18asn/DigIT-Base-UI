@@ -117,8 +117,11 @@
 
 
 
-{% macro lr_epochs_fields(default_lr=0.0001, default_epochs=10) %}
+{% macro lr_epochs_fields(default_lr=0.0001, default_epochs=10, label=None) %}
 <div class="field" id="training-learning-rate-field">
+  {% if label != None -%}
+  <label>{{label}}</label>
+  {%- endif %}
   <div class="ui input" id="settings-micrometers">
       <label style="padding:10px; width:50%;">Learning rate:</label>
       <input type="number" step="0.0001" min="0.00001" style="width: 5ch;" value="{{default_lr}}" id='training-learning-rate'>

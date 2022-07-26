@@ -10,9 +10,7 @@ parser.add_argument('--host',    type=str, default='localhost')
 parser.add_argument('--port',    type=int, default=5000)
 parser.add_argument('--debug',   default=sys.argv[0].endswith('.py'))
 
-#from . import settings
-import backend.settings
-from . import pubsub
+import backend
 
 
 def path_to_this_module():
@@ -31,9 +29,9 @@ def get_static_path():
     #stores compiled html/javascript/etc files
     return os.path.join(get_instance_path(), 'static')
 
-def get_cache_path():
+def get_cache_path(tail=''):
     #stores images and other data used for processing
-    return os.path.join( get_instance_path(), 'cache' )
+    return os.path.join( get_instance_path(), 'cache', tail )
 
 def get_models_path():
     #stores pretrained models
@@ -85,7 +83,7 @@ class App(flask.Flask):
             print('Frontend paths:  ', self.frontend_folders)
         print()
 
-        self.setup_cache()
+        setup_cache(self.cache_path)
         self.recompile_static()
 
         @self.route('/')
@@ -95,7 +93,7 @@ class App(flask.Flask):
         
         @self.route('/images/<path:path>')
         def images(path):
-            print(f'Download: {os.path.join(self.cache_path, path)}')
+            print(f'Download: {get_cache_path(path)}')
             return flask.send_from_directory(self.cache_path, path)
 
         @self.route('/file_upload', methods=['POST'])
@@ -103,13 +101,13 @@ class App(flask.Flask):
             files = flask.request.files.getlist("files")
             for f in files:
                 print('Upload: %s'%f.filename)
-                fullpath = os.path.join(self.cache_path, os.path.basename(f.filename) )
+                fullpath = get_cache_path(os.path.basename(f.filename) )
                 f.save(fullpath)
             return 'OK'
 
         @self.route('/delete_image/<path:path>')
         def delete_image(path):
-            fullpath = os.path.join(self.cache_path, path)
+            fullpath = get_cache_path(path)
             print('DELETE: %s'%fullpath)
             if os.path.exists(fullpath):
                 os.remove(fullpath)
@@ -127,7 +125,7 @@ class App(flask.Flask):
         @self.route('/stream')
         def stream():
             def generator():
-                message_queue = pubsub.PubSub.subscribe()
+                message_queue = backend.pubsub.PubSub.subscribe()
                 while 1:
                     event, message = message_queue.get()
                     #TODO: make sure message does not contain \n
@@ -142,8 +140,7 @@ class App(flask.Flask):
 
         @self.route('/clear_cache')
         def clear_cache():
-            shutil.rmtree(self.cache_path, ignore_errors=True)
-            os.makedirs(self.cache_path)
+            setup_cache(self.cache_path)
             return 'OK'
         
         self.route('/process_image/<imagename>')(self.process_image)
@@ -167,24 +164,16 @@ class App(flask.Flask):
                 webbrowser.open('http://localhost:5000', new=2)
     
     def process_image(self, imagename):
-        full_path = os.path.join(self.cache_path, imagename)
+        full_path = get_cache_path(imagename)
         if not os.path.exists(full_path):
             flask.abort(404)
-        
-        print(f'Processing image with model {self.settings.active_models["detection"]}')
-        model        = self.settings.models['detection']
-        result       = model.process_image(full_path)
-        result_path  = os.path.join(self.cache_path, imagename+'.segmentation.png')
-        import PIL.Image
-        PIL.Image.fromarray(result).convert('L').save(result_path)
-
-        return {
-            'segmentation'   :   os.path.basename(result_path),
-        }
+                
+        result = backend.processing.process_image(full_path, self.settings)
+        return flask.jsonify(result)
     
     def training(self):
         imagefiles = dict(flask.request.form.lists())['filenames[]']
-        imagefiles = [os.path.join(self.cache_path, fname) for fname in imagefiles]
+        imagefiles = [get_cache_path(fname) for fname in imagefiles]
         if not all([os.path.exists(fname) for fname in imagefiles]):
             flask.abort(404)
         
@@ -192,14 +181,14 @@ class App(flask.Flask):
         #indicate that the model is not the same as before
         self.settings.active_models['detection'] = ''
         def on_progress(p):
-            pubsub.PubSub.publish({'progress':p,  'description':'Training...'}, event='training')
+            backend.pubsub.PubSub.publish({'progress':p,  'description':'Training...'}, event='training')
         ok = model.start_training(imagefiles=[], targetfiles=[], callback=on_progress)
         return 'OK' if ok else 'INTERRUPTED'
     
     def save_model(self):
         newname    = flask.request.args['newname']
         print('Saving training model as:', newname)
-        modeltype = 'detection'
+        modeltype = flask.request.args.get('options[training_type]', 'detection')
         path      = f'{get_models_path()}/{modeltype}/{newname}'
         self.settings.models[modeltype].save(path)
         self.settings.active_models[modeltype] = newname
@@ -208,7 +197,8 @@ class App(flask.Flask):
     def stop_training(self):
         #XXX: brute-force approach to avoid boilerplate code
         for m in self.settings.models.values():
-            m.stop_training()
+            if hasattr(m, 'stop_training'):
+                m.stop_training()
         return 'OK'
     
 
@@ -234,13 +224,6 @@ class App(flask.Flask):
         os.makedirs(os.path.dirname(outf), exist_ok=True)
         open(outf,'w', encoding="utf-8").write(tmpl.render(warning='GENERATED FILE. DO NOT EDIT MANUALLY'))
     
-    def setup_cache(self):
-        if os.path.exists(self.cache_path):
-            shutil.rmtree(self.cache_path)
-        os.makedirs(self.cache_path)
-        import atexit
-        atexit.register(lambda: shutil.rmtree(self.cache_path) if os.path.exists(self.cache_path) else None)
-    
     def run(self, parse_args=True, **args):
         if parse_args:
             args = parser.parse_args()
@@ -259,3 +242,8 @@ def copytree(source, target):
         os.makedirs(os.path.dirname(destination), exist_ok=True)
         shutil.copy(f, destination)
 
+def setup_cache(cache_path):
+    shutil.rmtree(cache_path, ignore_errors=True)
+    os.makedirs(cache_path)
+    import atexit
+    atexit.register(lambda: shutil.rmtree(cache_path, ignore_errors=True))
