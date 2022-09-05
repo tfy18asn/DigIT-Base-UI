@@ -21,7 +21,7 @@ elif [[ -z "${DIG_IT_TEST_DOCKER}" ]]; then
                 -v `pwd`:/root/workspace:ro                 \
                 -v `pwd`/tests/logs:/root/latest_logs       \
                 --network=host                              \
-                -e STATIC_PATH=/root/static                 \
+                -e INSTANCE_PATH=/root                      \
                 -e ROOT_PATH=/root/workspace                \
                 -e PYTHONPATH=/root/workspace               \
                 $docker_image                               \
@@ -29,11 +29,13 @@ elif [[ -z "${DIG_IT_TEST_DOCKER}" ]]; then
 
 elif [[ $DIG_IT_TEST_DOCKER=1 ]]; then
     echo "Running tests"
-    mkdir $STATIC_PATH
-    coverage run --include=/root/workspace/backend/* -m pytest  \
+    mkdir $INSTANCE_PATH
+    killall chrome chromium chromedriver
+    coverage run --include=$ROOT_PATH/backend/* -m pytest  \
                         --tb=native                             \
                         --disable-warnings --show-capture=all   \
-                        --html=/root/latest_logs/pytest_report.html --self-contained-html --pdb $@ \
+                        --ignore-glob=$ROOT_PATH/build*    \
+                        --html=/root/latest_logs/pytest_report.html --self-contained-html $@ \
     && coverage html --directory=/root/latest_logs/coverage/           \
     && coverage report | tee /root/latest_logs/coverage_report.txt     \
     && python3 $(dirname ${BASH_SOURCE:-$0})/tests/generate_js_codecoverage_report.py
