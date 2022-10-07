@@ -1,15 +1,15 @@
 import json, os, glob, copy
 from . import app
-
+from flask import session
 import torch
 
 class Settings:
-    FILENAME = 'settings.json'   #FIXME: hardcoded
+#    FILENAME = 'settings.json'   #FIXME: hardcoded
 
     def __init__(self):
         self.models        = dict()  #python objects
         self.active_models = dict()  #modelnames
-        self.set_settings( self.load_settings_from_file(), save=False )
+        self.set_settings( self.get_defaults())
 
     @classmethod
     def get_defaults(cls):
@@ -19,29 +19,22 @@ class Settings:
             (modeltype, first_or_none(models)) for modeltype, models in available_models.items()
         ] ) )
 
-    def load_settings_from_file(self):
-        s = self.get_defaults()
-        if os.path.exists(self.FILENAME):
-            s.update(json.load(open(self.FILENAME)))
-            #self.set_settings(s)
-        else:
-            print(f'[WARNING] Settings file {self.FILENAME} not found.')
-            #self.set_settings(s, save=False)
-        return s
+#    def load_settings_from_file(self):
+#        s = self.get_defaults()
+#        if os.path.exists(self.FILENAME):
+#            s.update(json.load(open(self.FILENAME)))
+#            #self.set_settings(s)
+#        else:
+#            print(f'[WARNING] Settings file {self.FILENAME} not found.')
+#            #self.set_settings(s, save=False)
+#        return s
 
-    def set_settings(self, s, save=True):
+    def set_settings(self, s):
         print('Settings: ', s)
         for modeltype, modelname in s.get('active_models', {}).items():
             if self.active_models.get(modeltype, None) != modelname:
                 self.models[modeltype] = self.load_model(modeltype, modelname)
         self.__dict__.update( copy.deepcopy(s) )
-
-        if save:
-            previous_s = self.load_settings_from_file()
-            for modeltype, modelname in s['active_models'].items():
-                if modelname == '':  #unsaved
-                    s['active_models'][modeltype] = previous_s['active_models'].get(modeltype)
-            json.dump( s, open('settings.json','w'), indent=2) 
 
     def get_settings_as_dict(self):
         #s = self.load_settings_from_file()

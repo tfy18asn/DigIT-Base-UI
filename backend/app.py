@@ -12,6 +12,8 @@ parser.add_argument('--debug',   default=sys.argv[0].endswith('.py'))
 
 import backend
 
+from flask import session # For cookies
+import uuid
 
 def path_to_this_module():
     return os.path.dirname(os.path.realpath(__file__))
@@ -48,6 +50,16 @@ def get_frontend_folders():
         os.path.join(path_to_this_module(), '..', 'frontend'),       #base
         os.path.join(path_to_main_module(), 'frontend'),             #subproject
     ]
+
+def add_user():
+    if 'user' not in session:
+        session['user'] = uuid.uuid4()
+    if 'settings' not in session:
+        s = backend.settings.Settings()
+        session['settings'] = s.get_settings_as_dict()
+
+def update_user_settings(settings):
+    session['settings'] = settings.get_settings_as_dict()
 
 
 class App(flask.Flask):
@@ -88,6 +100,7 @@ class App(flask.Flask):
 
         @self.route('/')
         def index():
+            add_user()
             self.recompile_static()
             return self.send_static_file('index.html')
         
@@ -113,14 +126,17 @@ class App(flask.Flask):
                 os.remove(fullpath)
             return 'OK'
         
-        self.settings = backend.settings.Settings()
+        self.settings = dict()
         @self.route('/settings', methods=['GET', 'POST'])
         def get_set_settings():
             if flask.request.method=='POST':
-                self.settings.set_settings(flask.request.get_json(force=True))
+                settings = backend.settings.Settings()
+                settings.set_settings(flask.request.get_json(force=True))
+                update_user_settings(settings)
                 return 'OK'
             elif flask.request.method=='GET':
-                return flask.jsonify(self.settings.get_settings_as_dict())
+                return flask.jsonify(session['settings'])
+ 
         
         @self.route('/stream')
         def stream():
@@ -162,13 +178,33 @@ class App(flask.Flask):
             with self.app_context():
                 print('Flask started')
                 webbrowser.open('http://localhost:5000', new=2)
-    
+
+    def get_settings(self):
+         # Extract user settings dictionary
+        s = session['settings']
+        if session['user'] not in self.settings: 
+            # Create instance of the users settings
+            settings = backend.settings.Settings()
+            settings.set_settings(s['settings'])   
+            self.settings[session['user']] =  settings
+            return self.settings[session['user']]
+        else:
+            # Update the settings
+            settings = self.settings[session['user']]
+            settings.set_settings(s['settings'])
+            return settings
+
+    def remove_settings(self):
+        self.settings.pop(session['user'])
+
     def process_image(self, imagename):
+        settings = self.get_settings()
         full_path = get_cache_path(imagename)
         if not os.path.exists(full_path):
             flask.abort(404)
                 
-        result = backend.processing.process_image(full_path, self.settings)
+        result = backend.processing.process_image(full_path, settings)
+        self.remove_settings()
         return flask.jsonify(result)
     
     def training(self):
@@ -176,10 +212,11 @@ class App(flask.Flask):
         imagefiles = [get_cache_path(fname) for fname in imagefiles]
         if not all([os.path.exists(fname) for fname in imagefiles]):
             flask.abort(404)
-        
-        model = self.settings.models['detection']
+        settings = self.get_settings()
+        model = settings.models['detection']       
         #indicate that the model is not the same as before
-        self.settings.active_models['detection'] = ''
+        settings.active_models['detection'] = ''
+        update_user_settings(settings)
         def on_progress(p):
             backend.pubsub.PubSub.publish({'progress':p,  'description':'Training...'}, event='training')
         ok = model.start_training(imagefiles=[], targetfiles=[], callback=on_progress)
@@ -190,15 +227,19 @@ class App(flask.Flask):
         print('Saving training model as:', newname)
         modeltype = flask.request.args.get('options[training_type]', 'detection')
         path      = f'{get_models_path()}/{modeltype}/{newname}'
-        self.settings.models[modeltype].save(path)
-        self.settings.active_models[modeltype] = newname
+        settings = self.get_settings()
+        settings.models[modeltype].save(path)
+        settings.active_models[modeltype] = newname
+        self.remove_settings()
         return 'OK'
 
     def stop_training(self):
         #XXX: brute-force approach to avoid boilerplate code
+        settings = self.get_settings()
         for m in self.settings.models.values():
             if hasattr(m, 'stop_training'):
                 m.stop_training()
+        self.remove_settings()
         return 'OK'
     
 
