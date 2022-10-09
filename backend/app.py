@@ -14,6 +14,7 @@ import backend
 
 from flask import session # For cookies
 import uuid
+from apscheduler.schedulers.background import BackgroundScheduler
 
 def path_to_this_module():
     return os.path.dirname(os.path.realpath(__file__))
@@ -33,7 +34,7 @@ def get_static_path():
 
 def get_cache_path(tail=''):
     #stores images and other data used for processing
-    return os.path.join( get_instance_path(), 'cache', tail )
+    return os.path.join( get_instance_path(), 'cache',str(session['user']), tail )
 
 def get_models_path():
     #stores pretrained models
@@ -51,14 +52,9 @@ def get_frontend_folders():
         os.path.join(path_to_main_module(), 'frontend'),             #subproject
     ]
 
-def add_user():
-    if 'user' not in session:
-        session['user'] = uuid.uuid4()
-    if 'settings' not in session:
-        s = backend.settings.Settings()
-        session['settings'] = s.get_settings_as_dict()
 
 def update_user_settings(settings):
+    # Updates settings stored for user
     session['settings'] = settings.get_settings_as_dict()
 
 
@@ -85,29 +81,28 @@ class App(flask.Flask):
 
         self.template_folders = get_template_folders()
         self.frontend_folders = get_frontend_folders()
-        self.cache_path       = get_cache_path()
         print('Root path:       ', self.root_path)
         print('Models path:     ', get_models_path())
         print('Static path:     ', self.static_folder)
-        print('Cache path:      ', self.cache_path)
+
         if is_debug:
             print('Template paths:  ', self.template_folders)
             print('Frontend paths:  ', self.frontend_folders)
         print()
 
-        setup_cache(self.cache_path)
         self.recompile_static()
+
 
         @self.route('/')
         def index():
-            add_user()
+            self.add_user()
             self.recompile_static()
             return self.send_static_file('index.html')
         
         @self.route('/images/<path:path>')
         def images(path):
             print(f'Download: {get_cache_path(path)}')
-            return flask.send_from_directory(self.cache_path, path)
+            return flask.send_from_directory(get_cache_path(),path)
 
         @self.route('/file_upload', methods=['POST'])
         def file_upload():
@@ -130,13 +125,20 @@ class App(flask.Flask):
         @self.route('/settings', methods=['GET', 'POST'])
         def get_set_settings():
             if flask.request.method=='POST':
-                settings = backend.settings.Settings()
+                settings = self.get_settings()
                 settings.set_settings(flask.request.get_json(force=True))
-                update_user_settings(settings)
+                session['settings'] = settings.get_settings_as_dict()
                 return 'OK'
             elif flask.request.method=='GET':
                 return flask.jsonify(session['settings'])
- 
+
+        # Schedule a frequent clearing of cache and settings
+        scheduler = BackgroundScheduler()
+        scheduler.add_job(func = self.clear_memory, trigger="interval", hours = 24)
+        scheduler.start()
+        import atexit
+        # Shut down the scheduler when exiting the app
+        atexit.register(lambda: scheduler.shutdown())
         
         @self.route('/stream')
         def stream():
@@ -156,7 +158,7 @@ class App(flask.Flask):
 
         @self.route('/clear_cache')
         def clear_cache():
-            setup_cache(self.cache_path)
+            setup_cache(get_cache_path())
             return 'OK'
         
         self.route('/process_image/<imagename>')(self.process_image)
@@ -179,23 +181,37 @@ class App(flask.Flask):
                 print('Flask started')
                 webbrowser.open('http://localhost:5000', new=2)
 
+    def add_user(self):
+        # Only add if new user
+        if 'user' not in session:
+            # Random unique identifier for each user            
+            session['user'] = uuid.uuid4() 
+            # Settings for this user stored both on server and client side
+            s = backend.settings.Settings()
+            session['settings'] = s.get_settings_as_dict()
+            self.settings[session['user']] = s
+        # Unique cache path for this user
+        setup_cache(get_cache_path()) 
+
     def get_settings(self):
-         # Extract user settings dictionary
-        s = session['settings']
-        if session['user'] not in self.settings: 
+        # Check if user settings already exists 
+        if session['user'] not in self.settings:
+            # Required incase settings has been cleared
+            # Get the users settings
+            s = session['settings']
             # Create instance of the users settings
             settings = backend.settings.Settings()
             settings.set_settings(s['settings'])   
             self.settings[session['user']] =  settings
-            return self.settings[session['user']]
-        else:
-            # Update the settings
-            settings = self.settings[session['user']]
-            settings.set_settings(s['settings'])
-            return settings
+        return self.settings[session['user']]
 
-    def remove_settings(self):
-        self.settings.pop(session['user'])
+        
+    def clear_memory(self):
+        # Clear all user settings stored on server
+        for keys in self.settings:
+            self.settings.pop(keys)
+        # Create a cleared cache folder
+        setup_cache('cache') 
 
     def process_image(self, imagename):
         settings = self.get_settings()
@@ -204,7 +220,6 @@ class App(flask.Flask):
             flask.abort(404)
                 
         result = backend.processing.process_image(full_path, settings)
-        self.remove_settings()
         return flask.jsonify(result)
     
     def training(self):
@@ -230,16 +245,15 @@ class App(flask.Flask):
         settings = self.get_settings()
         settings.models[modeltype].save(path)
         settings.active_models[modeltype] = newname
-        self.remove_settings()
+        update_user_settings(settings)
         return 'OK'
 
     def stop_training(self):
         #XXX: brute-force approach to avoid boilerplate code
         settings = self.get_settings()
-        for m in self.settings.models.values():
+        for m in settings.models.values():
             if hasattr(m, 'stop_training'):
                 m.stop_training()
-        self.remove_settings()
         return 'OK'
     
 
