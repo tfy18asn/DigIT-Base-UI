@@ -4,7 +4,9 @@ BaseFileInput = class {
     //called when user selects input file(s)
     static on_inputfiles_select(event){
         //this.set_input_files(event.target.files);
-        this.load_list_of_files(event.target.files)  //not using set_input_files for tests
+        console.log(event.target.id)
+        var id = event.target.id
+        this.load_list_of_files(event.target.files, id)  //not using set_input_files for tests
         event.target.value = ""; //reset the input
     }
     
@@ -24,17 +26,41 @@ BaseFileInput = class {
         event.target.value = ""; //reset the input
     }
 
-    static set_input_files(files){
+    // har files ett id som vi kan hämta???? -> då kan vi placera trainingbilderna i 
+    // GLOBAL.trainingfiles och test i test och detection i files och så
+    static set_input_files(files, id){
         //send request to flask to clear cache folder
         if(!window.location.href.startsWith('file://'))
             $.get('/clear_cache')
 
-        GLOBAL.files = []
-        for(let f of files)
-            GLOBAL.files[f.name] = new InputFile(f)
-        //FIXME: currently the detection tab needs to be visible
-        $('.tabs .item[data-tab="detection"]').click()
-        return this.refresh_filetable(files)
+        if (id != "training_images") {
+            GLOBAL.files = []
+            for(let f of files)
+                GLOBAL.files[f.name] = new InputFile(f)
+        }
+        else {
+            GLOBAL.trainingfiles = []
+            for (let f of files)
+                GLOBAL.trainingfiles[f.name] = new InputFile(f)
+        }
+        
+        // försöker hitta hur man hämtar ett id från html och sedan använder det i javascript
+        //$('upload_button').style.color = "blue";
+        //yes = false;   
+        // detta nedanför fungerar ej men vill inte att den går in här om vi kommer från träningssidan 
+        var fileID = $(files[0]).attr('id')
+        console.log(id)
+        if (id != "training_images") {
+            console.log("inside first")
+            //FIXME: currently the detection tab needs to be visible
+            $('.tabs .item[data-tab="detection"]').click()
+            return this.refresh_filetable(files)
+        }
+        else {
+            console.log("inside second")
+            $('.tabs .item[data-tab="detection"]').click()
+            return this.refresh_filetable([])
+        }
     }
 
     //update the ui accordion table
@@ -106,12 +132,14 @@ BaseFileInput = class {
         this.load_list_of_files(event.dataTransfer.files)
     }
 
+    // ändrat files till files_arr files_arr för att kunna få fram event.target.files i set files som input
     //load files, some might be input files, others results
-    static async load_list_of_files(files){
+    static async load_list_of_files(files, id){
         var files = Array(...files)
         var inputfiles = files.filter( f => ["image/jpeg", "image/tiff"].indexOf(f.type)!=-1); //no png
         if(inputfiles.length)
-            await this.set_input_files(inputfiles)
+        
+            await this.set_input_files(inputfiles, id)
         
         var remaining_files = files.filter( f => inputfiles.indexOf(f)==-1 )
         this.load_result_files(remaining_files)

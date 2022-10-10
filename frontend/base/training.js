@@ -6,7 +6,7 @@ BaseTraining = class BaseTraining{
 
         //refactor
         if($('tbody#training-selected-files').length>0){    
-            var processed_files = Object.keys(GLOBAL.files).filter( k => (GLOBAL.files[k].results!=undefined) )
+            var processed_files = Object.keys(GLOBAL.trainingfiles).filter( k => (GLOBAL.trainingfiles[k].results!=undefined) )
             for(var f of processed_files)
                 $('#training-filetable-row').tmpl({filename:f}).appendTo($table.find('tbody#training-selected-files'))
             $table.find('.checkbox').checkbox({onChange: _ => this.update_table_header()})
@@ -131,10 +131,10 @@ BaseTraining = class BaseTraining{
 
     static upload_training_data(filenames){
         //TODO: show progress
-        var promises      = filenames.map( f => upload_file_to_flask(GLOBAL.files[f]) )
+        var promises      = filenames.map( f => upload_file_to_flask(GLOBAL.trainingfiles[f]) )
         //TODO: refactor
         //TODO: standardize file name
-        var segmentations = filenames.map(    f => GLOBAL.files[f].results.segmentation )
+        var segmentations = filenames.map(    f => GLOBAL.trainingfiles[f].results.segmentation )
                                      .filter( s => s instanceof Blob )
         promises          = promises.concat( segmentations.map( f => upload_file_to_flask(f) ) )
         return Promise.all(promises).catch( this.fail_modal )  //FIXME: dont catch, handle in calling function
@@ -164,7 +164,7 @@ ObjectDetectionTraining = class extends BaseTraining {
     //override
     static upload_training_data(filenames){
         //TODO: show progress
-        const files           = filenames.map( k => GLOBAL.files[k] )
+        const files           = filenames.map( k => GLOBAL.trainingfiles[k] )
         const targetfiles     = files.map(
             f => GLOBAL.App.Download.build_annotation_jsonfile(f.name, f.results)
         )
@@ -193,7 +193,7 @@ ObjectDetectionTraining = class extends BaseTraining {
     static collect_class_counts(){
         const filenames = this.get_selected_files()
         const labels    = filenames
-                          .map( f => GLOBAL.files[f].results?.labels )
+                          .map( f => GLOBAL.trainingfiles[f].results?.labels )
                           .filter(Boolean)
                           .flat()
                           .map( l => l.trim() || GLOBAL.App.NEGATIVE_CLASS )
