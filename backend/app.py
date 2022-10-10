@@ -12,6 +12,9 @@ parser.add_argument('--debug',   default=sys.argv[0].endswith('.py'))
 
 import backend
 
+from flask import session # For cookies
+import uuid
+from apscheduler.schedulers.background import BackgroundScheduler
 
 def path_to_this_module():
     return os.path.dirname(os.path.realpath(__file__))
@@ -31,7 +34,7 @@ def get_static_path():
 
 def get_cache_path(tail=''):
     #stores images and other data used for processing
-    return os.path.join( get_instance_path(), 'cache', tail )
+    return os.path.join( get_instance_path(), 'cache',str(session['user']), tail )
 
 def get_models_path():
     #stores pretrained models
@@ -48,6 +51,11 @@ def get_frontend_folders():
         os.path.join(path_to_this_module(), '..', 'frontend'),       #base
         os.path.join(path_to_main_module(), 'frontend'),             #subproject
     ]
+
+
+def update_user_settings(settings):
+    # Updates settings stored for user
+    session['settings'] = settings.get_settings_as_dict()
 
 
 class App(flask.Flask):
@@ -73,28 +81,28 @@ class App(flask.Flask):
 
         self.template_folders = get_template_folders()
         self.frontend_folders = get_frontend_folders()
-        self.cache_path       = get_cache_path()
         print('Root path:       ', self.root_path)
         print('Models path:     ', get_models_path())
         print('Static path:     ', self.static_folder)
-        print('Cache path:      ', self.cache_path)
+
         if is_debug:
             print('Template paths:  ', self.template_folders)
             print('Frontend paths:  ', self.frontend_folders)
         print()
 
-        setup_cache(self.cache_path)
         self.recompile_static()
+
 
         @self.route('/')
         def index():
+            self.add_user()
             self.recompile_static()
             return self.send_static_file('index.html')
         
         @self.route('/images/<path:path>')
         def images(path):
             print(f'Download: {get_cache_path(path)}')
-            return flask.send_from_directory(self.cache_path, path)
+            return flask.send_from_directory(get_cache_path(),path)
 
         @self.route('/file_upload', methods=['POST'])
         def file_upload():
@@ -113,14 +121,24 @@ class App(flask.Flask):
                 os.remove(fullpath)
             return 'OK'
         
-        self.settings = backend.settings.Settings()
+        self.settings = dict()
         @self.route('/settings', methods=['GET', 'POST'])
         def get_set_settings():
             if flask.request.method=='POST':
-                self.settings.set_settings(flask.request.get_json(force=True))
+                settings = self.get_settings()
+                settings.set_settings(flask.request.get_json(force=True))
+                session['settings'] = settings.get_settings_as_dict()
                 return 'OK'
             elif flask.request.method=='GET':
-                return flask.jsonify(self.settings.get_settings_as_dict())
+                return flask.jsonify(session['settings'])
+
+        # Schedule a frequent clearing of cache and settings
+        scheduler = BackgroundScheduler()
+        scheduler.add_job(func = self.clear_memory, trigger="interval", hours = 24)
+        scheduler.start()
+        import atexit
+        # Shut down the scheduler when exiting the app
+        atexit.register(lambda: scheduler.shutdown())
         
         @self.route('/stream')
         def stream():
@@ -140,7 +158,7 @@ class App(flask.Flask):
 
         @self.route('/clear_cache')
         def clear_cache():
-            setup_cache(self.cache_path)
+            setup_cache(get_cache_path())
             return 'OK'
         
         self.route('/process_image/<imagename>')(self.process_image)
@@ -162,13 +180,46 @@ class App(flask.Flask):
             with self.app_context():
                 print('Flask started')
                 webbrowser.open('http://localhost:5000', new=2)
-    
+
+    def add_user(self):
+        # Only add if new user
+        if 'user' not in session:
+            # Random unique identifier for each user            
+            session['user'] = uuid.uuid4() 
+            # Settings for this user stored both on server and client side
+            s = backend.settings.Settings()
+            session['settings'] = s.get_settings_as_dict()
+            self.settings[session['user']] = s
+        # Unique cache path for this user
+        setup_cache(get_cache_path()) 
+
+    def get_settings(self):
+        # Check if user settings already exists 
+        if session['user'] not in self.settings:
+            # Required incase settings has been cleared
+            # Get the users settings
+            s = session['settings']
+            # Create instance of the users settings
+            settings = backend.settings.Settings()
+            settings.set_settings(s['settings'])   
+            self.settings[session['user']] =  settings
+        return self.settings[session['user']]
+
+        
+    def clear_memory(self):
+        # Clear all user settings stored on server
+        for keys in self.settings:
+            self.settings.pop(keys)
+        # Create a cleared cache folder
+        setup_cache('cache') 
+
     def process_image(self, imagename):
+        settings = self.get_settings()
         full_path = get_cache_path(imagename)
         if not os.path.exists(full_path):
             flask.abort(404)
                 
-        result = backend.processing.process_image(full_path, self.settings)
+        result = backend.processing.process_image(full_path, settings)
         return flask.jsonify(result)
     
     def training(self):
@@ -176,10 +227,11 @@ class App(flask.Flask):
         imagefiles = [get_cache_path(fname) for fname in imagefiles]
         if not all([os.path.exists(fname) for fname in imagefiles]):
             flask.abort(404)
-        
-        model = self.settings.models['detection']
+        settings = self.get_settings()
+        model = settings.models['detection']       
         #indicate that the model is not the same as before
-        self.settings.active_models['detection'] = ''
+        settings.active_models['detection'] = ''
+        update_user_settings(settings)
         def on_progress(p):
             backend.pubsub.PubSub.publish({'progress':p,  'description':'Training...'}, event='training')
         ok = model.start_training(imagefiles=[], targetfiles=[], callback=on_progress)
@@ -190,13 +242,16 @@ class App(flask.Flask):
         print('Saving training model as:', newname)
         modeltype = flask.request.args.get('options[training_type]', 'detection')
         path      = f'{get_models_path()}/{modeltype}/{newname}'
-        self.settings.models[modeltype].save(path)
-        self.settings.active_models[modeltype] = newname
+        settings = self.get_settings()
+        settings.models[modeltype].save(path)
+        settings.active_models[modeltype] = newname
+        update_user_settings(settings)
         return 'OK'
 
     def stop_training(self):
         #XXX: brute-force approach to avoid boilerplate code
-        for m in self.settings.models.values():
+        settings = self.get_settings()
+        for m in settings.models.values():
             if hasattr(m, 'stop_training'):
                 m.stop_training()
         return 'OK'
