@@ -3,7 +3,7 @@ BaseTraining = class BaseTraining{
     static refresh_tab(){
         var $table          = $('#training-filetable')
         $table.find('tbody').html('');
-
+        console.log(GLOBAL.trainingfiles);
         //refactor
         if($('tbody#training-selected-files').length>0){    
             var processed_files = Object.keys(GLOBAL.trainingfiles).filter( k => (GLOBAL.trainingfiles[k].results!=undefined) )

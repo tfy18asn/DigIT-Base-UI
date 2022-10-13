@@ -9,8 +9,7 @@ BaseApp = class {
     static Boxes           = BaseBoxes;
     static Sorting         = BaseSorting;
     static ImageLoading    = BaseImageLoading;
-    static TrainingFileInput = BaseTraining.FileInput;
-
+//    static TrainingFileInput = BaseTraining.FileInput;
 
     static NEGATIVE_CLASS  = 'N/A'
 
@@ -50,7 +49,7 @@ GLOBAL = {
     ],
 
     files:            [],                        //Array of FILE objects
-    training_files:   [],
+    trainingfiles:   [],
     event_source:     undefined,                 //EventSource object
     cancel_requested: false,
 }
@@ -59,7 +58,7 @@ GLOBAL = {
 
 InputFile = class extends File {
     results = undefined;
-    t
+    
     constructor(file){
         super([file], file.name, {type: file.type, lastModified:file.lastModified})
     }
