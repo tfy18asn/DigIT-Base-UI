@@ -229,16 +229,6 @@ BaseFileInput = class {
         GLOBAL.App.Detection.set_results(filename, result,id)
     }
 
-    
-    // testa hämta antalet evaluation bilder
-    static get_nr_images(){
-        console.log($('#nr_evaluation_images'))
-        var $nr_ev_files = $('#nr_evaluation_images')
-        console.log($nr_ev_files.get(0).value)
-        return $nr_ev_files.get(0).value
-    }
-
-
 };
 
 
