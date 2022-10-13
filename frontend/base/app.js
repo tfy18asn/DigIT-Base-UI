@@ -50,6 +50,7 @@ GLOBAL = {
 
     files:            [],                        //Array of FILE objects
     trainingfiles:   [],
+    evaluationfiles:[],
     event_source:     undefined,                 //EventSource object
     cancel_requested: false,
 }

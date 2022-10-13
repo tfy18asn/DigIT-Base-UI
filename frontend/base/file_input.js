@@ -3,8 +3,7 @@
 BaseFileInput = class {
     //called when user selects input file(s)
     static on_inputfiles_select(event){
-        //this.set_input_files(event.target.files);
-        console.log(event.target.id)
+        //this.set_input_files(event.target.files)
         var id = event.target.id
         this.load_list_of_files(event.target.files, id)  //not using set_input_files for tests
         event.target.value = ""; //reset the input
@@ -48,18 +47,15 @@ BaseFileInput = class {
         
         // försöker hitta hur man hämtar ett id från html och sedan använder det i javascript
         //$('upload_button').style.color = "blue";
-        //yes = false;   
+
         // detta nedanför fungerar ej men vill inte att den går in här om vi kommer från träningssidan 
 //        var fileID = $(files[0]).attr('id')
-        console.log(id)
         if (id != "training_images") {
-            console.log("inside first")
             //FIXME: currently the detection tab needs to be visible
             $('.tabs .item[data-tab="detection"]').click()
             return this.refresh_filetable(files)
         }
         else {
-            console.log("inside second")
             return 
         }
     }
@@ -174,6 +170,8 @@ BaseFileInput = class {
             $modal.modal({closable: true}).modal('hide');
             await sleep(500)
             $modal.find('.progress').progress('reset')
+            $('.tabs .item[data-tab="training"]').click()
+
         }
     }
 
