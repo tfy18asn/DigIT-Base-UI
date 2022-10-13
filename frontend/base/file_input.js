@@ -22,8 +22,10 @@ BaseFileInput = class {
     }
 
     static on_annotations_select(event){
+        //$('.tabs .item[data-tab="detection"]').click()
         this.load_result_files(event.target.files,event.target.id)
         event.target.value = ""; //reset the input
+        
     }
 
     // har files ett id som vi kan hämta???? -> då kan vi placera trainingbilderna i 
@@ -174,6 +176,8 @@ BaseFileInput = class {
             $modal.modal({closable: true}).modal('hide');
             await sleep(500)
             $modal.find('.progress').progress('reset')
+            console.log($('#nr_evaluation_images'))
+            $('.tabs .item[data-tab="training"]').click()
         }
     }
 
@@ -228,6 +232,17 @@ BaseFileInput = class {
         const result = {segmentation: file}
         GLOBAL.App.Detection.set_results(filename, result,id)
     }
+
+    
+    // testa hämta antalet evaluation bilder
+    static get_nr_images(){
+        console.log($('#nr_evaluation_images'))
+        var $nr_ev_files = $('#nr_evaluation_images')
+        console.log($nr_ev_files.get(0).value)
+        return $nr_ev_files.get(0).value
+    }
+
+
 };
 
 
