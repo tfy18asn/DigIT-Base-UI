@@ -9,7 +9,6 @@ BaseApp = class {
     static Boxes           = BaseBoxes;
     static Sorting         = BaseSorting;
     static ImageLoading    = BaseImageLoading;
-//    static TrainingFileInput = BaseTraining.FileInput;
 
     static NEGATIVE_CLASS  = 'N/A'
 

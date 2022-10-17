@@ -79,7 +79,7 @@ BaseDetection = class {
         return promise;
     }
 
-    static async set_results(filename, results,id = "detection"){
+    static async set_results(filename, results){
         //TODO: lazy loading
         var clear = (results == undefined)
         this.hide_dimmer(filename)
@@ -98,14 +98,8 @@ BaseDetection = class {
 
         var $result_overlay = $root.find(`img.overlay`)
         GLOBAL.App.ImageLoading.set_image_src($result_overlay, segmentation)
-        if ((id != "training_image_annotation") && (id != "training_images")){
-            GLOBAL.files[filename].set_results(results)
-            GLOBAL.App.Boxes.refresh_boxes(filename)
-        }
-        else {
-            GLOBAL.trainingfiles[filename].set_results(results)       
-            console.log(GLOBAL.trainingfiles[filename])
-        }
+        GLOBAL.files[filename].set_results(results)
+        GLOBAL.App.Boxes.refresh_boxes(filename)
 
         this.set_processed(filename, clear)
     }

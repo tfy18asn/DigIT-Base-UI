@@ -29,7 +29,7 @@ BaseFileInput = class {
 
     // har files ett id som vi kan hämta???? -> då kan vi placera trainingbilderna i 
     // GLOBAL.trainingfiles och test i test och detection i files och så
-    static set_input_files(files, id){
+    static async set_input_files(files, id){
         //send request to flask to clear cache folder
         if(!window.location.href.startsWith('file://'))
             $.get('/clear_cache')
@@ -44,6 +44,7 @@ BaseFileInput = class {
             GLOBAL.trainingfiles = []
             for (let f of files){
                 GLOBAL.trainingfiles[f.name] = new InputFile(f)
+                await upload_file_to_flask(f)
             }
         }
         
