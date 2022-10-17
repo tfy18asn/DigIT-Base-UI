@@ -90,6 +90,7 @@ class App(flask.Flask):
             print('Frontend paths:  ', self.frontend_folders)
         print()
 
+        setup_cache('cache')
         self.recompile_static()
 
 

@@ -3,8 +3,9 @@
 BaseFileInput = class {
     //called when user selects input file(s)
     static on_inputfiles_select(event){
-        //this.set_input_files(event.target.files);
-        this.load_list_of_files(event.target.files)  //not using set_input_files for tests
+        //this.set_input_files(event.target.files)
+        var id = event.target.id
+        this.load_list_of_files(event.target.files, id)  //not using set_input_files for tests
         event.target.value = ""; //reset the input
     }
     
@@ -20,21 +21,46 @@ BaseFileInput = class {
     }
 
     static on_annotations_select(event){
-        this.load_result_files(event.target.files)
+        //$('.tabs .item[data-tab="detection"]').click()
+        this.load_result_files(event.target.files,event.target.id)
         event.target.value = ""; //reset the input
+        
     }
 
-    static set_input_files(files){
+    // har files ett id som vi kan hämta???? -> då kan vi placera trainingbilderna i 
+    // GLOBAL.trainingfiles och test i test och detection i files och så
+    static async set_input_files(files, id){
         //send request to flask to clear cache folder
         if(!window.location.href.startsWith('file://'))
             $.get('/clear_cache')
 
-        GLOBAL.files = []
-        for(let f of files)
-            GLOBAL.files[f.name] = new InputFile(f)
-        //FIXME: currently the detection tab needs to be visible
-        $('.tabs .item[data-tab="detection"]').click()
-        return this.refresh_filetable(files)
+        if (id != "training_images") {
+            GLOBAL.files = []
+            for(let f of files){
+                GLOBAL.files[f.name] = new InputFile(f)
+            }
+        }
+        else {
+            GLOBAL.trainingfiles = []
+            for (let f of files){
+                GLOBAL.trainingfiles[f.name] = new InputFile(f)
+                await upload_file_to_flask(f)
+            }
+        }
+        
+        // försöker hitta hur man hämtar ett id från html och sedan använder det i javascript
+        //$('upload_button').style.color = "blue";
+
+        // detta nedanför fungerar ej men vill inte att den går in här om vi kommer från träningssidan 
+//        var fileID = $(files[0]).attr('id')
+        if (id != "training_images") {
+            //FIXME: currently the detection tab needs to be visible
+            $('.tabs .item[data-tab="detection"]').click()
+            return this.refresh_filetable(files)
+        }
+        else {
+            return 
+        }
     }
 
     //update the ui accordion table
@@ -106,21 +132,23 @@ BaseFileInput = class {
         this.load_list_of_files(event.dataTransfer.files)
     }
 
+    // ändrat files till files_arr files_arr för att kunna få fram event.target.files i set files som input
     //load files, some might be input files, others results
-    static async load_list_of_files(files){
+    static async load_list_of_files(files, id){
         var files = Array(...files)
         var inputfiles = files.filter( f => ["image/jpeg", "image/tiff"].indexOf(f.type)!=-1); //no png
         if(inputfiles.length)
-            await this.set_input_files(inputfiles)
+        
+            await this.set_input_files(inputfiles, id)
         
         var remaining_files = files.filter( f => inputfiles.indexOf(f)==-1 )
-        this.load_result_files(remaining_files)
+        this.load_result_files(remaining_files,id)
     }
 
     //load files as results if the match already loaded input files
-    static async load_result_files(files){
+    static async load_result_files(files, id){
         console.warn('load_result_files', performance.now())
-        var result_files = await this.collect_result_files(files)
+        var result_files = await this.collect_result_files(files,id)
         console.log('result_files.length:', Object.keys(result_files).length)
         if(Object.keys(result_files).length==0)
             return;
@@ -135,7 +163,7 @@ BaseFileInput = class {
         try{
             for(const [filename, results] of Object.entries(result_files)){
                 const unzipped_results = await Promise.all(results.map(maybe_unzip))
-                await this.load_result(filename, unzipped_results )
+                await this.load_result(filename, unzipped_results,id)
                 $modal.find('.progress').progress('increment')
             }
         } catch(error) {
@@ -145,28 +173,40 @@ BaseFileInput = class {
             $modal.modal({closable: true}).modal('hide');
             await sleep(500)
             $modal.find('.progress').progress('reset')
+            console.log($('#nr_evaluation_images'))
+            $('.tabs .item[data-tab="training"]').click()
         }
     }
 
     //filter a list of files, leaving result files for already loaded input files
-    static async collect_result_files(files){
+    static async collect_result_files(files,id){
         var collected = {}
         for(var f of Object.values(files)){
             if(["application/zip", "application/x-zip-compressed"].indexOf(f.type)!=-1)
                 Object.assign(collected, (await this.collect_results_from_zipfile(f)));
             else
-                for(var filename of Object.keys(GLOBAL.files))
-                    if( this.match_resultfile_to_inputfile(filename, f.name) ){
-                        const prev = collected.hasOwnProperty(filename) ? collected[filename] : []
-                        collected[filename] = prev.concat([f])
+                if ((id != "training_image_annotation" )&&(id != "training_images")){
+                    for(var filename of Object.keys(GLOBAL.files))
+                        if( this.match_resultfile_to_inputfile(filename, f.name) ){
+                            const prev = collected.hasOwnProperty(filename) ? collected[filename] : []
+                            collected[filename] = prev.concat([f])
+                        }
                     }
+                else {
+                    for(var filename of Object.keys(GLOBAL.trainingfiles)){
+                        if( this.match_resultfile_to_inputfile(filename, f.name) ){
+                            const prev = collected.hasOwnProperty(filename) ? collected[filename] : []
+                            collected[filename] = prev.concat([f])
+                        }
+                    }
+                }
         }
         return collected;
     }
 
-    static async collect_results_from_zipfile(zipfile){
+    static async collect_results_from_zipfile(zipfile,id){
         var zipped_files = (await JSZip.loadAsync(zipfile)).files
-        return await this.collect_result_files(zipped_files)
+        return await this.collect_result_files(zipped_files,id)
     }
 
     //return true if the result file matches the input file
@@ -182,13 +222,14 @@ BaseFileInput = class {
 
     //load a single result file for an input image
     //overwritten downstream
-    static async load_result(filename, resultfiles){
+    static async load_result(filename, resultfiles,id){
         const resultfile = resultfiles[0]
         const blob   = await(resultfile.async? resultfile.async('blob') : resultfile)
         const file   = new File([blob], resultfile.name, {type:'image/png'})
         const result = {segmentation: file}
-        GLOBAL.App.Detection.set_results(filename, result)
+        GLOBAL.App.Detection.set_results(filename, result,id)
     }
+
 };
 
 
