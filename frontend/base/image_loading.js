@@ -29,6 +29,36 @@ BaseImageLoading = class {
         if($result_img.length && !this.is_image_loaded($result_img))
             this.set_image_src($result_img, file);  //TODO: generate new dummy image with same aspect ratio
     }
+
+    static on_errormap_accordion_open(table_row) {
+        var $root = $(table_row).closest('[filename]')
+        var filename = $root.attr('filename')
+        var file = GLOBAL.evaluationfiles[filename];
+        var $img = $root.find('img.input-image')
+
+        if (this.is_image_loaded($img)) {
+            this.scroll_to_filename(filename)  //won't work the first time
+            return;
+        }
+        $img.on('load', _ => this.rescale_image_if_too_large($img[0])) //TODO: also rescale result images
+        $img.one('load', () => {
+            var $par = $root.find('.set-aspect-ratio-manually')
+            var img = $img[0]
+            $par.css('--imagewidth', img.naturalWidth)
+            $par.css('--imageheight', img.naturalHeight)
+
+            $root.find('.loading-message').remove()
+            $root.find('.filetable-content').show()
+            this.scroll_to_filename(filename)  //works on the first time
+        })
+        this.set_image_src($img, file);
+
+        //setting the result image as well, only to get the same dimensions
+        //if not already loaded from results
+        var $result_img = $root.find('img.result-image')
+        if ($result_img.length && !this.is_image_loaded($result_img))
+            this.set_image_src($result_img, file);  //TODO: generate new dummy image with same aspect ratio
+    }
     
     
     static set_image_src($img, file){
