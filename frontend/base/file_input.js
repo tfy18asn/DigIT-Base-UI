@@ -59,7 +59,7 @@ BaseFileInput = class {
             return this.refresh_filetable(files)
         }
         else {
-            return 
+            return
         }
     }
 
