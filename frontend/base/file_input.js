@@ -110,7 +110,7 @@ BaseFileInput = class {
                 insert_single_table_row(i+1, resolve);
             }, 0);
         }
-
+        
         return new Promise((resolve, _reject) => {
             insert_single_table_row(0, resolve)
         });
