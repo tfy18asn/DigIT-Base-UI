@@ -23,11 +23,6 @@ BaseApp = class {
             onOpening: function() { GLOBAL.App.ImageLoading.on_accordion_open(this) },
         })
 
-        $('#evaluation_errormap_table.accordion').accordion({
-            duration: 0,
-            onOpening: function () { GLOBAL.App.ImageLoading.on_errormap_accordion_open(this) },
-        })
-
         $('.tabs.menu .item').tab({onLoad: path => {
             if(path=='training')
                 this.Training.refresh_tab()
