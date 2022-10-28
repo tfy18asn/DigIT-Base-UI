@@ -187,10 +187,10 @@ class App(flask.Flask):
         if 'user' not in session:
             # Random unique identifier for each user            
             session['user'] = uuid.uuid4() 
-            # Settings for this user stored both on server and client side
-            s = backend.settings.Settings()
-            session['settings'] = s.get_settings_as_dict()
-            self.settings[session['user']] = s
+        # Reset user settings
+        s = backend.settings.Settings()
+        session['settings'] = s.get_settings_as_dict()
+        self.settings[session['user']] = s
         # Unique cache path for this user
         setup_cache(get_cache_path()) 
 

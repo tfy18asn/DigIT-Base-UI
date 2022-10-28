@@ -27,8 +27,6 @@ BaseFileInput = class {
         
     }
 
-    // har files ett id som vi kan hämta???? -> då kan vi placera trainingbilderna i 
-    // GLOBAL.trainingfiles och test i test och detection i files och så
     static async set_input_files(files, id){
         //send request to flask to clear cache folder
         if(!window.location.href.startsWith('file://'))
@@ -48,11 +46,6 @@ BaseFileInput = class {
             }
         }
         
-        // försöker hitta hur man hämtar ett id från html och sedan använder det i javascript
-        //$('upload_button').style.color = "blue";
-
-        // detta nedanför fungerar ej men vill inte att den går in här om vi kommer från träningssidan 
-//        var fileID = $(files[0]).attr('id')
         if (id != "training_images") {
             //FIXME: currently the detection tab needs to be visible
             $('.tabs .item[data-tab="detection"]').click()
@@ -131,7 +124,6 @@ BaseFileInput = class {
         this.load_list_of_files(event.dataTransfer.files)
     }
 
-    // ändrat files till files_arr files_arr för att kunna få fram event.target.files i set files som input
     //load files, some might be input files, others results
     static async load_list_of_files(files, id){
         var files = Array(...files)

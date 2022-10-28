@@ -22,7 +22,7 @@
 </template>
 {% endmacro %} {# training_filetable #}
 
-
+{# testa ta bort för att istället lägga i modals
 {% macro save_model_field(trainingmodule) %}
 <div class="ui segment form" id="training-new-modelname-field" style="display:none">
   <div class="ui field">
@@ -37,9 +37,7 @@
     </div>
   </div>
 </div>
-{% endmacro %} {# save_model_field #}
-
-
+{% endmacro %}#} {# save_model_field #} 
 
 
 {% macro train_detector_checkbox(positive_class, negative_class) %}
@@ -125,12 +123,19 @@
   <div class="ui input" id="settings-micrometers">
       <label style="padding:10px; width:50%;">Learning rate:</label>
       <input type="number" step="0.0001" min="0.00001" style="width: 5ch;" value="{{default_lr}}" id='training-learning-rate'>
+      <div data-tooltip="Information about learning rate" data-position="top left">
+        <i class="question circle outline icon" style="visibility: visible;"></i>
+      </div>
   </div>
+
 </div>
 <div class="field" id="training-number-of-epochs-field">
   <div class="ui input" id="settings-micrometers">
       <label style="padding:10px; width:50%;">Number of epochs:</label>
       <input type="number" step="1" min="1" style="width: 5ch;" value="{{default_epochs}}" id='training-number-of-epochs'>
+      <div data-tooltip="Information about number of epochs" data-position="top left">
+        <i class="question circle outline icon" style="visibility: visible;"></i>
+      </div>
   </div>
 </div>
 {% endmacro %}
@@ -161,7 +166,7 @@
 
 </div>
 
-{{ save_model_field(trainingmodule) | indent }}
+{#{ save_model_field(trainingmodule) | indent }#} {##}
 {% endmacro %} {# training_controls #}
 
 

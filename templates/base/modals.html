@@ -1,3 +1,6 @@
+{% import 'base/training_tab.html' as base_training_tab %}
+
+
 {% macro known_classes_properties() %}
 <div class="ui labels known-classes" style="padding-top:5px;">
   <b>Known classes:</b>
@@ -62,9 +65,9 @@
     <div class="ui negative button" id="cancel-training-button">
       Stop Training
     </div>
-    <div class="ui positive button hidden" id="ok-training-button">
+    {#<div class="ui positive button hidden" id="ok-training-button">
       Ok
-    </div>
+    </div>#}
   </div>
 </div>
 {% endmacro %}
