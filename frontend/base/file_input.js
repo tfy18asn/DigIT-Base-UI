@@ -206,7 +206,8 @@ BaseFileInput = class {
         const no_ext_filename = remove_file_extension(inputfilename)
         const candidate_names = [
             inputfilename+'.png',   inputfilename+'.segmentation.png', 
-            no_ext_filename+'.png', no_ext_filename+'.segmentation.png'
+            no_ext_filename+'.png', no_ext_filename+'.segmentation.png',
+            inputfilename+'.annotation.png', no_ext_filename+'.annotation.png'
         ]
         return (candidate_names.indexOf(basename) != -1)
     }
