@@ -15,7 +15,8 @@
     tabs          = base_tabs(),
     detection_tab = base_detection_tab(app),
     training_tab  = base_training_tab(app),
-    extra         = ""
+    extra         = "",
+    extra2        = ""
 ) %}
 <div class="ui hidden section divider"></div> <!--whitespace-->
 <div class="ui container page-wide" id="main-container">
@@ -31,6 +32,10 @@
     </div>
 
     {{ extra | indent }}
+
+    <div class="ui bottom attached tab" data-tab="get_started">
+    {{ extra2 | indent }}
+    </div>
 
 </div>
 {% endmacro %}
