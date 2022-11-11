@@ -5,7 +5,6 @@
     callback_on_download_all    = "",
     download_menu               = None
 ) %}
-
 <div class="ui top attached menu" style="border-top-width:0px;">
     <a class="process-all item" onclick="{{ callback_on_process_all }}(event)">
         <i class="blue play icon"></i>
@@ -61,8 +60,7 @@
     app, 
     main_table              = base_main_table(app), 
     filetable_download_menu = None
-)
-%}
+)%}
 <!-- MACRO detection_tab() START -->
 {{ filetable_menu(
         callback_on_process_all  = app+".Detection.on_process_all",

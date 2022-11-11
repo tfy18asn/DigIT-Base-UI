@@ -90,6 +90,7 @@ class App(flask.Flask):
             print('Frontend paths:  ', self.frontend_folders)
         print()
 
+        setup_cache('cache')
         self.recompile_static()
 
 
@@ -186,10 +187,10 @@ class App(flask.Flask):
         if 'user' not in session:
             # Random unique identifier for each user            
             session['user'] = uuid.uuid4() 
-            # Settings for this user stored both on server and client side
-            s = backend.settings.Settings()
-            session['settings'] = s.get_settings_as_dict()
-            self.settings[session['user']] = s
+        # Reset user settings
+        s = backend.settings.Settings()
+        session['settings'] = s.get_settings_as_dict()
+        self.settings[session['user']] = s
         # Unique cache path for this user
         setup_cache(get_cache_path()) 
 
@@ -244,6 +245,25 @@ class App(flask.Flask):
         path      = f'{get_models_path()}/{modeltype}/{newname}'
         settings = self.get_settings()
         settings.models[modeltype].save(path)
+
+        # Retrieve information about the saved model from JS given by user
+        # make it look better, does not need to get all info one by one?
+        info_author = flask.request.args.get('info[author]')
+        info_ecosystem = flask.request.args.get('info[ecosystem]')
+        info = {
+            'author'    : info_author,
+            'ecosystem' : info_ecosystem
+        }
+        # Paths to information-directory and for the information file
+        path_info  = f'{get_models_path()}/{modeltype}/information'
+        path_model_info  = f'{get_models_path()}/{modeltype}/information/{newname}'
+        # Check if information directory exist
+        if not os.path.exists(path_info):
+            # If not, create it
+            os.makedirs(path_info)
+        # Write information to json-file with correct path
+        json.dump(info, open(path_model_info,'w'), indent=2) 
+
         settings.active_models[modeltype] = newname
         update_user_settings(settings)
         return 'OK'

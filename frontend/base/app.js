@@ -10,7 +10,6 @@ BaseApp = class {
     static Sorting         = BaseSorting;
     static ImageLoading    = BaseImageLoading;
 
-
     static NEGATIVE_CLASS  = 'N/A'
 
     static init(){
@@ -49,6 +48,8 @@ GLOBAL = {
     ],
 
     files:            [],                        //Array of FILE objects
+    trainingfiles:   [],
+    evaluationfiles:[],
     event_source:     undefined,                 //EventSource object
     cancel_requested: false,
 }
@@ -57,7 +58,7 @@ GLOBAL = {
 
 InputFile = class extends File {
     results = undefined;
-
+    
     constructor(file){
         super([file], file.name, {type: file.type, lastModified:file.lastModified})
     }
