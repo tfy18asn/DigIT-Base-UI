@@ -164,9 +164,8 @@ class App(flask.Flask):
         
         self.route('/process_image/<imagename>')(self.process_image)
         self.route('/training', methods=['POST'])(self.training)
-        self.route('/save_model')(self.save_model)
+        self.route('/save_model', methods=['POST'])(self.save_model)
         self.route('/stop_training')(self.stop_training)
-        self.route('/save_soil_image', methods=['POST'])(self.save_soil_image)
 
         @self.after_request
         def add_header(r):
@@ -240,9 +239,11 @@ class App(flask.Flask):
         return 'OK' if ok else 'INTERRUPTED'
     
     def save_model(self):
-        newname    = flask.request.args['newname']
+        requestform  = flask.request.get_json(force=True)
+        print(requestform)
+        newname    = requestform['newname']
         print('Saving training model as:', newname)
-        modeltype = flask.request.args.get('options[training_type]', 'detection')
+        modeltype = requestform['options']['training_type']
         path      = f'{get_models_path()}/{modeltype}/{newname}'
         settings = self.get_settings()
         settings.models[modeltype].save(path)
@@ -251,12 +252,9 @@ class App(flask.Flask):
 
         # Retrieve information about the saved model from JS given by user
         # make it look better, does not need to get all info one by one?
-        info_author = flask.request.args.get('info[author]')
-        info_ecosystem = flask.request.args.get('info[ecosystem]')
-        info = {
-            'author'    : info_author,
-            'ecosystem' : info_ecosystem
-        }
+        info = {}
+        info['info'] =  requestform['info']
+        info['training_images'] =  []
         # Paths to information-directory and for the information file
         path_info  = f'{get_models_path()}/{modeltype}/information'
         path_model_info  = f'{get_models_path()}/{modeltype}/information/{newname}'
@@ -264,9 +262,22 @@ class App(flask.Flask):
         if not os.path.exists(path_info):
             # If not, create it
             os.makedirs(path_info)
+        # Extract files related to the training of this model
+        imagefiles = requestform['filenames']
+        fullpaths = [get_cache_path(fname) for fname in imagefiles]
+        if not all([os.path.exists(fname) for fname in fullpaths]):
+            flask.abort(404)
+        ## Save max 2 images per model
+        if len(imagefiles)>2:
+            imagefiles = imagefiles[0:2]
+        # Save images in a specified folder
+        for f in imagefiles:
+            # Copy image to folder where it should be stored
+            shutil.copy(get_cache_path(f),os.path.join(path_to_main_module(),'soiltypes'))
+            # Add imagefile to list connecting all images to a soil type
+            info['training_images'].append(f)
         # Write information to json-file with correct path
         json.dump(info, open(path_model_info,'w'), indent=2) 
-
         return 'OK'
 
     def stop_training(self):
@@ -306,37 +317,6 @@ class App(flask.Flask):
             args = dict(host=args.host, port=args.port, debug=args.debug)
         super().run(**args)
 
-    def save_soil_image(self):
-        ## Files to save
-        requestform  = flask.request.get_json(force=True)
-        imagefiles = requestform['filenames']
-        fullpaths = [get_cache_path(fname) for fname in imagefiles]
-        if not all([os.path.exists(fname) for fname in fullpaths]):
-            flask.abort(404)
-        ## Save max 2 images per model
-        if len(imagefiles)>2:
-            imagefiles = imagefiles[0:2]
-
-        # 
-        soiltype = requestform['info']['ecosystem']
-        path_to_json = os.path.join(path_to_main_module(),'soiltypes','imagetosoiltype.json')
-        if os.path.exists(path_to_json):
-            mapping_file = json.load(open(path_to_json,'r'))
-        else: 
-            mapping_file = {}
-        # If new soiltype add it too dictionary
-        if soiltype not in mapping_file:
-            mapping_file[soiltype] = []
-        # Save images in a specified folder
-        for f in imagefiles:
-            # Copy image to folder where it shoudl be stored
-            shutil.copy(get_cache_path(f),os.path.join(path_to_main_module(),'soiltypes'))
-            # Add imagefile to list connecting all images to a soil type
-            mapping_file[soiltype].append(f)
-
-        # Write information to json-file with correct path
-        json.dump(mapping_file, open(path_to_json,'w'), indent=2) 
-        return 'AYAYAYA'
 
 
 def copytree(source, target):
