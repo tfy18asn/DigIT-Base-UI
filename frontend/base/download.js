@@ -4,7 +4,7 @@ BaseDownload = class {
         var $root     = $(event.target).closest('[filename]')
         var filename  = $root.attr('filename')
 
-        var zipdata  = this.zipdata_for_file(filename);
+        var zipdata  = await this.zipdata_for_file(filename);
         if(zipdata == undefined){
             $('body').toast({message:'Result download failed.', class:'error'})
             return
@@ -12,9 +12,9 @@ BaseDownload = class {
         download_zip(`${filename}.results.zip`, zipdata)
     }
 
-    static on_download_all(event){
+    static async on_download_all(event){
         var filenames = Object.keys(GLOBAL.files)
-        var zipdata   = this.zipdata_for_files(filenames)
+        var zipdata   = await this.zipdata_for_files(filenames)
         if(Object.keys(zipdata).length==0)
             return
         download_zip('results.zip', zipdata)
@@ -29,10 +29,10 @@ BaseDownload = class {
         return zipdata;
     }
 
-    static zipdata_for_files(filenames){
+    static async zipdata_for_files(filenames){
         var zipdata   = {}
         for(var filename of filenames){
-            var fzipdata = this.zipdata_for_file(filename)
+            var fzipdata = await this.zipdata_for_file(filename)
             if(fzipdata == undefined)
                 continue;
             
@@ -42,7 +42,6 @@ BaseDownload = class {
         return zipdata;
     }
 }
-
 
 ObjectDetectionDownload = class extends BaseDownload{
     //callback to download annotation .json files
@@ -80,7 +79,6 @@ ObjectDetectionDownload = class extends BaseDownload{
     }
 }
 
-
 const LABELME_TEMPLATE = {
     //version: "3.16.2",
     flags: {},
@@ -100,5 +98,6 @@ const LABELME_SHAPE_TEMPLATE = {
     shape_type: "rectangle",
     flags: {}
 }
+
 
 
