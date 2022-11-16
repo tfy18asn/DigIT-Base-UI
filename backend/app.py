@@ -167,6 +167,8 @@ class App(flask.Flask):
         self.route('/save_model')(self.save_model)
         self.route('/stop_training')(self.stop_training)
 
+        self.route('/modelinformation_download')(self.modelinformation_download)
+
         @self.after_request
         def add_header(r):
             """Prevent caching."""
@@ -245,6 +247,25 @@ class App(flask.Flask):
         path      = f'{get_models_path()}/{modeltype}/{newname}'
         settings = self.get_settings()
         settings.models[modeltype].save(path)
+
+        # Retrieve information about the saved model from JS given by user
+        # make it look better, does not need to get all info one by one?
+        info_author = flask.request.args.get('info[author]')
+        info_ecosystem = flask.request.args.get('info[ecosystem]')
+        info = {
+            'author'    : info_author,
+            'ecosystem' : info_ecosystem
+        }
+        # Paths to information-directory and for the information file
+        path_info  = f'{get_models_path()}/{modeltype}/information'
+        path_model_info  = f'{get_models_path()}/{modeltype}/information/{newname}'
+        # Check if information directory exist
+        if not os.path.exists(path_info):
+            # If not, create it
+            os.makedirs(path_info)
+        # Write information to json-file with correct path
+        json.dump(info, open(path_model_info,'w'), indent=2) 
+
         settings.active_models[modeltype] = newname
         update_user_settings(settings)
         return 'OK'
@@ -286,6 +307,19 @@ class App(flask.Flask):
             args = dict(host=args.host, port=args.port, debug=args.debug)
         super().run(**args)
 
+    def modelinformation_download(self):
+        modeltype = flask.request.args.get('training_type')
+        modelname    = flask.request.args.get('modelname')
+
+        path = f'{get_models_path()}/{modeltype}/information/{modelname}'
+        if (os.path.exists(path)):
+            
+            file = open(path, 'r')
+            info_dict = json.load(file)
+            return flask.jsonify(info_dict)
+        else:    
+            return 'OK'
+            
 
 def copytree(source, target):
     '''shutil.copytree() that ignores if target folder exists. (python 3.7)'''
