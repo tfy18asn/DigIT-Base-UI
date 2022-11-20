@@ -52,6 +52,8 @@ def get_frontend_folders():
         os.path.join(path_to_main_module(), 'frontend'),             #subproject
     ]
 
+def get_image_path():
+    return os.path.join(path_to_main_module(),'frontend','TrainingImages')
 
 def update_user_settings(settings):
     # Updates settings stored for user
@@ -252,8 +254,8 @@ class App(flask.Flask):
 
         # Retrieve information about the saved model from JS given by user
         # make it look better, does not need to get all info one by one?
-        info = {}
-        info['info'] =  requestform['info']
+        info =  requestform['info']
+        info['modelname'] = newname
         info['training_images'] =  []
         # Paths to information-directory and for the information file
         path_info  = f'{get_models_path()}/{modeltype}/information'
@@ -270,12 +272,20 @@ class App(flask.Flask):
         ## Save max 2 images per model
         if len(imagefiles)>2:
             imagefiles = imagefiles[0:2]
-        # Save images in a specified folder
-        for f in imagefiles:
-            # Copy image to folder where it should be stored
-            shutil.copy(get_cache_path(f),os.path.join(path_to_main_module(),'soiltypes'))
-            # Add imagefile to list connecting all images to a soil type
-            info['training_images'].append(f)
+        if imagefiles[0].endswith('.tiff'):
+            import PIL.Image
+            for f in imagefiles:
+                original = PIL.Image.open(get_cache_path(f))
+                file, extension = os.path.splitext(f)
+                original.save(os.path.join(get_image_path(),f'{file}.png'), format = 'PNG')
+                info['training_images'].append(f'{file}.png')
+        else:
+            # Save images in a specified folder
+            for f in imagefiles:
+                # Copy image to folder where it should be stored
+                shutil.copy(get_cache_path(f),get_image_path())
+                # Add imagefile to list connecting all images to a soil type
+                info['training_images'].append(f)
         # Write information to json-file with correct path
         json.dump(info, open(path_model_info,'w'), indent=2) 
         return 'OK'
@@ -304,12 +314,22 @@ class App(flask.Flask):
             if os.path.abspath(source) != os.path.abspath(self.static_folder):
                 #shutil.copytree(source, target)
                 copytree(source, self.static_folder)
+
+
+        ## Extract stored model informations in a list
+        mypath = f'{get_models_path()}/detection/information'
+        onlyfiles = [os.path.join(mypath, f) for f in os.listdir(mypath) if os.path.isfile(os.path.join(mypath, f))]
+        Allinfo = []
+        for f in onlyfiles:
+            Allinfo.append(json.load(open(f,'r')))
+        print(Allinfo) 
+        ##       
         
         env   = jinja2.Environment(loader=jinja2.FileSystemLoader(self.template_folders))
         tmpl  = env.get_template('index.html')
         outf  = os.path.join(self.static_folder, 'index.html')
         os.makedirs(os.path.dirname(outf), exist_ok=True)
-        open(outf,'w', encoding="utf-8").write(tmpl.render(warning='GENERATED FILE. DO NOT EDIT MANUALLY'))
+        open(outf,'w', encoding="utf-8").write(tmpl.render(warning='GENERATED FILE. DO NOT EDIT MANUALLY', Allinfo = Allinfo))
     
     def run(self, parse_args=True, **args):
         if parse_args:
