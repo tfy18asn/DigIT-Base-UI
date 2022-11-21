@@ -169,6 +169,8 @@ class App(flask.Flask):
         self.route('/save_model', methods=['POST'])(self.save_model)
         self.route('/stop_training')(self.stop_training)
 
+        self.route('/modelinformation_download')(self.modelinformation_download)
+
         @self.after_request
         def add_header(r):
             """Prevent caching."""
@@ -339,6 +341,19 @@ class App(flask.Flask):
             args = dict(host=args.host, port=args.port, debug=args.debug)
         super().run(**args)
 
+    def modelinformation_download(self):
+        modeltype = flask.request.args.get('training_type')
+        modelname    = flask.request.args.get('modelname')
+
+        path = f'{get_models_path()}/{modeltype}/information/{modelname}'
+        if (os.path.exists(path)):
+            
+            file = open(path, 'r')
+            info_dict = json.load(file)
+            return flask.jsonify(info_dict)
+        else:    
+            return 'OK'
+            
 
 
 def copytree(source, target):
