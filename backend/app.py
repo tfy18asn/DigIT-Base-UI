@@ -272,6 +272,8 @@ class App(flask.Flask):
         ## Save max 2 images per model
         if len(imagefiles)>2:
             imagefiles = imagefiles[0:2]
+        ## Save images in folder
+        ## Fixme: tiff files needs to be reformated to be shown in browser. 
         if imagefiles[0].endswith('.tiff'):
             import PIL.Image
             for f in imagefiles:
