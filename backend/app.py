@@ -92,6 +92,10 @@ class App(flask.Flask):
             print('Frontend paths:  ', self.frontend_folders)
         print()
 
+
+        if not os.path.exists(get_image_path()):
+            # If not, create it
+            os.makedirs(get_image_path())
         setup_cache('cache')
         self.recompile_static()
 
