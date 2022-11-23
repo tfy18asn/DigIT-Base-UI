@@ -99,6 +99,25 @@ BaseDetection = class {
         var $result_overlay = $root.find(`img.overlay`)
         GLOBAL.App.ImageLoading.set_image_src($result_overlay, segmentation)
         GLOBAL.files[filename].set_results(results)
+
+        // If results is defined, set model used to process to the stats (detection and tracking)
+        if (results != undefined){
+            GLOBAL.files[filename].results.statistics['detection_model'] = GLOBAL.settings.active_models.detection
+            GLOBAL.files[filename].results.statistics['tracking_model'] = GLOBAL.settings.active_models.tracking
+            // Add date to statistics
+            var date = new Date();
+            date = [
+                date.getDate().toString().padStart(2,'0'),
+                (date.getMonth()+1).toString().padStart(2,'0'),
+                date.getFullYear(),
+            ].join('/');
+            GLOBAL.files[filename].results.statistics['date'] = date
+
+            // Check if exclusion mask is used
+            if ($('#exclusionmask-toggle').get(0).checked){
+                GLOBAL.files[filename].results.statistics['exclusion_mask'] = GLOBAL.settings.active_models.exclusion_mask
+            }
+        }
         GLOBAL.App.Boxes.refresh_boxes(filename)
 
         this.set_processed(filename, clear)
