@@ -32,7 +32,9 @@ function set_brightness(filename, brightness){
     const $root = $(`[filename="${filename}"]`)
     $root.find('.brightness-slider').slider('set value', brightness*10 )
 }
-
+function home(){
+$('.tabs .item[data-tab="get_started"]').click()
+}
 
 ViewControls = class {
     //callback for panning

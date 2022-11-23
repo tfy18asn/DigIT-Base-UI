@@ -25,7 +25,7 @@
     {{ tabs | indent }}
 
     <!--changed the data-tab to analysis here otherwise detection was always "active" and could not be chosen-->
-    <div class="ui active tab segment unselectable" data-tab="analysis" style="padding:0">
+    <div class="ui bottom attached tab" data-tab="analysis" style="padding:0">
         {{ analysis_tab    | indent(8) }}
     </div>
 
@@ -35,7 +35,7 @@
 
     {{ extra | indent }}
 
-    <div class="ui bottom attached tab" data-tab="get_started">
+    <div class="ui active tab segment unselectable" data-tab="get_started">
     {{ extra2 | indent }}
     </div>
 
@@ -54,6 +54,13 @@
     <div class="ui message">
         <p>Information about how the analysis tab works!</p>
     </div>
+
+
+      <a id="upload_training_button" class="ui blue labeled icon button" onclick="{{ app }}.Settings.on_settings()">
+        <i class="calculator icon"></i>
+        Choose Model 
+      </a>
+      
 
     <div class="ui hidden section divider"></div>
     <label for="input_images" class="ui basic icon button" >
