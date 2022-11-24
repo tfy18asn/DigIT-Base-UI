@@ -29,8 +29,7 @@ BaseImageLoading = class {
         if($result_img.length && !this.is_image_loaded($result_img))
             this.set_image_src($result_img, file);  //TODO: generate new dummy image with same aspect ratio
     }
-    
-    
+
     static set_image_src($img, file){
         if( (file instanceof File)
          && (file.type=="image/tiff" || file.name.endsWith('.tif') || file.name.endsWith('.tiff'))) {
