@@ -52,6 +52,8 @@ def get_frontend_folders():
         os.path.join(path_to_main_module(), 'frontend'),             #subproject
     ]
 
+def get_image_path():
+    return os.path.join(path_to_main_module(),'frontend','TrainingImages')
 
 def update_user_settings(settings):
     # Updates settings stored for user
@@ -90,6 +92,10 @@ class App(flask.Flask):
             print('Frontend paths:  ', self.frontend_folders)
         print()
 
+
+        if not os.path.exists(get_image_path()):
+            # If not, create it
+            os.makedirs(get_image_path())
         setup_cache('cache')
         self.recompile_static()
 
@@ -164,7 +170,7 @@ class App(flask.Flask):
         
         self.route('/process_image/<imagename>')(self.process_image)
         self.route('/training', methods=['POST'])(self.training)
-        self.route('/save_model')(self.save_model)
+        self.route('/save_model', methods=['POST'])(self.save_model)
         self.route('/stop_training')(self.stop_training)
 
         self.route('/modelinformation_download')(self.modelinformation_download)
@@ -241,21 +247,22 @@ class App(flask.Flask):
         return 'OK' if ok else 'INTERRUPTED'
     
     def save_model(self):
-        newname    = flask.request.args['newname']
+        requestform  = flask.request.get_json(force=True)
+        print(requestform)
+        newname    = requestform['newname']
         print('Saving training model as:', newname)
-        modeltype = flask.request.args.get('options[training_type]', 'detection')
+        modeltype = requestform['options']['training_type']
         path      = f'{get_models_path()}/{modeltype}/{newname}'
         settings = self.get_settings()
         settings.models[modeltype].save(path)
+        settings.active_models[modeltype] = newname
+        update_user_settings(settings)
 
         # Retrieve information about the saved model from JS given by user
         # make it look better, does not need to get all info one by one?
-        info_author = flask.request.args.get('info[author]')
-        info_ecosystem = flask.request.args.get('info[ecosystem]')
-        info = {
-            'author'    : info_author,
-            'ecosystem' : info_ecosystem
-        }
+        info =  requestform['info']
+        info['modelname'] = newname
+        info['training_images'] =  []
         # Paths to information-directory and for the information file
         path_info  = f'{get_models_path()}/{modeltype}/information'
         path_model_info  = f'{get_models_path()}/{modeltype}/information/{newname}'
@@ -263,11 +270,32 @@ class App(flask.Flask):
         if not os.path.exists(path_info):
             # If not, create it
             os.makedirs(path_info)
+        # Extract files related to the training of this model
+        imagefiles = requestform['filenames']
+        fullpaths = [get_cache_path(fname) for fname in imagefiles]
+        if not all([os.path.exists(fname) for fname in fullpaths]):
+            flask.abort(404)
+        ## Save max 2 images per model
+        if len(imagefiles)>2:
+            imagefiles = imagefiles[0:2]
+        ## Save images in folder
+        ## Fixme: tiff files needs to be reformated to be shown in browser. 
+        if imagefiles[0].endswith('.tiff'):
+            import PIL.Image
+            for f in imagefiles:
+                original = PIL.Image.open(get_cache_path(f))
+                file, extension = os.path.splitext(f)
+                original.save(os.path.join(get_image_path(),f'{file}.png'), format = 'PNG')
+                info['training_images'].append(f'{file}.png')
+        else:
+            # Save images in a specified folder
+            for f in imagefiles:
+                # Copy image to folder where it should be stored
+                shutil.copy(get_cache_path(f),get_image_path())
+                # Add imagefile to list connecting all images to a soil type
+                info['training_images'].append(f)
         # Write information to json-file with correct path
         json.dump(info, open(path_model_info,'w'), indent=2) 
-
-        settings.active_models[modeltype] = newname
-        update_user_settings(settings)
         return 'OK'
 
     def stop_training(self):
@@ -294,12 +322,22 @@ class App(flask.Flask):
             if os.path.abspath(source) != os.path.abspath(self.static_folder):
                 #shutil.copytree(source, target)
                 copytree(source, self.static_folder)
+
+
+        ## Extract stored model informations in a list
+        mypath = f'{get_models_path()}/detection/information'
+        onlyfiles = [os.path.join(mypath, f) for f in os.listdir(mypath) if os.path.isfile(os.path.join(mypath, f))]
+        Allinfo = []
+        for f in onlyfiles:
+            Allinfo.append(json.load(open(f,'r')))
+        print(Allinfo) 
+        ##       
         
         env   = jinja2.Environment(loader=jinja2.FileSystemLoader(self.template_folders))
         tmpl  = env.get_template('index.html')
         outf  = os.path.join(self.static_folder, 'index.html')
         os.makedirs(os.path.dirname(outf), exist_ok=True)
-        open(outf,'w', encoding="utf-8").write(tmpl.render(warning='GENERATED FILE. DO NOT EDIT MANUALLY'))
+        open(outf,'w', encoding="utf-8").write(tmpl.render(warning='GENERATED FILE. DO NOT EDIT MANUALLY', Allinfo = Allinfo))
     
     def run(self, parse_args=True, **args):
         if parse_args:
@@ -320,6 +358,7 @@ class App(flask.Flask):
         else:    
             return 'OK'
             
+
 
 def copytree(source, target):
     '''shutil.copytree() that ignores if target folder exists. (python 3.7)'''

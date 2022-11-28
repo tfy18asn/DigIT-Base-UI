@@ -1,6 +1,5 @@
 import json, os, glob, copy
 from . import app
-from flask import session
 import torch
 
 class Settings:
