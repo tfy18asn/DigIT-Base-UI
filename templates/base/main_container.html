@@ -20,8 +20,10 @@
   <div
     class="ui active tab segment unselectable"
     data-tab="analysis"
-    style="padding: 0">
+    style="padding: 0; background-color: #f8f8f9
+    ;">
     {{ analysis_tab | indent(8) }}
+    
   </div>
 
   <div 
@@ -37,13 +39,14 @@
 
 {% macro sub_main_container( app, tabs = base_tabs(),
 detection_tab = base_detection_tab(app), extra = "" ) %}
-<div class="ui hidden section divider"></div>
+<div class="ui hidden section divider" style="background-color: #f8f8f9
+;"></div>
 <!--whitespace-->
 
 <div class="ui container page-wide" id="sub_main-container">
   {{ tabs | indent }}
   <div class="ui hidden section divider"></div>
-  <label for="input_images" class="ui basic icon button">
+  <label for="input_images" class="ui basic icon button" id ="analysis_input_images">
     <i class="images outline icon"></i>
     Load Input Images For Analysis
   </label>
@@ -56,7 +59,7 @@ detection_tab = base_detection_tab(app), extra = "" ) %}
     multiple
   />
 
-  <label for="input_folder" class="ui basic icon button">
+  <label for="input_folder" class="ui basic icon button" id ="analysis_input_folder">
     <i class="folder outline icon"></i>
     Load Input Folder For Analysis
   </label>
