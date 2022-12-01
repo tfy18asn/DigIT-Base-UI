@@ -146,7 +146,7 @@
 
 
 {% macro starting_point_model_infobox() %}
-<div class="ui hidden message" id="training-model-info-message">
+<div class="ui hidden message" id="training-model-info-message" style="background-color:#bfe3ca;">
   <p>Starting point for retraining: <b id="training-model-info-label">xxx</b></p>
 </div>
 {% endmacro %}
@@ -173,7 +173,7 @@
 
 
 {% macro start_training_button(trainingmodule) %}
-<label class="ui violet basic fluid button" onclick="{{ trainingmodule }}.on_start_training()" id="start-training-button" style="margin-bottom: 20px;">
+<label class="ui fluid button" onclick="{{ trainingmodule }}.on_start_training()" id="start-training-button" style="margin-bottom: 20px;">
   <i class="shuffle icon"></i>
   Start Training
 </label>
