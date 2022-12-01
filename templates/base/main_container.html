@@ -77,7 +77,13 @@ detection_tab = base_detection_tab(app), extra = "" ) %}
     data-tab="detection"
     style="padding: 0"
   >
-    <div class="ui message">Information about the detection tab!</div>
+    <div class="ui message">
+      <h3>Upload images to analyze</h3>
+      Depending on what upload button you choose you can either select specific images or an folder containing all images. 
+      <h3> Process images </h3>
+      The images can now be processed. You can either select to process all uploaded images, or scroll in the table and process single images.
+      
+    </div>
     {{ detection_tab | indent(8) }}
   </div>
 
@@ -88,8 +94,5 @@ detection_tab = base_detection_tab(app), extra = "" ) %}
 <!--Is it possible for a message-box to appear after the pics have been processed with information
 about how to intepret the results?-->
 
-{#
-<div class="ui message">
-  <p>Information about the analysis tag</p>
-</div>#}
+
 {% endmacro %}
