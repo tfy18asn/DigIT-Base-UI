@@ -32,6 +32,9 @@ function set_brightness(filename, brightness){
     const $root = $(`[filename="${filename}"]`)
     $root.find('.brightness-slider').slider('set value', brightness*10 )
 }
+function home(){
+  $('.tabs .item[data-tab="home"]').click()
+}
 
 
 ViewControls = class {
@@ -46,12 +49,12 @@ ViewControls = class {
     static on_transformbox_mousemove(event){
         //empty
     }
-    
+
     //callback for zooming
     static on_transformbox_wheel(event){
         if(!event.shiftKey)
             return;
-            
+
         event.preventDefault();
         var $el    = $(event.target).closest('.transform-box');
         var xform   = parse_css_matrix($el.css('transform'));
@@ -62,7 +65,7 @@ ViewControls = class {
         $el.css('transform', matrix);
         //$el.find('svg').find('circle.cursor').attr('r', 5/scale)
     }
-    
+
     //reset view
     static on_viewbox_dblclick(event){
         if(!event.shiftKey)
@@ -70,28 +73,28 @@ ViewControls = class {
         var $el   = $(event.target).closest('.view-box').find('.transform-box');
         $el.css('transform', "matrix(1,0,0,1,0,0)");
     }
-    
-    
+
+
     static start_move_image(mousedown_event){
         var $el     = $(mousedown_event.target).closest('.transform-box');
         var click_y = mousedown_event.pageY;
         var click_x = mousedown_event.pageX;
         //prevent selection of text
         mousedown_event.preventDefault();
-    
+
         $(document).on('mousemove', function(mousemove_event) {
             if( (mousemove_event.buttons & 0x01)==0 ){
                 //mouse up
                 $(document).off('mousemove');
                 return;
             }
-    
+
             var delta_y = mousemove_event.pageY - click_y;
             var delta_x = mousemove_event.pageX - click_x;
                 click_y = mousemove_event.pageY;
                 click_x = mousemove_event.pageX;
             mousemove_event.stopPropagation();
-            
+
             var xform  = parse_css_matrix($el.css('transform'));
             var x      = xform.x + delta_x;
             var y      = xform.y + delta_y;
@@ -103,9 +106,7 @@ ViewControls = class {
     static toggle_results(filename){
         const $root    = $(`[filename="${filename}"]`)
         const active   = $root.find('.show-results-checkbox').checkbox('is checked')
-    
+
         $root.find('.input.overlay').toggle(active)
     }
 }
-
-
