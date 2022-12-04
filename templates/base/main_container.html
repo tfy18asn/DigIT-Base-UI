@@ -8,7 +8,7 @@
   <a class="active item" data-tab="detection2"> Detection </a>
   <a class="item" data-tab="training2"> Training </a>
 </div>
-{% endmacro %} 
+{% endmacro %}
 
 {% macro main_container( app, tabs = base_tabs(), analysis_tab = base_detection_tab(app), 
   training_tab = base_training_tab(app), home_tab = roots_home_tab(), extra = "" ) %}
@@ -22,13 +22,18 @@
   <div
     class="ui bottom attached tab"
     data-tab="analysis"
-    style="padding: 0">
+    style="padding: 0; background-color: #f8f8f9
+    ;">
     {{ analysis_tab | indent(8) }}
+
   </div>
 
   <div 
     class="ui bottom attached tab" 
     data-tab="training">
+  <div
+    class="ui bottom attached tab"
+      data-tab="training">
     {{ training_tab | indent(8) }}
   </div>
 
@@ -44,15 +49,17 @@
 {% endmacro %}
 
 
-{% macro sub_main_container( app, tabs = base_tabs(), detection_tab = base_detection_tab(app), extra = "" ) %}
-<div class="ui hidden section divider"></div>
+{% macro sub_main_container( app, tabs = base_tabs(),
+detection_tab = base_detection_tab(app), extra = "" ) %}
+<div class="ui header" style="background-color: #f8f8f9
+;"></div>
 <!--whitespace-->
 
 <div class="ui container page-wide" id="sub_main-container">
   {{ tabs | indent }}
 
   <div class="ui hidden section divider"></div>
-  <label for="input_images" class="ui basic icon button">
+  <label for="input_images" class="ui basic icon button" id ="analysis_input_images">
     <i class="images outline icon"></i>
     Load Input Images For Analysis
   </label>
@@ -65,7 +72,7 @@
     multiple
   />
 
-  <label for="input_folder" class="ui basic icon button">
+  <label for="input_folder" class="ui basic icon button" id ="analysis_input_folder">
     <i class="folder outline icon"></i>
     Load Input Folder For Analysis
   </label>
@@ -83,19 +90,22 @@
     data-tab="detection"
     style="padding: 0"
   >
-    <div class="ui message">Information about the detection tab!</div>
+    <div class="ui message">
+      <h3>Upload images to analyze</h3>
+      Depending on what upload button you choose you can either select specific images or an folder containing all images.
+      <h3> Process images </h3>
+      The images can now be processed. You can either select to process all uploaded images, or scroll in the table and process single images.
+
+    </div>
     {{ detection_tab | indent(8) }}
   </div>
 
   {{ extra | indent }}
-  
+
 </div>
 
 <!--Is it possible for a message-box to appear after the pics have been processed with information
 about how to intepret the results?-->
 
-{#
-<div class="ui message">
-  <p>Information about the analysis tag</p>
-</div>#}
+
 {% endmacro %}

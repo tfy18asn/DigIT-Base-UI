@@ -13,13 +13,13 @@
 }
 
 .box-overlay .box-label-container {
-    position:         absolute; 
-    display:          flex; 
-    top:              -20px; 
-    height:            20px; 
+    position:         absolute;
+    display:          flex;
+    top:              -20px;
+    height:            20px;
     width:            calc(100% + 4px);
     min-width:        fit-content;
-    left:             -2px; 
+    left:             -2px;
     right:            -2px;
     background-color:#ffffffbb;
     border:            0;
@@ -99,4 +99,3 @@
     bottom:            -5px;
     right:             -5px;
 }
-
