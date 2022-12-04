@@ -33,7 +33,7 @@ function set_brightness(filename, brightness){
     $root.find('.brightness-slider').slider('set value', brightness*10 )
 }
 function home(){
-$('.tabs .item[data-tab="get_started"]').click()
+$('.tabs .item[data-tab="home"]').click()
 }
 
 ViewControls = class {

@@ -1,16 +1,18 @@
-{% from 'base/detection_tab.html' import detection_tab as base_detection_tab %}
-{% from 'base/training_tab.html' import training_tab as base_training_tab %} 
-{% from 'roots/detection_tab.html' import information_detection as roots_info_detection %} 
+{% from 'base/detection_tab.html'  import detection_tab as base_detection_tab %}
+{% from 'base/training_tab.html'   import training_tab as base_training_tab %} 
+{% from 'roots/detection_tab.html' import information_detection as roots_info_detection %}
+{% from 'roots/home_tab.html'      import home_tab as roots_home_tab %}
 
 {% macro base_tabs() %}
-<div class="ui pointing secondary tabs menu">
-  <a class="active item" data-tab="detection2">Detection</a>
+<div class="ui pointing secondary tabs menu" style="background-color: blue;">
+  <a class="active item" data-tab="detection2"> Detection </a>
   <a class="item" data-tab="training2"> Training </a>
 </div>
 {% endmacro %} 
 
+{% macro main_container( app, tabs = base_tabs(), analysis_tab = base_detection_tab(app), 
+  training_tab = base_training_tab(app), home_tab = roots_home_tab(), extra = "" ) %}
 
-{% macro main_container( app, tabs = base_tabs(), analysis_tab = base_detection_tab(app), training_tab = base_training_tab(app), extra = "" ) %}
 {#<div class="ui hidden section divider"></div>#}
 
 <div class="ui container page-wide" id="main-container">
@@ -18,7 +20,7 @@
 
  <!-- changed the data-tab to analysis here otherwise detection was always "active" and could not be chosen-->
   <div
-    class="ui active tab segment unselectable"
+    class="ui bottom attached tab"
     data-tab="analysis"
     style="padding: 0">
     {{ analysis_tab | indent(8) }}
@@ -26,32 +28,28 @@
 
   <div 
     class="ui bottom attached tab" 
-      data-tab="training">
+    data-tab="training">
     {{ training_tab | indent(8) }}
   </div>
 
+  <div
+    class="ui active tab segment unselectable"
+    data-tab="home">
+    {{ home_tab }}
+  </div>
+
   {{ extra | indent }}
-    <div class="ui active tab segment unselectable" data-tab="get_started">
-    {{ extra2 | indent }}
-    </div>
 
 </div>
 {% endmacro %}
 
 
-{% macro sub_main_container( app, tabs = base_tabs(),
-detection_tab = base_detection_tab(app), extra = "" ) %}
+{% macro sub_main_container( app, tabs = base_tabs(), detection_tab = base_detection_tab(app), extra = "" ) %}
 <div class="ui hidden section divider"></div>
 <!--whitespace-->
 
 <div class="ui container page-wide" id="sub_main-container">
   {{ tabs | indent }}
-
-      <a id="upload_training_button" class="ui blue labeled icon button" onclick="{{ app }}.Settings.on_settings()">
-        <i class="calculator icon"></i>
-        Choose Model 
-      </a>
-      
 
   <div class="ui hidden section divider"></div>
   <label for="input_images" class="ui basic icon button">

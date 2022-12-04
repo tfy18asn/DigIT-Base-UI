@@ -4,8 +4,12 @@
     background-color: rgba(255,255,255,0.0);
 }
 
+#home-icon {
+    cursor:pointer;
+}
+
 .box-overlay:hover {
-    background-color: rgba(255,255,255,0.5);
+    background-color: rgba(179, 38, 38, 0.5);
 }
 
 .box-overlay .box-label-container {
