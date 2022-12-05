@@ -16,7 +16,6 @@
 
 <div class="ui container page-wide" id="main-container">
   {{ tabs | indent }}
-
  <!-- changed the data-tab to analysis here otherwise detection was always "active" and could not be chosen-->
   <div
     class="ui bottom attached tab"
@@ -31,11 +30,6 @@
     class="ui bottom attached tab"
       data-tab="training">
     {{ training_tab | indent(8) }}
-  </div>
-
-  <div class="ui active tab segment unselectable"
-    data-tab="home">
-    {{ home_tab }}
   </div>
 
   {{ extra | indent }}
