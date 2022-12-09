@@ -1,8 +1,8 @@
 {% macro top_menu(app, filemenu_extras="") %}
 
 <div class="ui container menu page-wide">
-  <div class="header item" style="padding-top: 0; padding-bottom: 0">
-    <img src="logo.svg" style="width: 5.5em" />
+  <div class="header item" style="padding-top: 0; padding-bottom: 0; padding-left: 20;">
+    <img id="home-icon" src="logo.svg" style="width: 5.5em" onclick="home()" >
   </div>
 
   <h2 class="ui header">
@@ -74,4 +74,4 @@
   </a>
 </div>
 
-{% endmacro %} 
+{% endmacro %}
